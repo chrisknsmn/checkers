@@ -6,28 +6,32 @@ Simple checkers game app.
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - npm or yarn
 
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd checkers
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Start the development server:
+
 ```bash
 npm run dev
 ```
 
 4. Open your browser and navigate to:
+
 ```
 http://localhost:3000
 ```
@@ -79,6 +83,7 @@ checkers/
 ## Features
 
 ### Current Features
+
 - Modern Next.js 15 setup with TypeScript
 - Tailwind CSS styling with custom game themes
 - shadcn/ui components for consistent UI
@@ -87,6 +92,7 @@ checkers/
 - Jest testing framework setup
 
 ### TODO
+
 - Interactive 8x8 checkers board
 - Drag-and-drop piece movement
 - AI opponent with configurable difficulty
@@ -114,3 +120,7 @@ checkers/
 - Pieces become kings when reaching the opposite end
 - Kings can move backwards
 - Win by capturing all opponent pieces or blocking all moves
+
+@dnd-kit/core
+
+
