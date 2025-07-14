@@ -52,12 +52,24 @@ export function useGame() {
       selectPieceHandler(position);
     }
   }, [gameState, selectPieceHandler, makeMoveHandler]);
+
+  const handleDragEnd = useCallback((from: Position, to: Position) => {
+    const fromCell = gameState.board[from.row][from.col];
+    const toCell = gameState.board[to.row][to.col];
+    
+    if (fromCell.checker && 
+        fromCell.checker.color === gameState.currentPlayer && 
+        toCell.isValidMove) {
+      makeMoveHandler(to);
+    }
+  }, [gameState, makeMoveHandler]);
   
   return {
     gameState,
     selectPiece: selectPieceHandler,
     makeMove: makeMoveHandler,
     resetGame,
-    handleCellClick
+    handleCellClick,
+    handleDragEnd
   };
 }

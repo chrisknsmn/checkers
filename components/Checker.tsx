@@ -1,4 +1,5 @@
 import React from "react";
+import { useDraggable } from "@dnd-kit/core";
 import { Checker as CheckerType } from "@/types/game";
 import { cn } from "@/lib/utils";
 
@@ -6,19 +7,36 @@ interface CheckerProps {
   piece: CheckerType;
   isSelected?: boolean;
   onClick?: () => void;
+  isDraggable?: boolean;
+  cellId: string;
 }
 
-export function Checker({ piece, isSelected = false, onClick }: CheckerProps) {
+export function Checker({ piece, isSelected = false, onClick, isDraggable = true, cellId }: CheckerProps) {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: cellId,
+    disabled: !isDraggable,
+  });
+
+  const style = transform ? {
+    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+  } : undefined;
+
   return (
     <div
-      className={cn("checker", {
+      ref={setNodeRef}
+      style={style}
+      className={cn("checker w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-all duration-150", {
         "bg-red-500 text-white": piece.color === "RED",
         "bg-gray-800 text-white": piece.color === "BLACK",
         "ring-4 ring-yellow-400": isSelected,
-        king: piece.isKing,
+        "opacity-50": isDragging,
+        "cursor-grab": isDraggable,
+        "cursor-grabbing": isDragging,
       })}
       onClick={onClick}
       data-testid="checker"
+      {...listeners}
+      {...attributes}
     >
       {piece.isKing && <span className="text-yellow-300">♔</span>}
     </div>
