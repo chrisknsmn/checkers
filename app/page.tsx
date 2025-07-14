@@ -17,7 +17,7 @@ export default function Home() {
             />
           </div>
         </div>
-        <div className="flex items-center justify-center order-1 md:order-2 b">
+        <div className="flex items-center justify-center order-1 md:order-2 b max-h-[200px] md:max-h-full overflow-scroll">
           <GameStats gameState={gameState} onReset={resetGame} />
         </div>
       </div>
