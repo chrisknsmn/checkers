@@ -18,9 +18,7 @@ export default function Home() {
           </div>
         </div>
         <div className="flex-0 md:flex-1 flex items-center justify-center order-1 md:order-2">
-          <div className="w-full max-w-md md:max-w-none">
-            <GameStats gameState={gameState} onReset={resetGame} />
-          </div>
+          <GameStats gameState={gameState} onReset={resetGame} />
         </div>
       </div>
     </main>

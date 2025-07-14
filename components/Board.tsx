@@ -1,6 +1,23 @@
 import React, { useState } from "react";
-import { DndContext, DragEndEvent, DragOverEvent, DragStartEvent, DragOverlay, closestCenter, useDroppable, TouchSensor, MouseSensor, useSensor, useSensors } from "@dnd-kit/core";
-import { GameState, Position, Cell, Checker as CheckerType } from "@/types/game";
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverEvent,
+  DragStartEvent,
+  DragOverlay,
+  closestCenter,
+  useDroppable,
+  TouchSensor,
+  MouseSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  GameState,
+  Position,
+  Cell,
+  Checker as CheckerType,
+} from "@/types/game";
 import { Checker } from "./Checker";
 import { cn } from "@/lib/utils";
 
@@ -20,9 +37,17 @@ interface DroppableCellProps {
   gameState: GameState;
 }
 
-function DroppableCell({ id, cell, isSelected, isHovered, showValidMove, onCellClick, gameState }: DroppableCellProps) {
+function DroppableCell({
+  id,
+  cell,
+  isSelected,
+  isHovered,
+  showValidMove,
+  onCellClick,
+  gameState,
+}: DroppableCellProps) {
   const { setNodeRef, isOver } = useDroppable({ id });
-  
+
   return (
     <div
       ref={setNodeRef}
@@ -36,7 +61,8 @@ function DroppableCell({ id, cell, isSelected, isHovered, showValidMove, onCellC
           "bg-gray-200":
             cell.isDark && !cell.isValidMove && !isSelected && !isHovered,
           "bg-green-300": isSelected || showValidMove,
-          "bg-green-400": (isHovered && cell.isValidMove) || (isOver && cell.isValidMove),
+          "bg-green-400":
+            (isHovered && cell.isValidMove) || (isOver && cell.isValidMove),
           "hover:bg-green-200":
             (!cell.isDark && !cell.isValidMove && !isSelected) ||
             (cell.isDark && !cell.isValidMove && !isSelected) ||
@@ -57,12 +83,14 @@ function DroppableCell({ id, cell, isSelected, isHovered, showValidMove, onCellC
       )}
 
       {cell.isValidMove && !cell.checker && (
-        <div className={cn(
-          "w-4 h-4 bg-green-400 rounded-full opacity-80 transition-all duration-150",
-          {
-            "w-6 h-6 bg-green-500 opacity-100": isHovered || isOver,
-          }
-        )} />
+        <div
+          className={cn(
+            "w-4 h-4 bg-green-400 rounded-full opacity-80 transition-all duration-150",
+            {
+              "w-6 h-6 bg-green-500 opacity-100": isHovered || isOver,
+            }
+          )}
+        />
       )}
     </div>
   );
@@ -79,7 +107,7 @@ export function Board({ gameState, onCellClick, onDragEnd }: BoardProps) {
       tolerance: 8,
     },
   });
-  
+
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
       distance: 8,
@@ -90,7 +118,7 @@ export function Board({ gameState, onCellClick, onDragEnd }: BoardProps) {
 
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
-    const [row, col] = active.id.toString().split('-').map(Number);
+    const [row, col] = active.id.toString().split("-").map(Number);
     const checker = board[row][col].checker;
     if (checker) {
       setActiveChecker(checker);
@@ -101,7 +129,7 @@ export function Board({ gameState, onCellClick, onDragEnd }: BoardProps) {
   const handleDragOver = (event: DragOverEvent) => {
     const { over } = event;
     if (over) {
-      const [row, col] = over.id.toString().split('-').map(Number);
+      const [row, col] = over.id.toString().split("-").map(Number);
       setHoveredCell({ row, col });
     } else {
       setHoveredCell(null);
@@ -110,14 +138,14 @@ export function Board({ gameState, onCellClick, onDragEnd }: BoardProps) {
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    
+
     if (over && active.id !== over.id) {
-      const [fromRow, fromCol] = active.id.toString().split('-').map(Number);
-      const [toRow, toCol] = over.id.toString().split('-').map(Number);
-      
+      const [fromRow, fromCol] = active.id.toString().split("-").map(Number);
+      const [toRow, toCol] = over.id.toString().split("-").map(Number);
+
       onDragEnd({ row: fromRow, col: fromCol }, { row: toRow, col: toCol });
     }
-    
+
     setActiveChecker(null);
     setHoveredCell(null);
   };
@@ -130,37 +158,35 @@ export function Board({ gameState, onCellClick, onDragEnd }: BoardProps) {
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
-      <div className="h-full flex items-center justify-center">
-        <div className="w-auto h-full md:w-full aspect-square">
-          <div className="grid grid-cols-8 gap-1 p-2 bg-gray-400 w-full h-full rounded-xl">
-            {board.map((row, rowIndex) =>
-              row.map((cell, colIndex) => {
-                const isSelected =
-                  selectedPiece?.row === rowIndex &&
-                  selectedPiece?.col === colIndex;
-                const isHovered =
-                  hoveredCell?.row === rowIndex &&
-                  hoveredCell?.col === colIndex;
-                const showValidMove = cell.isValidMove && (isHovered || !activeChecker);
-                
-                return (
-                  <DroppableCell
-                    key={`${rowIndex}-${colIndex}`}
-                    id={`${rowIndex}-${colIndex}`}
-                    cell={cell}
-                    isSelected={isSelected}
-                    isHovered={isHovered}
-                    showValidMove={showValidMove}
-                    onCellClick={onCellClick}
-                    gameState={gameState}
-                  />
-                );
-              })
-            )}
-          </div>
+      <div className="w-full aspect-square max-w-full max-h-full">
+        <div className="grid grid-cols-8 gap-1 p-2 bg-gray-400 w-full h-full rounded-xl">
+          {board.map((row, rowIndex) =>
+            row.map((cell, colIndex) => {
+              const isSelected =
+                selectedPiece?.row === rowIndex &&
+                selectedPiece?.col === colIndex;
+              const isHovered =
+                hoveredCell?.row === rowIndex && hoveredCell?.col === colIndex;
+              const showValidMove =
+                cell.isValidMove && (isHovered || !activeChecker);
+
+              return (
+                <DroppableCell
+                  key={`${rowIndex}-${colIndex}`}
+                  id={`${rowIndex}-${colIndex}`}
+                  cell={cell}
+                  isSelected={isSelected}
+                  isHovered={isHovered}
+                  showValidMove={showValidMove}
+                  onCellClick={onCellClick}
+                  gameState={gameState}
+                />
+              );
+            })
+          )}
         </div>
       </div>
-      
+
       <DragOverlay>
         {activeChecker && (
           <Checker

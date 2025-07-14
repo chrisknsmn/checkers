@@ -19,7 +19,7 @@ export function GameStats({ gameState, onReset }: GameStatsProps) {
   ).length;
 
   return (
-    <div className="flex flex-col gap-4 bg-white rounded-xl p-4 shadow-lg h-full overflow-auto">
+    <div className="flex flex-col gap-4 bg-white rounded-xl p-4 shadow-lg aspect-auto md:aspect-square w-full">
       <div className="flex">
         <h2 className="text-4xl font-bold text-gray-600 flex-1">Checkers</h2>
         <div className="flex gap-4">
