@@ -146,6 +146,11 @@ export function applyMove(gameState: GameState, from: Position, to: Position): G
   const piece = board[from.row][from.col].checker;
   if (!piece) return gameState;
   
+  // Validate the move is legal
+  const validMoves = getValidMoves(gameState, from);
+  const isValidMove = validMoves.some(move => move.row === to.row && move.col === to.col);
+  if (!isValidMove) return gameState;
+  
   // Move the piece
   board[from.row][from.col].checker = null;
   board[to.row][to.col].checker = piece;

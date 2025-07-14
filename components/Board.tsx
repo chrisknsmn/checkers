@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   DndContext,
   DragEndEvent,
@@ -20,10 +20,10 @@ import {
 } from "@/types/game";
 import { Checker } from "./Checker";
 import { cn } from "@/lib/utils";
+import { getValidMoves } from "@/utils/gameUtils";
 
 interface BoardProps {
   gameState: GameState;
-  onCellClick: (position: Position) => void;
   onDragEnd: (from: Position, to: Position) => void;
 }
 
@@ -33,8 +33,9 @@ interface DroppableCellProps {
   isSelected: boolean;
   isHovered: boolean;
   showValidMove: boolean;
-  onCellClick: (position: Position) => void;
+  showHoverMove: boolean;
   gameState: GameState;
+  onCellHover: (position: Position | null) => void;
 }
 
 function DroppableCell({
@@ -43,8 +44,9 @@ function DroppableCell({
   isSelected,
   isHovered,
   showValidMove,
-  onCellClick,
+  showHoverMove,
   gameState,
+  onCellHover,
 }: DroppableCellProps) {
   const { setNodeRef, isOver } = useDroppable({ id });
 
@@ -57,10 +59,10 @@ function DroppableCell({
         "relative touch-none select-none",
         {
           "bg-gray-50":
-            !cell.isDark && !cell.isValidMove && !isSelected && !isHovered,
+            !cell.isDark && !cell.isValidMove && !isSelected && !isHovered && !showHoverMove,
           "bg-gray-200":
-            cell.isDark && !cell.isValidMove && !isSelected && !isHovered,
-          "bg-green-300": isSelected || showValidMove,
+            cell.isDark && !cell.isValidMove && !isSelected && !isHovered && !showHoverMove,
+          "bg-green-300": isSelected || showValidMove || showHoverMove,
           "bg-green-400":
             (isHovered && cell.isValidMove) || (isOver && cell.isValidMove),
           "hover:bg-green-200":
@@ -69,20 +71,20 @@ function DroppableCell({
             isSelected,
         }
       )}
-      onClick={() => onCellClick(cell.position)}
+      onMouseEnter={() => onCellHover(cell.position)}
+      onMouseLeave={() => onCellHover(null)}
       data-testid={`board-square-${id}`}
     >
       {cell.checker && (
         <Checker
           piece={cell.checker}
           isSelected={isSelected}
-          onClick={() => onCellClick(cell.position)}
           isDraggable={cell.checker.color === gameState.currentPlayer}
           cellId={id}
         />
       )}
 
-      {cell.isValidMove && !cell.checker && (
+      {(cell.isValidMove || showHoverMove) && !cell.checker && (
         <div
           className={cn(
             "w-4 h-4 bg-green-400 rounded-full opacity-80 transition-all duration-150",
@@ -96,10 +98,17 @@ function DroppableCell({
   );
 }
 
-export function Board({ gameState, onCellClick, onDragEnd }: BoardProps) {
+export function Board({ gameState, onDragEnd }: BoardProps) {
   const { board, selectedPiece } = gameState;
   const [activeChecker, setActiveChecker] = useState<CheckerType | null>(null);
   const [hoveredCell, setHoveredCell] = useState<Position | null>(null);
+  const [hoveredPiece, setHoveredPiece] = useState<Position | null>(null);
+  const [hoverValidMoves, setHoverValidMoves] = useState<Position[]>([]);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const touchSensor = useSensor(TouchSensor, {
     activationConstraint: {
@@ -120,9 +129,11 @@ export function Board({ gameState, onCellClick, onDragEnd }: BoardProps) {
     const { active } = event;
     const [row, col] = active.id.toString().split("-").map(Number);
     const checker = board[row][col].checker;
-    if (checker) {
+    if (checker && checker.color === gameState.currentPlayer) {
       setActiveChecker(checker);
-      onCellClick({ row, col });
+      // Calculate valid moves for dragging
+      const validMoves = getValidMoves(gameState, { row, col });
+      setHoverValidMoves(validMoves);
     }
   };
 
@@ -148,7 +159,65 @@ export function Board({ gameState, onCellClick, onDragEnd }: BoardProps) {
 
     setActiveChecker(null);
     setHoveredCell(null);
+    setHoverValidMoves([]);
   };
+
+  const handleCellHover = (position: Position | null) => {
+    // Don't show hover moves while dragging
+    if (activeChecker) return;
+    
+    if (position) {
+      const cell = board[position.row][position.col];
+      if (cell.checker && cell.checker.color === gameState.currentPlayer) {
+        setHoveredPiece(position);
+        const validMoves = getValidMoves(gameState, position);
+        setHoverValidMoves(validMoves);
+      } else {
+        setHoveredPiece(null);
+        setHoverValidMoves([]);
+      }
+    } else {
+      setHoveredPiece(null);
+      setHoverValidMoves([]);
+    }
+  };
+
+  const boardContent = (
+    <div className="w-full aspect-square max-w-full max-h-full">
+      <div className="grid grid-cols-8 gap-1 p-2 bg-gray-400 w-full h-full rounded-xl">
+        {board.map((row, rowIndex) =>
+          row.map((cell, colIndex) => {
+            const isSelected =
+              selectedPiece?.row === rowIndex &&
+              selectedPiece?.col === colIndex;
+            const isHovered =
+              hoveredCell?.row === rowIndex && hoveredCell?.col === colIndex;
+            const showValidMove = false; // Remove selected piece valid moves
+            const showHoverMove = 
+              hoverValidMoves.some(move => move.row === rowIndex && move.col === colIndex);
+
+            return (
+              <DroppableCell
+                key={`${rowIndex}-${colIndex}`}
+                id={`${rowIndex}-${colIndex}`}
+                cell={cell}
+                isSelected={isSelected}
+                isHovered={isHovered}
+                showValidMove={showValidMove}
+                showHoverMove={showHoverMove}
+                gameState={gameState}
+                onCellHover={handleCellHover}
+              />
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+
+  if (!isClient) {
+    return boardContent;
+  }
 
   return (
     <DndContext
@@ -158,36 +227,9 @@ export function Board({ gameState, onCellClick, onDragEnd }: BoardProps) {
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
-      <div className="w-full aspect-square max-w-full max-h-full">
-        <div className="grid grid-cols-8 gap-1 p-2 bg-gray-400 w-full h-full rounded-xl">
-          {board.map((row, rowIndex) =>
-            row.map((cell, colIndex) => {
-              const isSelected =
-                selectedPiece?.row === rowIndex &&
-                selectedPiece?.col === colIndex;
-              const isHovered =
-                hoveredCell?.row === rowIndex && hoveredCell?.col === colIndex;
-              const showValidMove =
-                cell.isValidMove && (isHovered || !activeChecker);
+      {boardContent}
 
-              return (
-                <DroppableCell
-                  key={`${rowIndex}-${colIndex}`}
-                  id={`${rowIndex}-${colIndex}`}
-                  cell={cell}
-                  isSelected={isSelected}
-                  isHovered={isHovered}
-                  showValidMove={showValidMove}
-                  onCellClick={onCellClick}
-                  gameState={gameState}
-                />
-              );
-            })
-          )}
-        </div>
-      </div>
-
-      <DragOverlay>
+      <DragOverlay style={{ boxShadow: 'none' }}>
         {activeChecker && (
           <Checker
             piece={activeChecker}
