@@ -22,16 +22,16 @@ export function Checker({
       disabled: !isDraggable,
     });
 
-  const style = transform
-    ? {
-        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-      }
-    : undefined;
+  // const style = transform
+  //   ? {
+  //       transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+  //     }
+  //   : undefined;
 
   return (
     <div
       ref={setNodeRef}
-      style={style}
+      // style={style}
       className={cn(
         "checker w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-all duration-150 touch-none select-none",
         {
