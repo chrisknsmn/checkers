@@ -6,7 +6,7 @@ import { useGame } from "@/hooks/useGame";
 export default function Home() {
   const { gameState, handleCellClick, handleDragEnd, resetGame } = useGame();
   return (
-    <main className="h-screen w-full p-8 b">
+    <main className="h-full w-full p-8 b">
       <div className="h-full max-w-screen-2xl mx-auto flex flex-col md:flex-row gap-8 b">
         <div className="flex-1 flex items-center justify-center order-2 md:order-1 b">
           {/* <div className="flex-1 flex items-start md:items-center justify-center order-2 md:order-1"> */}
