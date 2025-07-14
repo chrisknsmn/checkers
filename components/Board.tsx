@@ -59,9 +59,17 @@ function DroppableCell({
         "relative touch-none select-none",
         {
           "bg-gray-50":
-            !cell.isDark && !cell.isValidMove && !isSelected && !isHovered && !showHoverMove,
+            !cell.isDark &&
+            !cell.isValidMove &&
+            !isSelected &&
+            !isHovered &&
+            !showHoverMove,
           "bg-gray-200":
-            cell.isDark && !cell.isValidMove && !isSelected && !isHovered && !showHoverMove,
+            cell.isDark &&
+            !cell.isValidMove &&
+            !isSelected &&
+            !isHovered &&
+            !showHoverMove,
           "bg-green-300": isSelected || showValidMove || showHoverMove,
           "bg-green-400":
             (isHovered && cell.isValidMove) || (isOver && cell.isValidMove),
@@ -102,7 +110,6 @@ export function Board({ gameState, onDragEnd }: BoardProps) {
   const { board, selectedPiece } = gameState;
   const [activeChecker, setActiveChecker] = useState<CheckerType | null>(null);
   const [hoveredCell, setHoveredCell] = useState<Position | null>(null);
-  const [hoveredPiece, setHoveredPiece] = useState<Position | null>(null);
   const [hoverValidMoves, setHoverValidMoves] = useState<Position[]>([]);
   const [isClient, setIsClient] = useState(false);
 
@@ -165,19 +172,16 @@ export function Board({ gameState, onDragEnd }: BoardProps) {
   const handleCellHover = (position: Position | null) => {
     // Don't show hover moves while dragging
     if (activeChecker) return;
-    
+
     if (position) {
       const cell = board[position.row][position.col];
       if (cell.checker && cell.checker.color === gameState.currentPlayer) {
-        setHoveredPiece(position);
         const validMoves = getValidMoves(gameState, position);
         setHoverValidMoves(validMoves);
       } else {
-        setHoveredPiece(null);
         setHoverValidMoves([]);
       }
     } else {
-      setHoveredPiece(null);
       setHoverValidMoves([]);
     }
   };
@@ -193,8 +197,9 @@ export function Board({ gameState, onDragEnd }: BoardProps) {
             const isHovered =
               hoveredCell?.row === rowIndex && hoveredCell?.col === colIndex;
             const showValidMove = false; // Remove selected piece valid moves
-            const showHoverMove = 
-              hoverValidMoves.some(move => move.row === rowIndex && move.col === colIndex);
+            const showHoverMove = hoverValidMoves.some(
+              (move) => move.row === rowIndex && move.col === colIndex
+            );
 
             return (
               <DroppableCell
@@ -228,8 +233,12 @@ export function Board({ gameState, onDragEnd }: BoardProps) {
       onDragEnd={handleDragEnd}
     >
       {boardContent}
-
-      <DragOverlay style={{ boxShadow: 'none' }}>
+      <DragOverlay
+        style={{
+          boxShadow: "none !important",
+          filter: "none !important",
+        }}
+      >
         {activeChecker && (
           <Checker
             piece={activeChecker}

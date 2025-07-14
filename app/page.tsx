@@ -10,10 +10,7 @@ export default function Home() {
       <div className="flex-0 max-w-screen-2xl mx-auto w-full flex flex-col md:flex-row gap-4">
         <div className="flex flex-1 items-top md:items-center justify-center order-2 md:order-1">
           <div className="w-full h-auto aspect-square">
-            <Board
-              gameState={gameState}
-              onDragEnd={handleDragEnd}
-            />
+            <Board gameState={gameState} onDragEnd={handleDragEnd} />
           </div>
         </div>
         <div className="flex flex-0 md:flex-1 items-center justify-center order-1 md:order-2">
