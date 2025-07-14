@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { DndContext, DragEndEvent, DragOverEvent, DragStartEvent, DragOverlay, closestCenter, useDroppable } from "@dnd-kit/core";
+import { DndContext, DragEndEvent, DragOverEvent, DragStartEvent, DragOverlay, closestCenter, useDroppable, TouchSensor, MouseSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { GameState, Position, Cell, Checker as CheckerType } from "@/types/game";
 import { Checker } from "./Checker";
 import { cn } from "@/lib/utils";
@@ -29,7 +29,7 @@ function DroppableCell({ id, cell, isSelected, isHovered, showValidMove, onCellC
       className={cn(
         "board-square rounded-lg",
         "w-full aspect-square flex items-center justify-center cursor-pointer transition-all duration-150",
-        "relative",
+        "relative touch-none select-none",
         {
           "bg-gray-50":
             !cell.isDark && !cell.isValidMove && !isSelected && !isHovered,
@@ -73,6 +73,21 @@ export function Board({ gameState, onCellClick, onDragEnd }: BoardProps) {
   const [activeChecker, setActiveChecker] = useState<CheckerType | null>(null);
   const [hoveredCell, setHoveredCell] = useState<Position | null>(null);
 
+  const touchSensor = useSensor(TouchSensor, {
+    activationConstraint: {
+      delay: 150,
+      tolerance: 8,
+    },
+  });
+  
+  const mouseSensor = useSensor(MouseSensor, {
+    activationConstraint: {
+      distance: 8,
+    },
+  });
+
+  const sensors = useSensors(touchSensor, mouseSensor);
+
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
     const [row, col] = active.id.toString().split('-').map(Number);
@@ -109,6 +124,7 @@ export function Board({ gameState, onCellClick, onDragEnd }: BoardProps) {
 
   return (
     <DndContext
+      sensors={sensors}
       collisionDetection={closestCenter}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}

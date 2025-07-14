@@ -25,7 +25,7 @@ export function Checker({ piece, isSelected = false, onClick, isDraggable = true
     <div
       ref={setNodeRef}
       style={style}
-      className={cn("checker w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-all duration-150", {
+      className={cn("checker w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-all duration-150 touch-none select-none", {
         "bg-red-500 text-white": piece.color === "RED",
         "bg-gray-800 text-white": piece.color === "BLACK",
         "ring-4 ring-yellow-400": isSelected,
