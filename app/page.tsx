@@ -7,9 +7,9 @@ export default function Home() {
   const { gameState, handleCellClick, handleDragEnd, resetGame } = useGame();
   return (
     <main className="h-dvh w-full flex flex-col p-4 md:p-8 overflow-hidden b">
-      <div className="flex-1 max-w-screen-2xl mx-auto w-full flex flex-col md:flex-row gap-4 md:gap-8 min-h-0 b">
-        <div className="flex flex-1 items-center justify-center order-2 md:order-1 min-h-0">
-          <div className="w-full h-full md:max-w-none aspect-square max-h-full b">
+      <div className="flex-1 max-w-screen-2xl mx-auto w-full flex flex-col md:flex-row gap-4 b">
+        <div className="flex flex-1 items-center justify-center order-2 md:order-1 b">
+          <div className="w-full h-auto aspect-square b">
             <Board
               gameState={gameState}
               onCellClick={handleCellClick}
@@ -17,8 +17,10 @@ export default function Home() {
             />
           </div>
         </div>
-        <div className="flex items-center justify-center order-1 md:order-2 b max-h-[200px] md:max-h-full overflow-scroll">
-          <GameStats gameState={gameState} onReset={resetGame} />
+        <div className="flex flex-1 items-center justify-center order-1 md:order-2 b">
+          <div className="flex flex-col gap-4 bg-white rounded-xl p-4 shadow-lg aspect-auto md:aspect-square w-full h-auto b">
+            <GameStats gameState={gameState} onReset={resetGame} />
+          </div>
         </div>
       </div>
     </main>
