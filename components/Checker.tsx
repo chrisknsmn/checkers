@@ -16,7 +16,7 @@ export function Checker({
   isDraggable = true,
   cellId,
 }: CheckerProps) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } =
+  const { attributes, listeners, setNodeRef, isDragging } =
     useDraggable({
       id: cellId,
       disabled: !isDraggable,

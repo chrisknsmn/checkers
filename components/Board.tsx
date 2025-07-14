@@ -70,7 +70,8 @@ function DroppableCell({
             !isSelected &&
             !isHovered &&
             !showHoverMove,
-          "bg-green-200": (cell.isValidMove || showHoverMove) && !cell.checker,
+          "bg-green-200": showHoverMove && !cell.checker,
+          "bg-green-500": isOver && showHoverMove,
         }
       )}
       onMouseEnter={() => onCellHover(cell.position)}
@@ -78,12 +79,13 @@ function DroppableCell({
       data-testid={`board-square-${id}`}
       style={{
         backgroundColor: (() => {
-          // Fallback bg-green-200 when dragged over
-          if ((cell.isValidMove || showHoverMove) && !cell.checker) {
+          // Fallback color for cells
+          // Hover
+          if (isOver && showHoverMove) {
             return "#7bf1a8";
           }
-          // Fallback for dragging over non-valid cells
-          if (isOver && !cell.isValidMove) {
+          // Not selected
+          if (isOver && !showHoverMove) {
             return cell.isDark ? "#e5e7eb" : "#f9fafb";
           }
           return undefined;
@@ -203,7 +205,6 @@ export function Board({ gameState, onDragEnd }: BoardProps) {
               selectedPiece?.col === colIndex;
             const isHovered =
               hoveredCell?.row === rowIndex && hoveredCell?.col === colIndex;
-            const showValidMove = false; // Remove selected piece valid moves
             const showHoverMove = hoverValidMoves.some(
               (move) => move.row === rowIndex && move.col === colIndex
             );
@@ -215,7 +216,7 @@ export function Board({ gameState, onDragEnd }: BoardProps) {
                 cell={cell}
                 isSelected={isSelected}
                 isHovered={isHovered}
-                showValidMove={showValidMove}
+                showValidMove={false}
                 showHoverMove={showHoverMove}
                 gameState={gameState}
                 onCellHover={handleCellHover}
