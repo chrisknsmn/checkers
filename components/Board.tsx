@@ -32,7 +32,6 @@ interface DroppableCellProps {
   cell: Cell;
   isSelected: boolean;
   isHovered: boolean;
-  showValidMove: boolean;
   showHoverMove: boolean;
   gameState: GameState;
   onCellHover: (position: Position | null) => void;
@@ -43,7 +42,6 @@ function DroppableCell({
   cell,
   isSelected,
   isHovered,
-  showValidMove,
   showHoverMove,
   gameState,
   onCellHover,
@@ -216,7 +214,6 @@ export function Board({ gameState, onDragEnd }: BoardProps) {
                 cell={cell}
                 isSelected={isSelected}
                 isHovered={isHovered}
-                showValidMove={false}
                 showHoverMove={showHoverMove}
                 gameState={gameState}
                 onCellHover={handleCellHover}
