@@ -56,20 +56,14 @@ function DroppableCell({
         "w-full aspect-square flex items-center justify-center cursor-pointer transition-all duration-150",
         "relative touch-none select-none",
         {
-          "bg-gray-50":
-            !cell.isDark &&
-            !cell.isValidMove &&
-            !isSelected &&
-            !isHovered &&
-            !showHoverMove,
-          "bg-gray-200":
-            cell.isDark &&
-            !cell.isValidMove &&
-            !isSelected &&
-            !isHovered &&
-            !showHoverMove,
+          // Base colors for all cells
+          "bg-gray-50": !cell.isDark,
+          "bg-gray-200": cell.isDark,
+          // Override with special states
           "bg-green-200": showHoverMove && !cell.checker,
           "bg-green-500": isOver && showHoverMove,
+          "bg-green-300": isSelected,
+          "bg-blue-200": isHovered && !showHoverMove && !isSelected,
         }
       )}
       onMouseEnter={() => onCellHover(cell.position)}
@@ -177,9 +171,7 @@ export function Board({ gameState, onDragEnd }: BoardProps) {
   };
 
   const handleCellHover = (position: Position | null) => {
-    // Don't show hover moves while dragging
     if (activeChecker) return;
-
     if (position) {
       const cell = board[position.row][position.col];
       if (cell.checker && cell.checker.color === gameState.currentPlayer) {

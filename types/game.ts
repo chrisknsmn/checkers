@@ -43,6 +43,7 @@ export interface GameState {
   winner: Player | null;
   forcedCapture: boolean;
   lastMove: Move | null;
+  mustContinueCapture: Position | null;
 }
 
 export interface GameSettings {

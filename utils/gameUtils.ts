@@ -68,7 +68,8 @@ export function initializeGameState(): GameState {
     gameStatus: 'PLAYING',
     winner: null,
     forcedCapture: false,
-    lastMove: null
+    lastMove: null,
+    mustContinueCapture: null
   };
 }
 
@@ -77,15 +78,93 @@ export function isValidPosition(position: Position): boolean {
          position.col >= 0 && position.col < BOARD_SIZE;
 }
 
+export function getCaptureMoves(gameState: GameState, position: Position): Position[] {
+  const { board } = gameState;
+  const piece = board[position.row][position.col].checker;
+  
+  if (!piece) {
+    return [];
+  }
+  
+  const captureMoves: Position[] = [];
+  const directions = piece.isKing ? [-1, 1] : [PLAYER_DIRECTIONS[piece.color]];
+  
+  directions.forEach(rowDirection => {
+    [-1, 1].forEach(colDirection => {
+      const newRow = position.row + rowDirection;
+      const newCol = position.col + colDirection;
+      const newPosition = { row: newRow, col: newCol };
+      
+      if (isValidPosition(newPosition)) {
+        const targetCell = board[newRow][newCol];
+        
+        if (targetCell.checker && targetCell.checker.color !== piece.color) {
+          // Potential capture
+          const jumpRow = newRow + rowDirection;
+          const jumpCol = newCol + colDirection;
+          const jumpPosition = { row: jumpRow, col: jumpCol };
+          
+          if (isValidPosition(jumpPosition) && !board[jumpRow][jumpCol].checker) {
+            captureMoves.push(jumpPosition);
+          }
+        }
+      }
+    });
+  });
+  
+  return captureMoves;
+}
+
 export function getValidMoves(gameState: GameState, position: Position): Position[] {
-  const { board, currentPlayer } = gameState;
+  const { board, currentPlayer, mustContinueCapture } = gameState;
   const piece = board[position.row][position.col].checker;
   
   if (!piece || piece.color !== currentPlayer) {
     return [];
   }
   
-  const moves: Position[] = [];
+  // If we must continue after a capture, allow any valid move for that piece
+  if (mustContinueCapture) {
+    if (position.row !== mustContinueCapture.row || position.col !== mustContinueCapture.col) {
+      return [];
+    }
+    // Return all valid moves (captures and regular moves) for the piece that must continue
+    const captureMoves: Position[] = [];
+    const regularMoves: Position[] = [];
+    const directions = piece.isKing ? [-1, 1] : [PLAYER_DIRECTIONS[piece.color]];
+    
+    directions.forEach(rowDirection => {
+      [-1, 1].forEach(colDirection => {
+        const newRow = position.row + rowDirection;
+        const newCol = position.col + colDirection;
+        const newPosition = { row: newRow, col: newCol };
+        
+        if (isValidPosition(newPosition)) {
+          const targetCell = board[newRow][newCol];
+          
+          if (!targetCell.checker) {
+            // Simple move to empty square
+            regularMoves.push(newPosition);
+          } else if (targetCell.checker.color !== piece.color) {
+            // Potential capture
+            const jumpRow = newRow + rowDirection;
+            const jumpCol = newCol + colDirection;
+            const jumpPosition = { row: jumpRow, col: jumpCol };
+            
+            if (isValidPosition(jumpPosition) && !board[jumpRow][jumpCol].checker) {
+              captureMoves.push(jumpPosition);
+            }
+          }
+        }
+      });
+    });
+    
+    // Return all moves - captures and regular moves
+    return [...captureMoves, ...regularMoves];
+  }
+  
+  const captureMoves: Position[] = [];
+  const regularMoves: Position[] = [];
   const directions = piece.isKing ? [-1, 1] : [PLAYER_DIRECTIONS[piece.color]];
   
   directions.forEach(rowDirection => {
@@ -99,7 +178,7 @@ export function getValidMoves(gameState: GameState, position: Position): Positio
         
         if (!targetCell.checker) {
           // Simple move to empty square
-          moves.push(newPosition);
+          regularMoves.push(newPosition);
         } else if (targetCell.checker.color !== piece.color) {
           // Potential capture
           const jumpRow = newRow + rowDirection;
@@ -107,14 +186,19 @@ export function getValidMoves(gameState: GameState, position: Position): Positio
           const jumpPosition = { row: jumpRow, col: jumpCol };
           
           if (isValidPosition(jumpPosition) && !board[jumpRow][jumpCol].checker) {
-            moves.push(jumpPosition);
+            captureMoves.push(jumpPosition);
           }
         }
       }
     });
   });
   
-  return moves;
+  // If captures are available, only return captures (mandatory capture rule)
+  if (captureMoves.length > 0) {
+    return captureMoves;
+  }
+  
+  return regularMoves;
 }
 
 export function canCapture(gameState: GameState, from: Position, to: Position): boolean {
@@ -186,6 +270,47 @@ export function applyMove(gameState: GameState, from: Position, to: Position): G
         checkers.splice(capturedIndex, 1);
       }
     }
+    
+    // After a capture, player gets one additional move with that piece
+    newGameState.mustContinueCapture = to;
+    newGameState.selectedPiece = to;
+    newGameState.validMoves = getValidMoves(newGameState, to);
+    
+    // Update move type to indicate multi-capture
+    const move: Move = {
+      id: `move-${Date.now()}`,
+      from,
+      to,
+      type: 'MULTI_CAPTURE',
+      piece,
+      capturedPieces,
+      timestamp: Date.now()
+    };
+    
+    newGameState.moveHistory.push(move);
+    newGameState.lastMove = move;
+    newGameState.moveCount++;
+    
+    // Update board to show valid moves
+    newGameState.board.forEach(row => {
+      row.forEach(cell => {
+        cell.isValidMove = newGameState.validMoves.some(
+          move => move.row === cell.position.row && move.col === cell.position.col
+        );
+      });
+    });
+    
+    // Don't switch players - same player continues
+    return newGameState;
+  } else {
+    // Regular move, clear continue capture state
+    newGameState.mustContinueCapture = null;
+  }
+  
+  // If this was a move during a mustContinueCapture state (bonus move after capture)
+  // and it wasn't another capture, end the turn
+  if (gameState.mustContinueCapture && moveType !== 'CAPTURE') {
+    newGameState.mustContinueCapture = null;
   }
   
   // Create move record
@@ -229,7 +354,17 @@ export function selectPiece(gameState: GameState, position: Position): GameState
   const newGameState = { ...gameState };
   const piece = newGameState.board[position.row][position.col].checker;
   
-  if (piece && piece.color === newGameState.currentPlayer) {
+  // If we must continue capturing, only allow selecting the specific piece
+  if (newGameState.mustContinueCapture) {
+    if (position.row === newGameState.mustContinueCapture.row && 
+        position.col === newGameState.mustContinueCapture.col) {
+      newGameState.selectedPiece = position;
+      newGameState.validMoves = getValidMoves(newGameState, position);
+    } else {
+      // Don't allow selecting other pieces
+      return newGameState;
+    }
+  } else if (piece && piece.color === newGameState.currentPlayer) {
     newGameState.selectedPiece = position;
     newGameState.validMoves = getValidMoves(newGameState, position);
     
