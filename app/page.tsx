@@ -6,10 +6,9 @@ import { useGame } from "@/hooks/useGame";
 export default function Home() {
   const { gameState, handleCellClick, handleDragEnd, resetGame } = useGame();
   return (
-    <main className="h-full w-full p-8 b">
+    <main className="h-[100vh] w-full p-8 b">
       <div className="h-full max-w-screen-2xl mx-auto flex flex-col md:flex-row gap-8 b">
-        <div className="flex-1 flex items-center justify-center order-2 md:order-1 b">
-          {/* <div className="flex-1 flex items-start md:items-center justify-center order-2 md:order-1"> */}
+        <div className="flex-1 flex items-start md:items-center justify-center order-2 md:order-1 b">
           <div className="w-full aspect-square">
             <Board
               gameState={gameState}
@@ -18,7 +17,7 @@ export default function Home() {
             />
           </div>
         </div>
-        <div className="flex-0 md:flex-1 flex items-center justify-center order-1 md:order-2 min-h-1/8">
+        <div className="flex-0 md:flex-1 flex items-center justify-center order-1 md:order-2 min-h-1/4">
           <div className="w-full aspect-auto md:aspect-square h-full md:h-auto">
             <GameStats gameState={gameState} onReset={resetGame} />
           </div>
