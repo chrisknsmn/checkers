@@ -31,26 +31,28 @@ export function GameStats({ gameState, onReset }: GameStatsProps) {
           </Button>
         </div>
       </div>
-      <div className="p-3 rounded-xl bg-gray-100 transition-all duration-500">
-        <p className="text-gray-600">Total Turns: {moveCount}</p>
-      </div>
-      <div
-        className={`p-2 border-4 rounded-xl bg-gray-100 transition-all duration-500 flex ${
-          currentPlayer === "RED" ? "border-red-500" : "border-transparent"
-        }`}
-      >
-        <h3 className="font-semibold text-red-500 flex-grow w-12">RED</h3>
-        <p className="flex-grow">Pieces: {redPieces}</p>
-        <p className="flex-grow">Kings: {redKings}</p>
-      </div>
-      <div
-        className={`p-2 border-4 rounded-xl bg-gray-100 transition-all duration-500 flex ${
-          currentPlayer === "RED" ? "border-transparent" : "border-red-500"
-        }`}
-      >
-        <h3 className="font-semibold text-gray-800 flex-grow w-12">BLACK</h3>
-        <p className="flex-grow">Pieces: {blackPieces}</p>
-        <p className="flex-grow">Kings: {blackKings}</p>
+      <div className="hidden md:flex flex-col gap-2">
+        <div className="p-3 rounded-xl bg-gray-100 transition-all duration-500">
+          <p className="text-gray-600">Total Turns: {moveCount}</p>
+        </div>
+        <div
+          className={`p-2 border-4 rounded-xl bg-gray-100 transition-all duration-500 flex ${
+            currentPlayer === "RED" ? "border-red-500" : "border-transparent"
+          }`}
+        >
+          <h3 className="font-semibold text-red-500 flex-grow w-12">RED</h3>
+          <p className="flex-grow">Pieces: {redPieces}</p>
+          <p className="flex-grow">Kings: {redKings}</p>
+        </div>
+        <div
+          className={`p-2 border-4 rounded-xl bg-gray-100 transition-all duration-500 flex ${
+            currentPlayer === "RED" ? "border-transparent" : "border-red-500"
+          }`}
+        >
+          <h3 className="font-semibold text-gray-800 flex-grow w-12">BLACK</h3>
+          <p className="flex-grow">Pieces: {blackPieces}</p>
+          <p className="flex-grow">Kings: {blackKings}</p>
+        </div>
       </div>
     </>
   );
