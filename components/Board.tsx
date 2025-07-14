@@ -5,12 +5,12 @@ import {
   DragOverEvent,
   DragStartEvent,
   DragOverlay,
-  closestCenter,
   useDroppable,
   TouchSensor,
   MouseSensor,
   useSensor,
   useSensors,
+  pointerWithin,
 } from "@dnd-kit/core";
 import {
   GameState,
@@ -70,18 +70,25 @@ function DroppableCell({
             !isSelected &&
             !isHovered &&
             !showHoverMove,
-          "bg-green-300": isSelected || showValidMove || showHoverMove,
-          "bg-green-400":
-            (isHovered && cell.isValidMove) || (isOver && cell.isValidMove),
-          "hover:bg-green-200":
-            (!cell.isDark && !cell.isValidMove && !isSelected) ||
-            (cell.isDark && !cell.isValidMove && !isSelected) ||
-            isSelected,
+          "bg-green-200": (cell.isValidMove || showHoverMove) && !cell.checker,
         }
       )}
       onMouseEnter={() => onCellHover(cell.position)}
       onMouseLeave={() => onCellHover(null)}
       data-testid={`board-square-${id}`}
+      style={{
+        backgroundColor: (() => {
+          // Fallback bg-green-200 when dragged over
+          if ((cell.isValidMove || showHoverMove) && !cell.checker) {
+            return "#7bf1a8";
+          }
+          // Fallback for dragging over non-valid cells
+          if (isOver && !cell.isValidMove) {
+            return cell.isDark ? "#e5e7eb" : "#f9fafb";
+          }
+          return undefined;
+        })(),
+      }}
     >
       {cell.checker && (
         <Checker
@@ -227,7 +234,7 @@ export function Board({ gameState, onDragEnd }: BoardProps) {
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCenter}
+      collisionDetection={pointerWithin}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
