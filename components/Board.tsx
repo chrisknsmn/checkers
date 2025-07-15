@@ -129,6 +129,12 @@ export function Board({ gameState, onDragEnd }: BoardProps) {
   useEffect(() => {
     // Update pieces that can capture when game state changes
     setPiecesWithCaptures(getAllPiecesWithCaptures(gameState));
+    
+    // Clear hover moves when game state changes (turn ends, etc.)
+    if (!gameState.mustContinueCapture && !gameState.selectedPiece) {
+      setHoverValidMoves([]);
+      setHoveredCell(null);
+    }
   }, [gameState]);
 
   const touchSensor = useSensor(TouchSensor, {
@@ -178,6 +184,7 @@ export function Board({ gameState, onDragEnd }: BoardProps) {
       onDragEnd({ row: fromRow, col: fromCol }, { row: toRow, col: toCol });
     }
 
+    // Clear all drag and hover states
     setActiveChecker(null);
     setHoveredCell(null);
     setHoverValidMoves([]);

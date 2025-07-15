@@ -421,6 +421,13 @@ export function applyMove(gameState: GameState, from: Position, to: Position): G
   newGameState.selectedPiece = null;
   newGameState.validMoves = [];
   
+  // Clear all valid move indicators on the board
+  newGameState.board.forEach(row => {
+    row.forEach(cell => {
+      cell.isValidMove = false;
+    });
+  });
+  
   // Check for win condition
   const redPieces = checkers.filter(c => c.color === 'RED');
   const blackPieces = checkers.filter(c => c.color === 'BLACK');
