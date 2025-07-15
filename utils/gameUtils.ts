@@ -394,8 +394,8 @@ export function applyMove(gameState: GameState, from: Position, to: Position): G
   }
   
   // If this was a move during a mustContinueCapture state (bonus move after capture)
-  // and it wasn't another capture, end the turn
-  if (gameState.mustContinueCapture && moveType !== 'CAPTURE') {
+  // and it was a regular move (not another capture), end the turn
+  if (gameState.mustContinueCapture && moveType === 'MOVE') {
     newGameState.mustContinueCapture = null;
   }
   
