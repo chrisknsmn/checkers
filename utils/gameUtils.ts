@@ -78,6 +78,32 @@ export function isValidPosition(position: Position): boolean {
          position.col >= 0 && position.col < BOARD_SIZE;
 }
 
+export function getAllPiecesWithCaptures(gameState: GameState): Position[] {
+  const { board, currentPlayer, mustContinueCapture } = gameState;
+  const piecesWithCaptures: Position[] = [];
+  
+  // If we must continue capturing, only that piece can move
+  if (mustContinueCapture) {
+    return [mustContinueCapture];
+  }
+  
+  // Check all pieces of the current player
+  for (let row = 0; row < BOARD_SIZE; row++) {
+    for (let col = 0; col < BOARD_SIZE; col++) {
+      const cell = board[row][col];
+      if (cell.checker && cell.checker.color === currentPlayer) {
+        const position = { row, col };
+        const captures = getCaptureMoves(gameState, position);
+        if (captures.length > 0) {
+          piecesWithCaptures.push(position);
+        }
+      }
+    }
+  }
+  
+  return piecesWithCaptures;
+}
+
 export function getCaptureMoves(gameState: GameState, position: Position): Position[] {
   const { board } = gameState;
   const piece = board[position.row][position.col].checker;
@@ -161,6 +187,20 @@ export function getValidMoves(gameState: GameState, position: Position): Positio
     
     // Return all moves - captures and regular moves
     return [...captureMoves, ...regularMoves];
+  }
+  
+  // Check if any pieces can capture - if so, only allow those pieces to move
+  const piecesWithCaptures = getAllPiecesWithCaptures(gameState);
+  if (piecesWithCaptures.length > 0) {
+    // Only allow pieces that can capture to move
+    const canThisPieceCapture = piecesWithCaptures.some(
+      pos => pos.row === position.row && pos.col === position.col
+    );
+    if (!canThisPieceCapture) {
+      return [];
+    }
+    // Return only capture moves for this piece
+    return getCaptureMoves(gameState, position);
   }
   
   const captureMoves: Position[] = [];
@@ -271,10 +311,56 @@ export function applyMove(gameState: GameState, from: Position, to: Position): G
       }
     }
     
-    // After a capture, player gets one additional move with that piece
+    // After a capture, check if player can make additional moves
     newGameState.mustContinueCapture = to;
     newGameState.selectedPiece = to;
     newGameState.validMoves = getValidMoves(newGameState, to);
+    
+    // If no valid moves are available after capture, end the turn
+    if (newGameState.validMoves.length === 0) {
+      newGameState.mustContinueCapture = null;
+      newGameState.selectedPiece = null;
+      newGameState.validMoves = [];
+      
+      // Create move record for the capture
+      const move: Move = {
+        id: `move-${Date.now()}`,
+        from,
+        to,
+        type: 'CAPTURE',
+        piece,
+        capturedPieces,
+        timestamp: Date.now()
+      };
+      
+      newGameState.moveHistory.push(move);
+      newGameState.lastMove = move;
+      newGameState.moveCount++;
+      
+      // Switch players since no bonus move is possible
+      newGameState.currentPlayer = newGameState.currentPlayer === 'RED' ? 'BLACK' : 'RED';
+      
+      // Clear valid move indicators
+      newGameState.board.forEach(row => {
+        row.forEach(cell => {
+          cell.isValidMove = false;
+        });
+      });
+      
+      // Check for win condition
+      const redPieces = checkers.filter(c => c.color === 'RED');
+      const blackPieces = checkers.filter(c => c.color === 'BLACK');
+      
+      if (redPieces.length === 0) {
+        newGameState.gameStatus = 'BLACK_WINS';
+        newGameState.winner = 'BLACK';
+      } else if (blackPieces.length === 0) {
+        newGameState.gameStatus = 'RED_WINS';
+        newGameState.winner = 'RED';
+      }
+      
+      return newGameState;
+    }
     
     // Update move type to indicate multi-capture
     const move: Move = {

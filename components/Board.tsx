@@ -20,7 +20,7 @@ import {
 } from "@/types/game";
 import { Checker } from "./Checker";
 import { cn } from "@/lib/utils";
-import { getValidMoves } from "@/utils/gameUtils";
+import { getValidMoves, getAllPiecesWithCaptures } from "@/utils/gameUtils";
 
 interface BoardProps {
   gameState: GameState;
@@ -35,6 +35,7 @@ interface DroppableCellProps {
   showHoverMove: boolean;
   gameState: GameState;
   onCellHover: (position: Position | null) => void;
+  hasCapture: boolean;
 }
 
 function DroppableCell({
@@ -45,6 +46,7 @@ function DroppableCell({
   showHoverMove,
   gameState,
   onCellHover,
+  hasCapture,
 }: DroppableCellProps) {
   const { setNodeRef, isOver } = useDroppable({ id });
 
@@ -85,12 +87,17 @@ function DroppableCell({
       }}
     >
       {cell.checker && (
-        <Checker
-          piece={cell.checker}
-          isSelected={isSelected}
-          isDraggable={cell.checker.color === gameState.currentPlayer}
-          cellId={id}
-        />
+        <div className="relative w-full h-full flex items-center justify-center">
+          <Checker
+            piece={cell.checker}
+            isSelected={isSelected}
+            isDraggable={cell.checker.color === gameState.currentPlayer}
+            cellId={id}
+          />
+          {hasCapture && (
+            <div className="absolute inset-8 rounded-full border-4 bg-white-900 animate-pulse pointer-events-none" />
+          )}
+        </div>
       )}
 
       {(cell.isValidMove || showHoverMove) && !cell.checker && (
@@ -113,10 +120,16 @@ export function Board({ gameState, onDragEnd }: BoardProps) {
   const [hoveredCell, setHoveredCell] = useState<Position | null>(null);
   const [hoverValidMoves, setHoverValidMoves] = useState<Position[]>([]);
   const [isClient, setIsClient] = useState(false);
+  const [piecesWithCaptures, setPiecesWithCaptures] = useState<Position[]>([]);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  useEffect(() => {
+    // Update pieces that can capture when game state changes
+    setPiecesWithCaptures(getAllPiecesWithCaptures(gameState));
+  }, [gameState]);
 
   const touchSensor = useSensor(TouchSensor, {
     activationConstraint: {
@@ -198,6 +211,12 @@ export function Board({ gameState, onDragEnd }: BoardProps) {
             const showHoverMove = hoverValidMoves.some(
               (move) => move.row === rowIndex && move.col === colIndex
             );
+            const hasCapture =
+              cell.checker &&
+              cell.checker.color === gameState.currentPlayer &&
+              piecesWithCaptures.some(
+                (pos) => pos.row === rowIndex && pos.col === colIndex
+              );
 
             return (
               <DroppableCell
@@ -209,6 +228,7 @@ export function Board({ gameState, onDragEnd }: BoardProps) {
                 showHoverMove={showHoverMove}
                 gameState={gameState}
                 onCellHover={handleCellHover}
+                hasCapture={!!hasCapture}
               />
             );
           })
