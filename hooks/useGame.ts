@@ -93,12 +93,10 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       };
 
     case "TOGGLE_AI":
-      return startNewTurn(initializeGameState()).isAIEnabled !== action.payload
-        ? startNewTurn({
-            ...initializeGameState(),
-            isAIEnabled: action.payload,
-          })
-        : state;
+      return startNewTurn({
+        ...initializeGameState(),
+        isAIEnabled: action.payload,
+      });
 
     case "MAKE_AI_MOVE": {
       const aiMove = getAIMove(state);

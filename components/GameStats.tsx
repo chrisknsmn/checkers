@@ -88,31 +88,29 @@ export function GameStats({
                     </div>
                     <div className="grid items-center gap-1">
                       <label className="text-sm font-medium">Time Limit</label>
-                      <div>
-                        <div className="flex items-center bg-gray-200 rounded-full p-1 w-full">
-                          <button
-                            type="button"
-                            className={`cursor-pointer w-full px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                              !gameState.turnTimeLimitEnabled
-                                ? "bg-white text-gray-900 shadow-sm"
-                                : "text-gray-600 hover:text-gray-900"
-                            }`}
-                            onClick={() => onToggleTurnTimeLimit(false)}
-                          >
-                            Off
-                          </button>
-                          <button
-                            type="button"
-                            className={`cursor-pointer w-full px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                              gameState.turnTimeLimitEnabled
-                                ? "bg-white text-gray-900 shadow-sm"
-                                : "text-gray-600 hover:text-gray-900"
-                            }`}
-                            onClick={() => onToggleTurnTimeLimit(true)}
-                          >
-                            On
-                          </button>
-                        </div>
+                      <div className="flex items-center bg-gray-200 rounded-full p-1 w-full">
+                        <button
+                          type="button"
+                          className={`cursor-pointer w-full px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                            !gameState.turnTimeLimitEnabled
+                              ? "bg-white text-gray-900 shadow-sm"
+                              : "text-gray-600 hover:text-gray-900"
+                          }`}
+                          onClick={() => onToggleTurnTimeLimit(false)}
+                        >
+                          Off
+                        </button>
+                        <button
+                          type="button"
+                          className={`cursor-pointer w-full px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                            gameState.turnTimeLimitEnabled
+                              ? "bg-white text-gray-900 shadow-sm"
+                              : "text-gray-600 hover:text-gray-900"
+                          }`}
+                          onClick={() => onToggleTurnTimeLimit(true)}
+                        >
+                          On
+                        </button>
                       </div>
                     </div>
                   </div>
