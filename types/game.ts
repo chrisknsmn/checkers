@@ -44,6 +44,14 @@ export interface GameState {
   forcedCapture: boolean;
   lastMove: Move | null;
   mustContinueCapture: Position | null;
+  gameStartTime: number | null;
+  gameTime: number;
+  timerRunning: boolean;
+  isAIEnabled: boolean;
+  aiPlayer: Player;
+  turnTimeLimitEnabled: boolean;
+  turnStartTime: number | null;
+  turnTimeRemaining: number;
 }
 
 export interface GameSettings {

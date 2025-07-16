@@ -69,7 +69,15 @@ export function initializeGameState(): GameState {
     winner: null,
     forcedCapture: false,
     lastMove: null,
-    mustContinueCapture: null
+    mustContinueCapture: null,
+    gameStartTime: null,
+    gameTime: 0,
+    timerRunning: false,
+    isAIEnabled: true,
+    aiPlayer: 'BLACK',
+    turnTimeLimitEnabled: false,
+    turnStartTime: null,
+    turnTimeRemaining: 5000
   };
 }
 
@@ -494,4 +502,116 @@ export function makeMove(gameState: GameState, to: Position): GameState {
   if (!isValidMove) return gameState;
   
   return applyMove(gameState, gameState.selectedPiece, to);
+}
+
+// AI Move Logic
+export function getAIMove(gameState: GameState): { from: Position; to: Position } | null {
+  const { board, currentPlayer, mustContinueCapture } = gameState;
+  
+  // Get all possible moves for the current player
+  const allMoves: { from: Position; to: Position; isCapture: boolean; score: number }[] = [];
+  
+  // If we must continue capturing, only consider moves from that specific piece
+  if (mustContinueCapture) {
+    const validMoves = getValidMoves(gameState, mustContinueCapture);
+    
+    validMoves.forEach(move => {
+      const deltaRow = Math.abs(move.row - mustContinueCapture.row);
+      const deltaCol = Math.abs(move.col - mustContinueCapture.col);
+      const isCapture = deltaRow === 2 && deltaCol === 2;
+      
+      // Calculate move score
+      let score = 0;
+      
+      // Prefer captures
+      if (isCapture) {
+        score += 10;
+      }
+      
+      // Prefer moving towards opponent's side
+      if (currentPlayer === 'BLACK') {
+        score += (7 - move.row); // Move towards row 7 (bottom)
+      } else {
+        score += move.row; // Move towards row 0 (top)
+      }
+      
+      // Prefer making kings
+      if ((currentPlayer === 'BLACK' && move.row === 7) || 
+          (currentPlayer === 'RED' && move.row === 0)) {
+        score += 5;
+      }
+      
+      // Prefer keeping pieces in center
+      const centerDistance = Math.abs(move.col - 3.5);
+      score += (3.5 - centerDistance);
+      
+      allMoves.push({
+        from: mustContinueCapture,
+        to: move,
+        isCapture,
+        score
+      });
+    });
+  } else {
+    // Normal move - consider all pieces
+    for (let row = 0; row < BOARD_SIZE; row++) {
+      for (let col = 0; col < BOARD_SIZE; col++) {
+        const cell = board[row][col];
+        if (cell.checker?.color === currentPlayer) {
+          const validMoves = getValidMoves(gameState, { row, col });
+          
+          validMoves.forEach(move => {
+            const deltaRow = Math.abs(move.row - row);
+            const deltaCol = Math.abs(move.col - col);
+            const isCapture = deltaRow === 2 && deltaCol === 2;
+            
+            // Calculate move score
+            let score = 0;
+            
+            // Prefer captures
+            if (isCapture) {
+              score += 10;
+            }
+            
+            // Prefer moving towards opponent's side
+            if (currentPlayer === 'BLACK') {
+              score += (7 - move.row); // Move towards row 7 (bottom)
+            } else {
+              score += move.row; // Move towards row 0 (top)
+            }
+            
+            // Prefer making kings
+            if ((currentPlayer === 'BLACK' && move.row === 7) || 
+                (currentPlayer === 'RED' && move.row === 0)) {
+              score += 5;
+            }
+            
+            // Prefer keeping pieces in center
+            const centerDistance = Math.abs(move.col - 3.5);
+            score += (3.5 - centerDistance);
+            
+            allMoves.push({
+              from: { row, col },
+              to: move,
+              isCapture,
+              score
+            });
+          });
+        }
+      }
+    }
+  }
+  
+  if (allMoves.length === 0) {
+    return null;
+  }
+  
+  // Sort by score (highest first)
+  allMoves.sort((a, b) => b.score - a.score);
+  
+  // Add some randomness - pick from top 3 moves
+  const topMoves = allMoves.slice(0, Math.min(3, allMoves.length));
+  const randomMove = topMoves[Math.floor(Math.random() * topMoves.length)];
+  
+  return { from: randomMove.from, to: randomMove.to };
 }

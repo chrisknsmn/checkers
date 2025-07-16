@@ -25,6 +25,7 @@ import { getValidMoves, getAllPiecesWithCaptures } from "@/utils/gameUtils";
 interface BoardProps {
   gameState: GameState;
   onDragEnd: (from: Position, to: Position) => void;
+  onDragStart?: (position: Position) => void;
 }
 
 interface DroppableCellProps {
@@ -114,7 +115,7 @@ function DroppableCell({
   );
 }
 
-export function Board({ gameState, onDragEnd }: BoardProps) {
+export function Board({ gameState, onDragEnd, onDragStart }: BoardProps) {
   const { board, selectedPiece } = gameState;
   const [activeChecker, setActiveChecker] = useState<CheckerType | null>(null);
   const [hoveredCell, setHoveredCell] = useState<Position | null>(null);
@@ -161,6 +162,11 @@ export function Board({ gameState, onDragEnd }: BoardProps) {
       // Calculate valid moves for dragging
       const validMoves = getValidMoves(gameState, { row, col });
       setHoverValidMoves(validMoves);
+      
+      // Trigger timer start
+      if (onDragStart) {
+        onDragStart({ row, col });
+      }
     }
   };
 
