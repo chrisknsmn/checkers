@@ -156,7 +156,7 @@ export function useGame() {
 
   // Timer effect
   useEffect(() => {
-    if (gameState.timerRunning && gameState.gameStartTime) {
+    if (gameState.timerRunning && gameState.gameStartTime && gameState.gameStatus === 'PLAYING') {
       timerRef.current = setInterval(() => {
         const elapsed = Date.now() - gameState.gameStartTime!;
         dispatch({ type: "UPDATE_TIMER", payload: elapsed });
@@ -174,7 +174,7 @@ export function useGame() {
         timerRef.current = null;
       }
     };
-  }, [gameState.timerRunning, gameState.gameStartTime]);
+  }, [gameState.timerRunning, gameState.gameStartTime, gameState.gameStatus]);
 
   // Turn Timer Effect
   useEffect(() => {

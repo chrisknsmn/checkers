@@ -1,10 +1,44 @@
 "use client";
 import { Board } from "@/components/Board";
 import { GameStats } from "@/components/GameStats";
+import Score from "@/components/Score";
 import { useGame } from "@/hooks/useGame";
+import { GameStats as GameStatsType } from "@/types/game";
 
 export default function Home() {
   const { gameState, handleDragEnd, handleDragStart, resetGame, toggleAI, toggleTurnTimeLimit } = useGame();
+  
+  const calculateGameStats = (): GameStatsType => {
+    const redPieces = gameState.checkers.filter((c) => c.color === "RED").length;
+    const blackPieces = gameState.checkers.filter((c) => c.color === "BLACK").length;
+    const redKings = gameState.checkers.filter((c) => c.color === "RED" && c.isKing).length;
+    const blackKings = gameState.checkers.filter((c) => c.color === "BLACK" && c.isKing).length;
+    
+    // Calculate captured pieces from move history
+    const capturedRed = gameState.moveHistory.reduce((acc, move) => {
+      const redCaptured = move.capturedPieces.filter(piece => piece.color === 'RED');
+      return [...acc, ...redCaptured];
+    }, [] as any[]);
+    
+    const capturedBlack = gameState.moveHistory.reduce((acc, move) => {
+      const blackCaptured = move.capturedPieces.filter(piece => piece.color === 'BLACK');
+      return [...acc, ...blackCaptured];
+    }, [] as any[]);
+    
+    return {
+      redPieces,
+      blackPieces,
+      redKings,
+      blackKings,
+      totalMoves: gameState.moveCount,
+      gameTime: gameState.gameTime,
+      capturedPieces: {
+        red: capturedRed,
+        black: capturedBlack
+      }
+    };
+  };
+  
   return (
     <main className="h-dvh w-full flex items-center justify-center flex-col p-4 md:p-8 overflow-hidden">
       <div className="flex-0 max-w-screen-2xl mx-auto w-full flex flex-col md:flex-row gap-4">
@@ -19,6 +53,12 @@ export default function Home() {
         </div>
         <GameStats gameState={gameState} onReset={resetGame} onToggleAI={toggleAI} onToggleTurnTimeLimit={toggleTurnTimeLimit} />
       </div>
+      
+      <Score 
+        gameState={gameState}
+        gameStats={calculateGameStats()}
+        onNewGame={resetGame}
+      />
     </main>
   );
 }

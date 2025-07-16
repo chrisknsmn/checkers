@@ -249,6 +249,25 @@ export function getValidMoves(gameState: GameState, position: Position): Positio
   return regularMoves;
 }
 
+export function checkForValidMoves(gameState: GameState, player: Player): boolean {
+  const { board } = gameState;
+  
+  // Check all pieces of the current player
+  for (let row = 0; row < BOARD_SIZE; row++) {
+    for (let col = 0; col < BOARD_SIZE; col++) {
+      const cell = board[row][col];
+      if (cell.checker && cell.checker.color === player) {
+        const validMoves = getValidMoves(gameState, { row, col });
+        if (validMoves.length > 0) {
+          return true;
+        }
+      }
+    }
+  }
+  
+  return false;
+}
+
 export function canCapture(gameState: GameState, from: Position, to: Position): boolean {
   const { board } = gameState;
   const piece = board[from.row][from.col].checker;
@@ -362,9 +381,19 @@ export function applyMove(gameState: GameState, from: Position, to: Position): G
       if (redPieces.length === 0) {
         newGameState.gameStatus = 'BLACK_WINS';
         newGameState.winner = 'BLACK';
+        newGameState.timerRunning = false;
       } else if (blackPieces.length === 0) {
         newGameState.gameStatus = 'RED_WINS';
         newGameState.winner = 'RED';
+        newGameState.timerRunning = false;
+      } else {
+        // Check for tie condition - no valid moves available for current player
+        const hasValidMoves = checkForValidMoves(newGameState, newGameState.currentPlayer);
+        if (!hasValidMoves) {
+          newGameState.gameStatus = 'DRAW';
+          newGameState.winner = null;
+          newGameState.timerRunning = false;
+        }
       }
       
       return newGameState;
@@ -443,9 +472,19 @@ export function applyMove(gameState: GameState, from: Position, to: Position): G
   if (redPieces.length === 0) {
     newGameState.gameStatus = 'BLACK_WINS';
     newGameState.winner = 'BLACK';
+    newGameState.timerRunning = false;
   } else if (blackPieces.length === 0) {
     newGameState.gameStatus = 'RED_WINS';
     newGameState.winner = 'RED';
+    newGameState.timerRunning = false;
+  } else {
+    // Check for tie condition - no valid moves available for current player
+    const hasValidMoves = checkForValidMoves(newGameState, newGameState.currentPlayer);
+    if (!hasValidMoves) {
+      newGameState.gameStatus = 'DRAW';
+      newGameState.winner = null;
+      newGameState.timerRunning = false;
+    }
   }
   
   return newGameState;
