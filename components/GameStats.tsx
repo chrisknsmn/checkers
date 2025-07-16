@@ -41,7 +41,7 @@ export function GameStats({
 
   return (
     <div className="flex flex-0 md:flex-1 items-center justify-center order-1 md:order-2">
-      <div className="flex flex-col gap-4 bg-white rounded-xl p-4 shadow-lg aspect-auto md:aspect-square w-full h-full md:h-auto overflow-hidden">
+      <div className="flex flex-col gap-2 bg-white rounded-xl p-4 shadow-lg aspect-auto md:aspect-square w-full h-full md:h-auto overflow-hidden">
         <div className="flex">
           <h2 className="text-4xl font-bold text-gray-600 flex-1">Checkers</h2>
           <div className="flex gap-4">
@@ -119,50 +119,57 @@ export function GameStats({
             </Popover>
           </div>
         </div>
-        <div className="hidden md:flex flex-col gap-2">
-          <div className="transition-all duration-500 w-full bg-gray-100 rounded-xl p-3">
+        <div className="flex flex-col gap-2">
+          <div className="transition-all duration-500 w-full bg-gray-100 rounded-xl p-4">
             <div className="flex items-center gap-2 w-full">
-              <Timer className="w-4 h-4 text-gray-600" />
-              <p className="text-gray-600">Time: {formatTime(gameTime)}</p>
-            </div>
-          </div>
-          {gameState.turnTimeLimitEnabled && (
-            <div className="transition-all duration-500 w-full bg-gray-100 rounded-xl p-3">
               <div className="flex items-center gap-2 w-full">
                 <Timer className="w-4 h-4 text-gray-600" />
-                <p className="text-gray-600">
-                  Turn Time: {Math.ceil(gameState.turnTimeRemaining / 1000)}s
-                </p>
+                <p className="text-gray-600">Time: {formatTime(gameTime)}</p>
               </div>
+              {gameState.turnTimeLimitEnabled && (
+                <div className="flex items-center gap-2 w-full">
+                  <Timer className="w-4 h-4 text-gray-600" />
+                  <p className="text-gray-600">
+                    Turn Time: {Math.ceil(gameState.turnTimeRemaining / 1000)}s
+                  </p>
+                </div>
+              )}
             </div>
-          )}
-          <div
-            className={`p-2 border-4 rounded-xl bg-gray-100 transition-all duration-500 flex ${
-              currentPlayer === "RED" ? "border-red-500" : "border-transparent"
-            }`}
-          >
-            <h3 className="font-semibold text-red-500 flex-grow w-12">RED</h3>
-            <p className="flex-grow">Pieces: {redPieces}</p>
-            <p className="flex-grow">Kings: {redKings}</p>
           </div>
-          <div
-            className={`p-2 border-4 rounded-xl bg-gray-100 transition-all duration-500 flex ${
-              currentPlayer === "RED" ? "border-transparent" : "border-red-500"
-            }`}
-          >
-            <h3 className="font-semibold text-gray-800 flex-grow w-12">
-              BLACK
-            </h3>
-            <p className="flex-grow">Pieces: {blackPieces}</p>
-            <p className="flex-grow">Kings: {blackKings}</p>
+
+          <div className="hidden md:flex flex-col gap-2">
+            <div
+              className={`p-2 border-4 rounded-xl bg-gray-100 transition-all duration-500 flex ${
+                currentPlayer === "RED"
+                  ? "border-red-500"
+                  : "border-transparent"
+              }`}
+            >
+              <h3 className="font-semibold text-red-500 flex-grow w-12">RED</h3>
+              <p className="flex-grow">Pieces: {redPieces}</p>
+              <p className="flex-grow">Kings: {redKings}</p>
+            </div>
+            <div
+              className={`p-2 border-4 rounded-xl bg-gray-100 transition-all duration-500 flex ${
+                currentPlayer === "RED"
+                  ? "border-transparent"
+                  : "border-red-500"
+              }`}
+            >
+              <h3 className="font-semibold text-gray-800 flex-grow w-12">
+                BLACK
+              </h3>
+              <p className="flex-grow">Pieces: {blackPieces}</p>
+              <p className="flex-grow">Kings: {blackKings}</p>
+            </div>
           </div>
         </div>
-        <div className="p-3 rounded-xl bg-gray-100 transition-all duration-500 border-4 h-full flex-grow overflow-auto hidden md:block">
+        <div className="p-4 rounded-xl bg-gray-100 transition-all duration-500 h-full flex-grow overflow-auto hidden md:block">
           <div className="flex justify-between mb-3">
-            <h3 className="font-semibold text-gray-600">Move History</h3>{" "}
+            <h3 className="font-semibold text-gray-600">Move History</h3>
             <p className="text-gray-600">Total Turns: {moveCount}</p>
           </div>
-          <div className=" overflow-y-auto space-y-1 text-sm">
+          <div className="overflow-y-auto space-y-1 text-sm">
             {gameState.moveHistory.length === 0 ? (
               <p className="text-gray-500 italic">No moves yet</p>
             ) : (

@@ -25,7 +25,7 @@ type GameAction =
 function startNewTurn(state: GameState): GameState {
   return {
     ...state,
-    turnStartTime: state.turnTimeLimitEnabled ? Date.now() : null,
+    turnStartTime: state.turnTimeLimitEnabled && state.gameStartTime ? Date.now() : null,
     turnTimeRemaining: 5000
   };
 }
