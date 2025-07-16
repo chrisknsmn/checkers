@@ -56,20 +56,14 @@ export function GameStats({
               </PopoverTrigger>
               <PopoverContent className="w-80" align="end" side="bottom">
                 <div className="grid gap-4">
-                  <div className="space-y-2">
-                    <h4 className="font-medium leading-none">Game Settings</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Configure your game preferences
-                    </p>
-                  </div>
                   <div className="grid gap-2">
-                    <div className="grid grid-cols-3 items-center gap-4">
+                    <div className="grid items-center gap-1">
                       <label className="text-sm font-medium">Game Mode</label>
-                      <div className="col-span-2">
-                        <div className="flex items-center bg-gray-200 rounded-full p-1 w-fit">
+                      <div className="w-full">
+                        <div className="flex items-center bg-gray-200 rounded-full p-1 w-full">
                           <button
                             type="button"
-                            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                            className={`cursor-pointer w-full px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                               gameState.isAIEnabled
                                 ? "bg-white text-gray-900 shadow-sm"
                                 : "text-gray-600 hover:text-gray-900"
@@ -80,7 +74,7 @@ export function GameStats({
                           </button>
                           <button
                             type="button"
-                            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                            className={`cursor-pointer w-full px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                               !gameState.isAIEnabled
                                 ? "bg-white text-gray-900 shadow-sm"
                                 : "text-gray-600 hover:text-gray-900"
@@ -92,23 +86,33 @@ export function GameStats({
                         </div>
                       </div>
                     </div>
-                    <div className="grid grid-cols-3 items-center gap-4">
-                      <label
-                        htmlFor="turn-time-limit"
-                        className="text-sm font-medium"
-                      >
-                        Turn Time Limit (5s)
-                      </label>
-                      <div className="col-span-2">
-                        <input
-                          id="turn-time-limit"
-                          type="checkbox"
-                          className="rounded border border-gray-300"
-                          checked={gameState.turnTimeLimitEnabled}
-                          onChange={(e) =>
-                            onToggleTurnTimeLimit(e.target.checked)
-                          }
-                        />
+                    <div className="grid items-center gap-1">
+                      <label className="text-sm font-medium">Time Limit</label>
+                      <div>
+                        <div className="flex items-center bg-gray-200 rounded-full p-1 w-full">
+                          <button
+                            type="button"
+                            className={`cursor-pointer w-full px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                              !gameState.turnTimeLimitEnabled
+                                ? "bg-white text-gray-900 shadow-sm"
+                                : "text-gray-600 hover:text-gray-900"
+                            }`}
+                            onClick={() => onToggleTurnTimeLimit(false)}
+                          >
+                            Off
+                          </button>
+                          <button
+                            type="button"
+                            className={`cursor-pointer w-full px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                              gameState.turnTimeLimitEnabled
+                                ? "bg-white text-gray-900 shadow-sm"
+                                : "text-gray-600 hover:text-gray-900"
+                            }`}
+                            onClick={() => onToggleTurnTimeLimit(true)}
+                          >
+                            On
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
