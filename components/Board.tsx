@@ -130,13 +130,13 @@ export function Board({ gameState, onDragEnd, onDragStart }: BoardProps) {
   useEffect(() => {
     // Update pieces that can capture when game state changes
     setPiecesWithCaptures(getAllPiecesWithCaptures(gameState));
-    
-    // Clear hover moves when game state changes (turn ends, etc.)
-    if (!gameState.mustContinueCapture && !gameState.selectedPiece) {
-      setHoverValidMoves([]);
-      setHoveredCell(null);
-    }
   }, [gameState]);
+  
+  // Clear hover state only when the current player changes (turn ends)
+  useEffect(() => {
+    setHoverValidMoves([]);
+    setHoveredCell(null);
+  }, [gameState.currentPlayer]);
 
   const touchSensor = useSensor(TouchSensor, {
     activationConstraint: {
@@ -162,7 +162,7 @@ export function Board({ gameState, onDragEnd, onDragStart }: BoardProps) {
       // Calculate valid moves for dragging
       const validMoves = getValidMoves(gameState, { row, col });
       setHoverValidMoves(validMoves);
-      
+
       // Trigger timer start
       if (onDragStart) {
         onDragStart({ row, col });
