@@ -1,5 +1,5 @@
 import React from "react";
-import { GameState, GameStats, Checker } from "@/types/game";
+import { GameState, GameStats } from "@/types/game";
 
 interface ScoreProps {
   gameState: GameState;
