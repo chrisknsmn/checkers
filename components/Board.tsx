@@ -111,6 +111,7 @@ function DroppableCell({
 }
 
 export function Board({ gameState, onDragEnd, onDragStart }: BoardProps) {
+  const { board } = gameState;
   const [activeChecker, setActiveChecker] = useState<CheckerType | null>(null);
   const [hoveredCell, setHoveredCell] = useState<Position | null>(null);
   const [hoverValidMoves, setHoverValidMoves] = useState<Position[]>([]);
