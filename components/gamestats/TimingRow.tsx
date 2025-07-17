@@ -39,7 +39,7 @@ export function TimingRow({
   return (
     <div>
       {gameState.gameStatus === "PLAYING" ? (
-        <div className="transition-all duration-500 w-full bg-muted text-foreground rounded-xl p-2">
+        <div className="transition-all duration-500 w-full bg-muted text-foreground rounded-lg p-2">
           <div className="flex items-center gap-2 w-full text-lg">
             <div className="flex items-center gap-2 w-full">
               <Timer className="w-4 h-4" />

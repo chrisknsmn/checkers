@@ -8,7 +8,7 @@ interface MoveHistoryProps {
 
 export function MoveHistory({ gameState, moveCount }: MoveHistoryProps) {
   return (
-    <div className="p-4 rounded-xl bg-muted text-foreground transition-all duration-500 h-full flex-grow overflow-auto hidden md:block">
+    <div className="p-4 rounded-lg bg-muted text-foreground transition-all duration-500 h-full flex-grow overflow-auto hidden md:block">
       <div className="flex justify-between mb-3">
         <h3 className="font-semibold">Move History</h3>
         <p>Total Turns: {moveCount}</p>

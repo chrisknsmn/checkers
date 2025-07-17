@@ -190,7 +190,7 @@ export function Board({ gameState, onDragEnd, onDragStart }: BoardProps) {
 
   const boardContent = (
     <div className="w-full aspect-square max-w-full max-h-full">
-      <div className="grid grid-cols-8 gap-1 p-2 bg-board w-full h-full rounded-xl">
+      <div className="grid grid-cols-8 gap-1 p-2 bg-board w-full h-full rounded-lg">
         {board.map((row, rowIndex) =>
           row.map((cell, colIndex) => {
             const isHovered =

@@ -30,7 +30,7 @@ export function PlayerRows({
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className={`p-4 border-4 rounded-xl transition-all duration-500 flex flex-1 text-center ${
+            className={`p-4 border-4 rounded-lg transition-all duration-500 flex flex-1 text-center ${
               currentPlayer === "RED" ? "border-red-500" : "border-transparent"
             }`}
           >
@@ -91,7 +91,7 @@ export function PlayerRows({
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className={`p-4 border-4 rounded-xl transition-all duration-500 flex flex-1 text-center ${
+            className={`p-4 border-4 rounded-lg transition-all duration-500 flex flex-1 text-center ${
               currentPlayer === "RED" ? "border-transparent" : "border-red-500"
             }`}
           >
