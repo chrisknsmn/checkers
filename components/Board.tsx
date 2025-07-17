@@ -75,7 +75,6 @@ function DroppableCell({
       style={{
         backgroundColor: (() => {
           // Fallback color for cells
-          // Hover
           if (isOver && showHoverMove) {
             return "#7bf1a8";
           }
