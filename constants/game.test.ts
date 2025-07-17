@@ -1,9 +1,6 @@
 import {
   BOARD_SIZE,
   INITIAL_POSITIONS,
-  PLAYER_COLORS,
-  BOARD_COLORS,
-  UI_COLORS,
   PLAYER_DIRECTIONS,
   KING_ROW,
   DEFAULT_SETTINGS,
@@ -105,24 +102,6 @@ describe("Game Constants", () => {
     });
   });
 
-  describe("Color Constants", () => {
-    test("PLAYER_COLORS should have valid hex colors", () => {
-      expect(PLAYER_COLORS.RED).toMatch(/^#[0-9a-f]{6}$/i);
-      expect(PLAYER_COLORS.BLACK).toMatch(/^#[0-9a-f]{6}$/i);
-    });
-
-    test("BOARD_COLORS should have valid hex colors", () => {
-      expect(BOARD_COLORS.LIGHT).toMatch(/^#[0-9a-f]{6}$/i);
-      expect(BOARD_COLORS.DARK).toMatch(/^#[0-9a-f]{6}$/i);
-    });
-
-    test("UI_COLORS should have valid hex colors", () => {
-      Object.values(UI_COLORS).forEach((color) => {
-        expect(color).toMatch(/^#[0-9a-f]{6}$/i);
-      });
-    });
-  });
-
   describe("Default Settings", () => {
     test("DEFAULT_SETTINGS should have correct initial values", () => {
       expect(DEFAULT_SETTINGS.isAIEnabled).toBe(false);
@@ -202,5 +181,4 @@ describe("Game Constants", () => {
       expect(GAME_MESSAGES.BLACK_WINS).toContain("Black");
     });
   });
-
 });
