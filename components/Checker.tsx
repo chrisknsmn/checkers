@@ -5,17 +5,11 @@ import { cn } from "@/lib/utils";
 
 interface CheckerProps {
   piece: CheckerType;
-  isSelected?: boolean;
   isDraggable?: boolean;
   cellId: string;
 }
 
-export function Checker({
-  piece,
-  isSelected = false,
-  isDraggable = true,
-  cellId,
-}: CheckerProps) {
+export function Checker({ piece, isDraggable = true, cellId }: CheckerProps) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: cellId,
     disabled: !isDraggable,
