@@ -5,11 +5,17 @@ import { cn } from "@/lib/utils";
 
 interface CheckerProps {
   piece: CheckerType;
+  isSelected?: boolean;
   isDraggable?: boolean;
   cellId: string;
 }
 
-export function Checker({ piece, isDraggable = true, cellId }: CheckerProps) {
+export function Checker({
+  piece,
+  isSelected = false,
+  isDraggable = true,
+  cellId,
+}: CheckerProps) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: cellId,
     disabled: !isDraggable,
@@ -18,11 +24,13 @@ export function Checker({ piece, isDraggable = true, cellId }: CheckerProps) {
   return (
     <div
       ref={setNodeRef}
+      // style={style}
       className={cn(
         "checker w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-all duration-150 touch-none select-none",
         {
           "bg-red-500 text-white": piece.color === "RED",
           "bg-gray-800 text-white": piece.color === "BLACK",
+          "": isSelected,
           "opacity-50": isDragging,
           "cursor-grab": isDraggable,
           "cursor-grabbing": isDragging,
