@@ -3,7 +3,7 @@ import { Board } from "@/components/Board";
 import { GameStats } from "@/components/GameStats";
 import Score from "@/components/Score";
 import { useGame } from "@/hooks/useGame";
-import { GameStats as GameStatsType } from "@/types/game";
+import { GameStats as GameStatsType, Checker } from "@/types/game";
 
 export default function Home() {
   const { gameState, handleDragEnd, handleDragStart, resetGame, toggleAI, toggleTurnTimeLimit } = useGame();
@@ -18,12 +18,12 @@ export default function Home() {
     const capturedRed = gameState.moveHistory.reduce((acc, move) => {
       const redCaptured = move.capturedPieces.filter(piece => piece.color === 'RED');
       return [...acc, ...redCaptured];
-    }, [] as any[]);
+    }, [] as Checker[]);
     
     const capturedBlack = gameState.moveHistory.reduce((acc, move) => {
       const blackCaptured = move.capturedPieces.filter(piece => piece.color === 'BLACK');
       return [...acc, ...blackCaptured];
-    }, [] as any[]);
+    }, [] as Checker[]);
     
     return {
       redPieces,
