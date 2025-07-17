@@ -53,7 +53,7 @@ function DroppableCell({
     <div
       ref={setNodeRef}
       className={cn(
-        "board-square rounded-lg",
+        "rounded-lg hover:opacity-90",
         "w-full aspect-square flex items-center justify-center cursor-pointer transition-all duration-150",
         "relative touch-none select-none",
         {
@@ -261,11 +261,7 @@ export function Board({ gameState, onDragEnd, onDragStart }: BoardProps) {
         }}
       >
         {activeChecker && (
-          <Checker
-            piece={activeChecker}
-            isDraggable={false}
-            cellId=""
-          />
+          <Checker piece={activeChecker} isDraggable={false} cellId="" />
         )}
       </DragOverlay>
     </DndContext>

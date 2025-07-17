@@ -23,7 +23,7 @@ export function Checker({
     <div
       ref={setNodeRef}
       className={cn(
-        "checker w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-all duration-150 touch-none select-none",
+        "w-4/5 h-4/5 rounded-full border-4 border-black/30 cursor-grab transition-all duration-100 relative flex items-center justify-center touch-none",
         {
           "bg-red-500 text-white": piece.color === "RED",
           "bg-gray-800 text-white": piece.color === "BLACK",
