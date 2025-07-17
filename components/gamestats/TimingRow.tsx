@@ -36,13 +36,6 @@ export function TimingRow({
     return "Game Over";
   };
 
-  const getResultColor = () => {
-    if (gameState.gameStatus === "DRAW") {
-      return "text-gray-600";
-    }
-    return gameState.winner === "RED" ? "text-red-600" : "text-gray-800";
-  };
-
   return (
     <div>
       {gameState.gameStatus === "PLAYING" ? (
@@ -63,11 +56,7 @@ export function TimingRow({
           </div>
         </div>
       ) : (
-        <Button
-          onClick={onShowScoreModal}
-          variant="secondary"
-          className={`w-full justify-center font-semibold ${getResultColor()} hover:bg-gray-200`}
-        >
+        <Button onClick={onShowScoreModal} variant="secondary" size="lg">
           {getResultText()} - View Score
         </Button>
       )}

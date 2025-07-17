@@ -4,6 +4,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Checkers",
   description: "Checkers",
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
