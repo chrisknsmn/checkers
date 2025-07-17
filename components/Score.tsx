@@ -19,9 +19,9 @@ export default function Score({ gameState, gameStats, onNewGame }: ScoreProps) {
 
     const winner = gameState.winner;
     if (winner === "RED") {
-      return "Red Player Wins!";
+      return "Red Wins!";
     } else if (winner === "BLACK") {
-      return "Black Player Wins!";
+      return "Black Wins!";
     }
 
     return "Game Over";

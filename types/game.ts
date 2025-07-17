@@ -1,5 +1,15 @@
 export type Player = 'RED' | 'BLACK';
 
+export enum GameConstants {
+  CAPTURE_DISTANCE = 2,
+  BOARD_CENTER = 3.5,
+  DIRECTION_COLUMNS = 1,
+  DIRECTION_ROWS = 1,
+  KING_SCORE_BONUS = 5,
+  CAPTURE_SCORE_BONUS = 10,
+  MAX_AI_MOVES_CONSIDERED = 3
+}
+
 export interface Position {
   row: number;
   col: number;
