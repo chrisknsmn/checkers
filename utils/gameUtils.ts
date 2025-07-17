@@ -3,7 +3,6 @@ import {
   Cell,
   Checker,
   Position,
-  Player,
   Move,
   MoveType,
 } from "@/types/game";
@@ -14,85 +13,12 @@ import {
   KING_ROW,
 } from "@/constants/game";
 
-function cloneChecker(checker: Checker): Checker {
-  return {
-    id: checker.id,
-    color: checker.color,
-    position: { row: checker.position.row, col: checker.position.col },
-    isKing: checker.isKing,
-  };
-}
-
-function cloneCell(cell: Cell): Cell {
-  return {
-    position: { row: cell.position.row, col: cell.position.col },
-    checker: cell.checker ? cloneChecker(cell.checker) : null,
-    isValidMove: cell.isValidMove,
-    isDark: cell.isDark,
-  };
-}
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
 
 function cloneGameState(gameState: GameState): GameState {
-  return {
-    board: gameState.board.map((row) => row.map((cell) => cloneCell(cell))),
-    checkers: gameState.checkers.map((checker) => cloneChecker(checker)),
-    currentPlayer: gameState.currentPlayer,
-    selectedPiece: gameState.selectedPiece
-      ? { row: gameState.selectedPiece.row, col: gameState.selectedPiece.col }
-      : null,
-    validMoves: gameState.validMoves.map((move) => ({
-      row: move.row,
-      col: move.col,
-    })),
-    moveHistory: gameState.moveHistory.map((move) => ({
-      id: move.id,
-      from: { row: move.from.row, col: move.from.col },
-      to: { row: move.to.row, col: move.to.col },
-      type: move.type,
-      piece: cloneChecker(move.piece),
-      capturedPieces: move.capturedPieces.map((checker) =>
-        cloneChecker(checker)
-      ),
-      timestamp: move.timestamp,
-    })),
-    moveCount: gameState.moveCount,
-    gameStatus: gameState.gameStatus,
-    winner: gameState.winner,
-    forcedCapture: gameState.forcedCapture,
-    lastMove: gameState.lastMove
-      ? {
-          id: gameState.lastMove.id,
-          from: {
-            row: gameState.lastMove.from.row,
-            col: gameState.lastMove.from.col,
-          },
-          to: {
-            row: gameState.lastMove.to.row,
-            col: gameState.lastMove.to.col,
-          },
-          type: gameState.lastMove.type,
-          piece: cloneChecker(gameState.lastMove.piece),
-          capturedPieces: gameState.lastMove.capturedPieces.map((checker) =>
-            cloneChecker(checker)
-          ),
-          timestamp: gameState.lastMove.timestamp,
-        }
-      : null,
-    mustContinueCapture: gameState.mustContinueCapture
-      ? {
-          row: gameState.mustContinueCapture.row,
-          col: gameState.mustContinueCapture.col,
-        }
-      : null,
-    gameStartTime: gameState.gameStartTime,
-    gameTime: gameState.gameTime,
-    timerRunning: gameState.timerRunning,
-    isAIEnabled: gameState.isAIEnabled,
-    aiPlayer: gameState.aiPlayer,
-    turnTimeLimitEnabled: gameState.turnTimeLimitEnabled,
-    turnStartTime: gameState.turnStartTime,
-    turnTimeRemaining: gameState.turnTimeRemaining,
-  };
+  return structuredClone(gameState);
 }
 
 function getDirectionsForPiece(piece: Checker): number[] {
@@ -102,6 +28,136 @@ function getDirectionsForPiece(piece: Checker): number[] {
 function getColumnDirections(): number[] {
   return [-1, 1];
 }
+
+function isCapture(from: Position, to: Position): boolean {
+  const deltaRow = Math.abs(to.row - from.row);
+  const deltaCol = Math.abs(to.col - from.col);
+  return deltaRow === 2 && deltaCol === 2;
+}
+
+function calculateMoveScore(
+  from: Position,
+  to: Position,
+  currentPlayer: "RED" | "BLACK",
+  isCapture: boolean
+): number {
+  let score = 0;
+
+  if (isCapture) score += 10;
+
+  // Prefer moving towards opponent's side
+  score += currentPlayer === "BLACK" ? 7 - to.row : to.row;
+
+  // Prefer making kings
+  if (
+    (currentPlayer === "BLACK" && to.row === 7) ||
+    (currentPlayer === "RED" && to.row === 0)
+  ) {
+    score += 5;
+  }
+
+  // Prefer keeping pieces in center
+  score += 3.5 - Math.abs(to.col - 3.5);
+
+  return score;
+}
+
+export function isValidPosition(position: Position): boolean {
+  return (
+    position.row >= 0 &&
+    position.row < BOARD_SIZE &&
+    position.col >= 0 &&
+    position.col < BOARD_SIZE
+  );
+}
+
+// ============================================================================
+// BOARD INITIALIZATION
+// ============================================================================
+
+export function initializeBoard(): Cell[][] {
+  const board: Cell[][] = [];
+
+  for (let row = 0; row < BOARD_SIZE; row++) {
+    board[row] = [];
+    for (let col = 0; col < BOARD_SIZE; col++) {
+      const position = { row, col };
+      const isDark = (row + col) % 2 === 1;
+
+      board[row][col] = {
+        position,
+        checker: null,
+        isValidMove: false,
+        isDark,
+      };
+    }
+  }
+
+  return board;
+}
+
+export function initializeCheckers(): Checker[] {
+  const checkers: Checker[] = [];
+
+  // Create RED checkers
+  INITIAL_POSITIONS.RED.forEach((position, index) => {
+    checkers.push({
+      id: `red-${index}`,
+      color: "RED",
+      position,
+      isKing: false,
+    });
+  });
+
+  // Create BLACK checkers
+  INITIAL_POSITIONS.BLACK.forEach((position, index) => {
+    checkers.push({
+      id: `black-${index}`,
+      color: "BLACK",
+      position,
+      isKing: false,
+    });
+  });
+
+  return checkers;
+}
+
+export function initializeGameState(): GameState {
+  const board = initializeBoard();
+  const checkers = initializeCheckers();
+
+  // Place checkers on board
+  checkers.forEach((checker) => {
+    board[checker.position.row][checker.position.col].checker = checker;
+  });
+
+  return {
+    board,
+    checkers,
+    currentPlayer: "RED",
+    selectedPiece: null,
+    validMoves: [],
+    moveHistory: [],
+    moveCount: 0,
+    gameStatus: "PLAYING",
+    winner: null,
+    forcedCapture: false,
+    lastMove: null,
+    mustContinueCapture: null,
+    gameStartTime: null,
+    gameTime: 0,
+    timerRunning: false,
+    isAIEnabled: true,
+    aiPlayer: "BLACK",
+    turnTimeLimitEnabled: false,
+    turnStartTime: null,
+    turnTimeRemaining: 5000,
+  };
+}
+
+// ============================================================================
+// MOVE CALCULATION
+// ============================================================================
 
 function calculateMovePositions(
   gameState: GameState,
@@ -143,6 +199,176 @@ function calculateMovePositions(
 
   return { captureMoves, regularMoves };
 }
+
+export function getAllPiecesWithCaptures(gameState: GameState): Position[] {
+  const { board, currentPlayer, mustContinueCapture } = gameState;
+
+  if (mustContinueCapture) return [mustContinueCapture];
+
+  return board.flatMap((row, rowIndex) =>
+    row
+      .map((cell, colIndex) => ({ cell, position: { row: rowIndex, col: colIndex } }))
+      .filter(({ cell }) => cell.checker?.color === currentPlayer)
+      .map(({ position }) => position)
+      .filter((position) => getCaptureMoves(gameState, position).length > 0)
+  );
+}
+
+export function getCaptureMoves(
+  gameState: GameState,
+  position: Position
+): Position[] {
+  const { board } = gameState;
+  const piece = board[position.row][position.col].checker;
+
+  if (!piece) {
+    return [];
+  }
+
+  const { captureMoves } = calculateMovePositions(gameState, position, piece);
+  return captureMoves;
+}
+
+export function getValidMoves(
+  gameState: GameState,
+  position: Position
+): Position[] {
+  const { board, currentPlayer, mustContinueCapture } = gameState;
+  const piece = board[position.row][position.col].checker;
+
+  if (!piece || piece.color !== currentPlayer) {
+    return [];
+  }
+
+  // If we must continue after a capture, allow any valid move for that piece
+  if (mustContinueCapture) {
+    if (
+      position.row !== mustContinueCapture.row ||
+      position.col !== mustContinueCapture.col
+    ) {
+      return [];
+    }
+    const { captureMoves, regularMoves } = calculateMovePositions(
+      gameState,
+      position,
+      piece
+    );
+    return [...captureMoves, ...regularMoves];
+  }
+
+  // Check if any pieces can capture - if so, only allow those pieces to move
+  const piecesWithCaptures = getAllPiecesWithCaptures(gameState);
+  if (piecesWithCaptures.length > 0) {
+    // Only allow pieces that can capture to move
+    const canThisPieceCapture = piecesWithCaptures.some(
+      (pos) => pos.row === position.row && pos.col === position.col
+    );
+    if (!canThisPieceCapture) {
+      return [];
+    }
+    // Return only capture moves for this piece
+    return getCaptureMoves(gameState, position);
+  }
+
+  const { captureMoves, regularMoves } = calculateMovePositions(
+    gameState,
+    position,
+    piece
+  );
+
+  // If captures are available, only return captures (mandatory capture rule)
+  if (captureMoves.length > 0) {
+    return captureMoves;
+  }
+
+  return regularMoves;
+}
+
+export function checkForValidMoves(gameState: GameState): boolean {
+  const { board } = gameState;
+
+  return board.some((row, rowIndex) =>
+    row.some((cell, colIndex) => {
+      if (!cell.checker) return false;
+      
+      const tempGameState = {
+        ...gameState,
+        currentPlayer: cell.checker.color,
+        mustContinueCapture: null,
+      };
+      
+      return getValidMoves(tempGameState, { row: rowIndex, col: colIndex }).length > 0;
+    })
+  );
+}
+
+export function canCapture(
+  gameState: GameState,
+  from: Position,
+  to: Position
+): boolean {
+  const { board } = gameState;
+  const piece = board[from.row][from.col].checker;
+
+  if (!piece || !isCapture(from, to)) return false;
+
+  const capturedRow = from.row + (to.row - from.row) / 2;
+  const capturedCol = from.col + (to.col - from.col) / 2;
+  const middlePiece = board[capturedRow][capturedCol].checker;
+
+  return middlePiece !== null && middlePiece.color !== piece.color;
+}
+
+export function getAIMove(
+  gameState: GameState
+): { from: Position; to: Position } | null {
+  const { board, currentPlayer, mustContinueCapture } = gameState;
+
+  const allMoves: {
+    from: Position;
+    to: Position;
+    isCapture: boolean;
+    score: number;
+  }[] = [];
+
+  const positions = mustContinueCapture
+    ? [mustContinueCapture]
+    : board.flatMap((row, rowIndex) =>
+        row
+          .map((cell, colIndex) => ({ cell, position: { row: rowIndex, col: colIndex } }))
+          .filter(({ cell }) => cell.checker?.color === currentPlayer)
+          .map(({ position }) => position)
+      );
+
+  positions.forEach((position) => {
+    const validMoves = getValidMoves(gameState, position);
+    
+    validMoves.forEach((move) => {
+      const isCaptureMove = isCapture(position, move);
+      const score = calculateMoveScore(position, move, currentPlayer, isCaptureMove);
+
+      allMoves.push({
+        from: position,
+        to: move,
+        isCapture: isCaptureMove,
+        score,
+      });
+    });
+  });
+
+  if (allMoves.length === 0) return null;
+
+  allMoves.sort((a, b) => b.score - a.score);
+
+  const topMoves = allMoves.slice(0, Math.min(3, allMoves.length));
+  const randomMove = topMoves[Math.floor(Math.random() * topMoves.length)];
+
+  return { from: randomMove.from, to: randomMove.to };
+}
+
+// ============================================================================
+// GAME STATE UPDATES
+// ============================================================================
 
 function updateGameEndConditions(gameState: GameState): void {
   const { checkers } = gameState;
@@ -241,244 +467,9 @@ function processCaptureMove(
   return capturedPieces;
 }
 
-export function initializeBoard(): Cell[][] {
-  const board: Cell[][] = [];
-
-  for (let row = 0; row < BOARD_SIZE; row++) {
-    board[row] = [];
-    for (let col = 0; col < BOARD_SIZE; col++) {
-      const position = { row, col };
-      const isDark = (row + col) % 2 === 1;
-
-      board[row][col] = {
-        position,
-        checker: null,
-        isValidMove: false,
-        isDark,
-      };
-    }
-  }
-
-  return board;
-}
-
-export function initializeCheckers(): Checker[] {
-  const checkers: Checker[] = [];
-
-  // Create RED checkers
-  INITIAL_POSITIONS.RED.forEach((position, index) => {
-    checkers.push({
-      id: `red-${index}`,
-      color: "RED",
-      position,
-      isKing: false,
-    });
-  });
-
-  // Create BLACK checkers
-  INITIAL_POSITIONS.BLACK.forEach((position, index) => {
-    checkers.push({
-      id: `black-${index}`,
-      color: "BLACK",
-      position,
-      isKing: false,
-    });
-  });
-
-  return checkers;
-}
-
-export function initializeGameState(): GameState {
-  const board = initializeBoard();
-  const checkers = initializeCheckers();
-
-  // Place checkers on board
-  checkers.forEach((checker) => {
-    board[checker.position.row][checker.position.col].checker = checker;
-  });
-
-  return {
-    board,
-    checkers,
-    currentPlayer: "RED",
-    selectedPiece: null,
-    validMoves: [],
-    moveHistory: [],
-    moveCount: 0,
-    gameStatus: "PLAYING",
-    winner: null,
-    forcedCapture: false,
-    lastMove: null,
-    mustContinueCapture: null,
-    gameStartTime: null,
-    gameTime: 0,
-    timerRunning: false,
-    isAIEnabled: true,
-    aiPlayer: "BLACK",
-    turnTimeLimitEnabled: false,
-    turnStartTime: null,
-    turnTimeRemaining: 5000,
-  };
-}
-
-export function isValidPosition(position: Position): boolean {
-  return (
-    position.row >= 0 &&
-    position.row < BOARD_SIZE &&
-    position.col >= 0 &&
-    position.col < BOARD_SIZE
-  );
-}
-
-export function getAllPiecesWithCaptures(gameState: GameState): Position[] {
-  const { board, currentPlayer, mustContinueCapture } = gameState;
-  const piecesWithCaptures: Position[] = [];
-
-  // If we must continue capturing, only that piece can move
-  if (mustContinueCapture) {
-    return [mustContinueCapture];
-  }
-
-  // Check all pieces of the current player
-  for (let row = 0; row < BOARD_SIZE; row++) {
-    for (let col = 0; col < BOARD_SIZE; col++) {
-      const cell = board[row][col];
-      if (cell.checker && cell.checker.color === currentPlayer) {
-        const position = { row, col };
-        const captures = getCaptureMoves(gameState, position);
-        if (captures.length > 0) {
-          piecesWithCaptures.push(position);
-        }
-      }
-    }
-  }
-
-  return piecesWithCaptures;
-}
-
-export function getCaptureMoves(
-  gameState: GameState,
-  position: Position
-): Position[] {
-  const { board } = gameState;
-  const piece = board[position.row][position.col].checker;
-
-  if (!piece) {
-    return [];
-  }
-
-  const { captureMoves } = calculateMovePositions(gameState, position, piece);
-  return captureMoves;
-}
-
-export function getValidMoves(
-  gameState: GameState,
-  position: Position
-): Position[] {
-  const { board, currentPlayer, mustContinueCapture } = gameState;
-  const piece = board[position.row][position.col].checker;
-
-  if (!piece || piece.color !== currentPlayer) {
-    return [];
-  }
-
-  // If we must continue after a capture, allow any valid move for that piece
-  if (mustContinueCapture) {
-    if (
-      position.row !== mustContinueCapture.row ||
-      position.col !== mustContinueCapture.col
-    ) {
-      return [];
-    }
-    const { captureMoves, regularMoves } = calculateMovePositions(
-      gameState,
-      position,
-      piece
-    );
-    return [...captureMoves, ...regularMoves];
-  }
-
-  // Check if any pieces can capture - if so, only allow those pieces to move
-  const piecesWithCaptures = getAllPiecesWithCaptures(gameState);
-  if (piecesWithCaptures.length > 0) {
-    // Only allow pieces that can capture to move
-    const canThisPieceCapture = piecesWithCaptures.some(
-      (pos) => pos.row === position.row && pos.col === position.col
-    );
-    if (!canThisPieceCapture) {
-      return [];
-    }
-    // Return only capture moves for this piece
-    return getCaptureMoves(gameState, position);
-  }
-
-  const { captureMoves, regularMoves } = calculateMovePositions(
-    gameState,
-    position,
-    piece
-  );
-
-  // If captures are available, only return captures (mandatory capture rule)
-  if (captureMoves.length > 0) {
-    return captureMoves;
-  }
-
-  return regularMoves;
-}
-
-export function checkForValidMoves(gameState: GameState): boolean {
-  const { board } = gameState;
-
-  // Check all pieces for both players
-  for (let row = 0; row < BOARD_SIZE; row++) {
-    for (let col = 0; col < BOARD_SIZE; col++) {
-      const cell = board[row][col];
-      if (
-        cell.checker &&
-        (cell.checker.color === "RED" || cell.checker.color === "BLACK")
-      ) {
-        // Create temporary game state with the piece's color as current player
-        const tempGameState = {
-          ...gameState,
-          currentPlayer: cell.checker.color,
-          mustContinueCapture: null,
-        };
-        const validMoves = getValidMoves(tempGameState, { row, col });
-        if (validMoves.length > 0) {
-          return true;
-        }
-      }
-    }
-  }
-
-  return false;
-}
-
-export function canCapture(
-  gameState: GameState,
-  from: Position,
-  to: Position
-): boolean {
-  const { board } = gameState;
-  const piece = board[from.row][from.col].checker;
-
-  if (!piece) return false;
-
-  const rowDiff = to.row - from.row;
-  const colDiff = to.col - from.col;
-
-  // Must be diagonal move of distance 2
-  if (Math.abs(rowDiff) !== 2 || Math.abs(colDiff) !== 2) {
-    return false;
-  }
-
-  // Check if there's an enemy piece in between
-  const capturedRow = from.row + rowDiff / 2;
-  const capturedCol = from.col + colDiff / 2;
-  const middlePiece = board[capturedRow][capturedCol].checker;
-
-  return middlePiece !== null && middlePiece.color !== piece.color;
-}
+// ============================================================================
+// PUBLIC API
+// ============================================================================
 
 export function applyMove(
   gameState: GameState,
@@ -638,127 +629,4 @@ export function makeMove(gameState: GameState, to: Position): GameState {
   if (!isValidMove) return gameState;
 
   return applyMove(gameState, gameState.selectedPiece, to);
-}
-
-// AI Move Logic
-export function getAIMove(
-  gameState: GameState
-): { from: Position; to: Position } | null {
-  const { board, currentPlayer, mustContinueCapture } = gameState;
-
-  // Get all possible moves for the current player
-  const allMoves: {
-    from: Position;
-    to: Position;
-    isCapture: boolean;
-    score: number;
-  }[] = [];
-
-  // If we must continue capturing, only consider moves from that specific piece
-  if (mustContinueCapture) {
-    const validMoves = getValidMoves(gameState, mustContinueCapture);
-
-    validMoves.forEach((move) => {
-      const deltaRow = Math.abs(move.row - mustContinueCapture.row);
-      const deltaCol = Math.abs(move.col - mustContinueCapture.col);
-      const isCapture = deltaRow === 2 && deltaCol === 2;
-
-      // Calculate move score
-      let score = 0;
-
-      // Prefer captures
-      if (isCapture) {
-        score += 10;
-      }
-
-      // Prefer moving towards opponent's side
-      if (currentPlayer === "BLACK") {
-        score += 7 - move.row; // Move towards row 7 (bottom)
-      } else {
-        score += move.row; // Move towards row 0 (top)
-      }
-
-      // Prefer making kings
-      if (
-        (currentPlayer === "BLACK" && move.row === 7) ||
-        (currentPlayer === "RED" && move.row === 0)
-      ) {
-        score += 5;
-      }
-
-      // Prefer keeping pieces in center
-      const centerDistance = Math.abs(move.col - 3.5);
-      score += 3.5 - centerDistance;
-
-      allMoves.push({
-        from: mustContinueCapture,
-        to: move,
-        isCapture,
-        score,
-      });
-    });
-  } else {
-    // Normal move - consider all pieces
-    for (let row = 0; row < BOARD_SIZE; row++) {
-      for (let col = 0; col < BOARD_SIZE; col++) {
-        const cell = board[row][col];
-        if (cell.checker?.color === currentPlayer) {
-          const validMoves = getValidMoves(gameState, { row, col });
-
-          validMoves.forEach((move) => {
-            const deltaRow = Math.abs(move.row - row);
-            const deltaCol = Math.abs(move.col - col);
-            const isCapture = deltaRow === 2 && deltaCol === 2;
-
-            // Calculate move score
-            let score = 0;
-
-            // Prefer captures
-            if (isCapture) {
-              score += 10;
-            }
-
-            // Prefer moving towards opponent's side
-            if (currentPlayer === "BLACK") {
-              score += 7 - move.row; // Move towards row 7 (bottom)
-            } else {
-              score += move.row; // Move towards row 0 (top)
-            }
-
-            // Prefer making kings
-            if (
-              (currentPlayer === "BLACK" && move.row === 7) ||
-              (currentPlayer === "RED" && move.row === 0)
-            ) {
-              score += 5;
-            }
-
-            // Prefer keeping pieces in center
-            const centerDistance = Math.abs(move.col - 3.5);
-            score += 3.5 - centerDistance;
-
-            allMoves.push({
-              from: { row, col },
-              to: move,
-              isCapture,
-              score,
-            });
-          });
-        }
-      }
-    }
-  }
-
-  if (allMoves.length === 0) {
-    return null;
-  }
-
-  // Sort by score (highest first)
-  allMoves.sort((a, b) => b.score - a.score);
-
-  // Add some randomness - pick from top 3 moves
-  const topMoves = allMoves.slice(0, Math.min(3, allMoves.length));
-  const randomMove = topMoves[Math.floor(Math.random() * topMoves.length)];
-
-  return { from: randomMove.from, to: randomMove.to };
 }
