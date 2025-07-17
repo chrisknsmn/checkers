@@ -96,7 +96,7 @@ function DroppableCell({
             cellId={id}
           />
           {hasCapture && (
-            <div className="absolute inset-[5px] rounded-full border-4 border-green-500 pointer-events-none" />
+            <div className="absolute inset-[5px] rounded-full border-4 border-green-500 animate-pulse pointer-events-none" />
           )}
         </div>
       )}
