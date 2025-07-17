@@ -1,4 +1,4 @@
-import { useReducer, useCallback, useEffect, useRef } from "react";
+import { useReducer, useCallback, useEffect, useRef, useMemo } from "react";
 import { GameState, Position } from "@/types/game";
 import {
   initializeGameState,
@@ -7,6 +7,20 @@ import {
   applyMove,
   getAIMove,
 } from "@/utils/gameUtils";
+
+// ============================================================================
+// CONSTANTS AND CONFIGURATION
+// ============================================================================
+
+const GAME_CONFIG = {
+  TURN_TIME_LIMIT: 5000,
+  AI_DELAY: 1000,
+  TIMER_INTERVAL: 100,
+} as const;
+
+// ============================================================================
+// TYPES AND ACTION CREATORS
+// ============================================================================
 
 type GameAction =
   | { type: "SELECT_PIECE"; payload: Position }
@@ -22,68 +36,238 @@ type GameAction =
   | { type: "UPDATE_TURN_TIMER"; payload: number }
   | { type: "TURN_TIME_EXPIRED" };
 
+/**
+ * Action creators for better type safety and maintainability
+ */
+const actionCreators = {
+  selectPiece: (position: Position): GameAction => ({
+    type: "SELECT_PIECE",
+    payload: position,
+  }),
+  makeMove: (position: Position): GameAction => ({
+    type: "MAKE_MOVE",
+    payload: position,
+  }),
+  makeDirectMove: (from: Position, to: Position): GameAction => ({
+    type: "MAKE_DIRECT_MOVE",
+    payload: { from, to },
+  }),
+  resetGame: (): GameAction => ({ type: "RESET_GAME" }),
+  startTimer: (): GameAction => ({ type: "START_TIMER" }),
+  updateTimer: (elapsed: number): GameAction => ({
+    type: "UPDATE_TIMER",
+    payload: elapsed,
+  }),
+  toggleAI: (enabled: boolean): GameAction => ({
+    type: "TOGGLE_AI",
+    payload: enabled,
+  }),
+  makeAIMove: (): GameAction => ({ type: "MAKE_AI_MOVE" }),
+  toggleTurnTimeLimit: (enabled: boolean): GameAction => ({
+    type: "TOGGLE_TURN_TIME_LIMIT",
+    payload: enabled,
+  }),
+  startTurnTimer: (): GameAction => ({ type: "START_TURN_TIMER" }),
+  updateTurnTimer: (remaining: number): GameAction => ({
+    type: "UPDATE_TURN_TIMER",
+    payload: remaining,
+  }),
+  turnTimeExpired: (): GameAction => ({ type: "TURN_TIME_EXPIRED" }),
+};
+
+// ============================================================================
+// CUSTOM HOOKS
+// ============================================================================
+
+/**
+ * Custom hook for managing game and turn timers
+ */
+function useGameTimers(
+  gameState: GameState,
+  dispatch: React.Dispatch<GameAction>
+) {
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const turnTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Game timer effect
+  useEffect(() => {
+    if (
+      gameState.timerRunning &&
+      gameState.gameStartTime &&
+      gameState.gameStatus === "PLAYING"
+    ) {
+      timerRef.current = setInterval(() => {
+        const elapsed = Date.now() - gameState.gameStartTime!;
+        dispatch(actionCreators.updateTimer(elapsed));
+      }, GAME_CONFIG.TIMER_INTERVAL);
+    } else {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    }
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [
+    gameState.timerRunning,
+    gameState.gameStartTime,
+    gameState.gameStatus,
+    dispatch,
+  ]);
+
+  // Turn timer effect
+  useEffect(() => {
+    if (
+      gameState.turnTimeLimitEnabled &&
+      gameState.turnStartTime &&
+      gameState.gameStatus === "PLAYING"
+    ) {
+      turnTimerRef.current = setInterval(() => {
+        const elapsed = Date.now() - gameState.turnStartTime!;
+        const remaining = Math.max(0, GAME_CONFIG.TURN_TIME_LIMIT - elapsed);
+
+        if (remaining <= 0) {
+          dispatch(actionCreators.turnTimeExpired());
+        } else {
+          dispatch(actionCreators.updateTurnTimer(remaining));
+        }
+      }, GAME_CONFIG.TIMER_INTERVAL);
+    } else {
+      if (turnTimerRef.current) {
+        clearInterval(turnTimerRef.current);
+        turnTimerRef.current = null;
+      }
+    }
+
+    return () => {
+      if (turnTimerRef.current) {
+        clearInterval(turnTimerRef.current);
+        turnTimerRef.current = null;
+      }
+    };
+  }, [
+    gameState.turnTimeLimitEnabled,
+    gameState.turnStartTime,
+    gameState.gameStatus,
+    dispatch,
+  ]);
+}
+
+/**
+ * Custom hook for AI player logic
+ */
+function useAIPlayer(
+  gameState: GameState,
+  dispatch: React.Dispatch<GameAction>
+) {
+  const shouldMakeAIMove = useMemo(() => {
+    return (
+      gameState.isAIEnabled &&
+      gameState.currentPlayer === gameState.aiPlayer &&
+      gameState.gameStatus === "PLAYING"
+    );
+  }, [
+    gameState.isAIEnabled,
+    gameState.currentPlayer,
+    gameState.aiPlayer,
+    gameState.gameStatus,
+  ]);
+
+  useEffect(() => {
+    if (shouldMakeAIMove) {
+      const aiMoveTimer = setTimeout(() => {
+        dispatch(actionCreators.makeAIMove());
+      }, GAME_CONFIG.AI_DELAY);
+
+      return () => clearTimeout(aiMoveTimer);
+    }
+  }, [shouldMakeAIMove, dispatch, gameState.mustContinueCapture]);
+}
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+/**
+ * Helper function to start a new turn with proper timer setup
+ */
 function startNewTurn(state: GameState): GameState {
   return {
     ...state,
     turnStartTime:
       state.turnTimeLimitEnabled && state.gameStartTime ? Date.now() : null,
-    turnTimeRemaining: 5000,
+    turnTimeRemaining: GAME_CONFIG.TURN_TIME_LIMIT,
   };
 }
+
+/**
+ * Helper function to handle move actions and determine if a new turn should start
+ */
+function handleMoveAction(
+  state: GameState,
+  newState: GameState,
+  shouldStartTimer: boolean = false
+): GameState {
+  let result = newState;
+
+  // Start game timer if needed
+  if (shouldStartTimer && !state.gameStartTime && !state.timerRunning) {
+    result = {
+      ...result,
+      gameStartTime: Date.now(),
+      timerRunning: true,
+    };
+  }
+
+  // Start new turn timer if player changed or continues after capture
+  if (
+    result.currentPlayer !== state.currentPlayer ||
+    result.mustContinueCapture
+  ) {
+    result = startNewTurn(result);
+  }
+
+  return result;
+}
+
+/**
+ * Helper function to switch to the next player
+ */
+function switchToNextPlayer(state: GameState): GameState {
+  const nextPlayer = state.currentPlayer === "RED" ? "BLACK" : "RED";
+  return startNewTurn({
+    ...state,
+    currentPlayer: nextPlayer,
+    selectedPiece: null,
+    validMoves: [],
+    mustContinueCapture: null,
+  });
+}
+
+// ============================================================================
+// REDUCER
+// ============================================================================
 
 function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case "SELECT_PIECE": {
       const newState = selectPiece(state, action.payload);
-      // Start timer on first piece selection
-      if (!state.gameStartTime && !state.timerRunning) {
-        return {
-          ...newState,
-          gameStartTime: Date.now(),
-          timerRunning: true,
-        };
-      }
-      return newState;
+      return handleMoveAction(state, newState, true);
     }
 
     case "MAKE_MOVE": {
       const newState = makeMove(state, action.payload);
-      // Start new turn timer if the player changed OR if player continues after capture
-      if (
-        newState.currentPlayer !== state.currentPlayer ||
-        newState.mustContinueCapture
-      ) {
-        return startNewTurn(newState);
-      }
-      return newState;
+      return handleMoveAction(state, newState);
     }
 
     case "MAKE_DIRECT_MOVE": {
       const newState = applyMove(state, action.payload.from, action.payload.to);
-      // Start timer on first drag move
-      if (!state.gameStartTime && !state.timerRunning) {
-        const timerStarted = {
-          ...newState,
-          gameStartTime: Date.now(),
-          timerRunning: true,
-        };
-        // Start new turn timer if the player changed OR if player continues after capture
-        if (
-          timerStarted.currentPlayer !== state.currentPlayer ||
-          timerStarted.mustContinueCapture
-        ) {
-          return startNewTurn(timerStarted);
-        }
-        return timerStarted;
-      }
-      // Start new turn timer if the player changed OR if player continues after capture
-      if (
-        newState.currentPlayer !== state.currentPlayer ||
-        newState.mustContinueCapture
-      ) {
-        return startNewTurn(newState);
-      }
-      return newState;
+      return handleMoveAction(state, newState, true);
     }
 
     case "RESET_GAME":
@@ -112,11 +296,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       const aiMove = getAIMove(state);
       if (aiMove) {
         const newState = applyMove(state, aiMove.from, aiMove.to);
-        // Start new turn timer if the player changed
-        if (newState.currentPlayer !== state.currentPlayer) {
-          return startNewTurn(newState);
-        }
-        return newState;
+        return handleMoveAction(state, newState);
       }
       return state;
     }
@@ -137,23 +317,22 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         turnTimeRemaining: action.payload,
       };
 
-    case "TURN_TIME_EXPIRED": {
-      // Forfeit the turn - switch to the other player
-      const nextPlayer = state.currentPlayer === "RED" ? "BLACK" : "RED";
-      return startNewTurn({
-        ...state,
-        currentPlayer: nextPlayer,
-        selectedPiece: null,
-        validMoves: [],
-        mustContinueCapture: null,
-      });
-    }
+    case "TURN_TIME_EXPIRED":
+      return switchToNextPlayer(state);
 
     default:
       return state;
   }
 }
 
+// ============================================================================
+// MAIN HOOK
+// ============================================================================
+
+/**
+ * Main game hook that manages game state and provides game actions
+ * @returns Game state and action handlers
+ */
 export function useGame() {
   const [gameState, dispatch] = useReducer(
     gameReducer,
@@ -161,132 +340,58 @@ export function useGame() {
     initializeGameState
   );
 
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const turnTimerRef = useRef<NodeJS.Timeout | null>(null);
+  // Initialize custom hooks
+  useGameTimers(gameState, dispatch);
+  useAIPlayer(gameState, dispatch);
 
-  // Timer effect
-  useEffect(() => {
-    if (
-      gameState.timerRunning &&
-      gameState.gameStartTime &&
-      gameState.gameStatus === "PLAYING"
-    ) {
-      timerRef.current = setInterval(() => {
-        const elapsed = Date.now() - gameState.gameStartTime!;
-        dispatch({ type: "UPDATE_TIMER", payload: elapsed });
-      }, 100);
-    } else {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-    }
+  // Memoized game state properties for performance
+  const isGameActive = useMemo(
+    () => gameState.gameStatus === "PLAYING",
+    [gameState.gameStatus]
+  );
+  const canDragPiece = useMemo(
+    () => (position: Position) => {
+      const cell = gameState.board[position.row][position.col];
+      return cell.checker && cell.checker.color === gameState.currentPlayer;
+    },
+    [gameState.board, gameState.currentPlayer]
+  );
 
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-    };
-  }, [gameState.timerRunning, gameState.gameStartTime, gameState.gameStatus]);
-
-  // Turn Timer Effect
-  useEffect(() => {
-    if (
-      gameState.turnTimeLimitEnabled &&
-      gameState.turnStartTime &&
-      gameState.gameStatus === "PLAYING"
-    ) {
-      turnTimerRef.current = setInterval(() => {
-        const elapsed = Date.now() - gameState.turnStartTime!;
-        const remaining = Math.max(0, 5000 - elapsed);
-
-        if (remaining <= 0) {
-          dispatch({ type: "TURN_TIME_EXPIRED" });
-        } else {
-          dispatch({ type: "UPDATE_TURN_TIMER", payload: remaining });
-        }
-      }, 100);
-    } else {
-      if (turnTimerRef.current) {
-        clearInterval(turnTimerRef.current);
-        turnTimerRef.current = null;
-      }
-    }
-
-    return () => {
-      if (turnTimerRef.current) {
-        clearInterval(turnTimerRef.current);
-        turnTimerRef.current = null;
-      }
-    };
-  }, [
-    gameState.turnTimeLimitEnabled,
-    gameState.turnStartTime,
-    gameState.gameStatus,
-  ]);
-
-  // AI Move Effect
-  useEffect(() => {
-    if (
-      gameState.isAIEnabled &&
-      gameState.currentPlayer === gameState.aiPlayer &&
-      gameState.gameStatus === "PLAYING"
-    ) {
-      const aiMoveTimer = setTimeout(() => {
-        dispatch({ type: "MAKE_AI_MOVE" });
-      }, 1000); // 1 second delay for AI move
-
-      return () => clearTimeout(aiMoveTimer);
-    }
-  }, [
-    gameState.isAIEnabled,
-    gameState.currentPlayer,
-    gameState.aiPlayer,
-    gameState.gameStatus,
-    gameState.mustContinueCapture,
-  ]);
-
+  // Action handlers with proper memoization
   const selectPieceHandler = useCallback((position: Position) => {
-    dispatch({ type: "SELECT_PIECE", payload: position });
+    dispatch(actionCreators.selectPiece(position));
   }, []);
 
   const makeMoveHandler = useCallback((position: Position) => {
-    dispatch({ type: "MAKE_MOVE", payload: position });
+    dispatch(actionCreators.makeMove(position));
   }, []);
 
   const resetGame = useCallback(() => {
-    dispatch({ type: "RESET_GAME" });
+    dispatch(actionCreators.resetGame());
   }, []);
 
   const toggleAI = useCallback((enabled: boolean) => {
-    dispatch({ type: "TOGGLE_AI", payload: enabled });
+    dispatch(actionCreators.toggleAI(enabled));
   }, []);
 
   const toggleTurnTimeLimit = useCallback((enabled: boolean) => {
-    dispatch({ type: "TOGGLE_TURN_TIME_LIMIT", payload: enabled });
+    dispatch(actionCreators.toggleTurnTimeLimit(enabled));
   }, []);
 
   const handleDragEnd = useCallback(
     (from: Position, to: Position) => {
-      const fromCell = gameState.board[from.row][from.col];
-
-      if (
-        fromCell.checker &&
-        fromCell.checker.color === gameState.currentPlayer
-      ) {
-        // Directly apply the move without selecting
-        dispatch({ type: "MAKE_DIRECT_MOVE", payload: { from, to } });
+      if (canDragPiece(from)) {
+        dispatch(actionCreators.makeDirectMove(from, to));
       }
     },
-    [gameState]
+    [canDragPiece]
   );
 
   const handleDragStart = useCallback(
     (position: Position) => {
       // Start timer when first piece is dragged
       if (!gameState.gameStartTime && !gameState.timerRunning) {
-        dispatch({ type: "START_TIMER" });
+        dispatch(actionCreators.startTimer());
       }
     },
     [gameState.gameStartTime, gameState.timerRunning]
@@ -301,5 +406,7 @@ export function useGame() {
     toggleTurnTimeLimit,
     handleDragEnd,
     handleDragStart,
+    isGameActive,
+    canDragPiece,
   };
 }
