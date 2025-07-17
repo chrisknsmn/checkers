@@ -47,8 +47,8 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 
     case "MAKE_MOVE": {
       const newState = makeMove(state, action.payload);
-      // Start new turn timer if the player changed
-      if (newState.currentPlayer !== state.currentPlayer) {
+      // Start new turn timer if the player changed OR if player continues after capture
+      if (newState.currentPlayer !== state.currentPlayer || newState.mustContinueCapture) {
         return startNewTurn(newState);
       }
       return newState;
@@ -63,14 +63,14 @@ function gameReducer(state: GameState, action: GameAction): GameState {
           gameStartTime: Date.now(),
           timerRunning: true,
         };
-        // Start new turn timer if the player changed
-        if (timerStarted.currentPlayer !== state.currentPlayer) {
+        // Start new turn timer if the player changed OR if player continues after capture
+        if (timerStarted.currentPlayer !== state.currentPlayer || timerStarted.mustContinueCapture) {
           return startNewTurn(timerStarted);
         }
         return timerStarted;
       }
-      // Start new turn timer if the player changed
-      if (newState.currentPlayer !== state.currentPlayer) {
+      // Start new turn timer if the player changed OR if player continues after capture
+      if (newState.currentPlayer !== state.currentPlayer || newState.mustContinueCapture) {
         return startNewTurn(newState);
       }
       return newState;

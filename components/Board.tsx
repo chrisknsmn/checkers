@@ -96,7 +96,7 @@ function DroppableCell({
             cellId={id}
           />
           {hasCapture && (
-            <div className="absolute inset-8 rounded-full border-4 bg-white-900 animate-pulse pointer-events-none" />
+            <div className="absolute inset-[5px] rounded-full border-4 border-green-500 pointer-events-none" />
           )}
         </div>
       )}
@@ -104,9 +104,9 @@ function DroppableCell({
       {(cell.isValidMove || showHoverMove) && !cell.checker && (
         <div
           className={cn(
-            "w-4 h-4 bg-green-400 rounded-full opacity-80 transition-all duration-150",
+            "w-4 h-4 bg-green-400 rounded-full opacity-80 transition-all duration-150 border",
             {
-              "w-6 h-6 bg-green-500 opacity-100": isHovered || isOver,
+              "w-4 h-4 bg-green-400 opacity-100": isHovered || isOver,
             }
           )}
         />
@@ -131,7 +131,7 @@ export function Board({ gameState, onDragEnd, onDragStart }: BoardProps) {
     // Update pieces that can capture when game state changes
     setPiecesWithCaptures(getAllPiecesWithCaptures(gameState));
   }, [gameState]);
-  
+
   // Clear hover state only when the current player changes (turn ends)
   useEffect(() => {
     setHoverValidMoves([]);
