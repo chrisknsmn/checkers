@@ -15,6 +15,29 @@ interface PlayerRowsProps {
   blackKings: number;
 }
 
+const players = [
+  {
+    label: "RED",
+    textColor: "text-red-500",
+    pieceCountKey: "redPieces",
+    kingCountKey: "redKings",
+    borderColor: "border-red-500",
+    textShade: "text-red-700",
+    bgColor: "bg-red-50",
+    align: "start",
+  },
+  {
+    label: "BLACK",
+    textColor: "text-foreground",
+    pieceCountKey: "blackPieces",
+    kingCountKey: "blackKings",
+    borderColor: "border-red-500",
+    textShade: "text-gray-700",
+    bgColor: "bg-gray-50",
+    align: "end",
+  },
+];
+
 export function PlayerRows({
   gameState,
   redPieces,
@@ -22,133 +45,92 @@ export function PlayerRows({
   redKings,
   blackKings,
 }: PlayerRowsProps) {
-  const { currentPlayer } = gameState;
+  const { currentPlayer, moveHistory } = gameState;
+
+  const pieceCounts: Record<string, number> = {
+    redPieces,
+    blackPieces,
+    redKings,
+    blackKings,
+  };
 
   return (
     <div className="flex gap-2">
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className={`p-4 border-4 rounded-lg transition-all duration-500 flex flex-1 text-center ${
-              currentPlayer === "RED" ? "border-red-500" : "border-transparent"
-            }`}
-          >
-            <h3 className="font-semibold text-red-500 flex-grow w-12">RED</h3>
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-80" align="start" side="bottom">
-          <div className="flex flex-col gap-2">
-            <div className="flex justify-between items-center">
-              <h3 className="font-semibold text-lg">RED</h3>
-            </div>
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div>
-                <span className="font-medium">Pieces:</span> {redPieces}
-              </div>
-              <div>
-                <span className="font-medium">Kings:</span> {redKings}
-              </div>
-            </div>
-            <div className="md:hidden">
-              <h4 className="font-medium mb-2">Move History</h4>
-              <div className="h-48 overflow-y-auto space-y-1 text-sm">
-                {gameState.moveHistory.length === 0 ? (
-                  <p className="text-gray-500 italic">No moves yet</p>
-                ) : (
-                  gameState.moveHistory.map((move, index) => (
-                    <div
-                      key={move.id}
-                      className={`flex justify-between items-center py-1 px-2 rounded ${
-                        move.piece.color === "RED" ? "bg-red-50" : "bg-gray-50"
-                      }`}
-                    >
-                      <span
-                        className={
-                          move.piece.color === "RED"
-                            ? "text-red-700"
-                            : "text-gray-700"
-                        }
-                      >
-                        {index + 1}.{" "}
-                        {move.piece.color === "RED" ? "RED" : "BLACK"}{" "}
-                        {String.fromCharCode(97 + move.from.col)}
-                        {8 - move.from.row} →{" "}
-                        {String.fromCharCode(97 + move.to.col)}
-                        {8 - move.to.row}
-                        {move.type === "CAPTURE" && " (cap)"}
-                      </span>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          </div>
-        </PopoverContent>
-      </Popover>
+      {players.map((player) => {
+        const isCurrent = currentPlayer === player.label;
+        const pieceKey = player.label.toLowerCase() + "Pieces";
+        const kingKey = player.label.toLowerCase() + "Kings";
 
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className={`p-4 border-4 rounded-lg transition-all duration-500 flex flex-1 text-center ${
-              currentPlayer === "RED" ? "border-transparent" : "border-red-500"
-            }`}
-          >
-            <h3 className="font-semibold text-foreground flex-grow w-12">
-              BLACK
-            </h3>
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-80" align="end" side="bottom">
-          <div className="flex flex-col gap-2">
-            <div className="flex justify-between items-center">
-              <h3 className="font-semibold text-lg">BLACK</h3>
-            </div>
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div>
-                <span className="font-medium">Pieces:</span> {blackPieces}
+        return (
+          <Popover key={player.label}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={`p-4 border-4 rounded-lg transition-all duration-500 flex flex-1 text-center ${
+                  isCurrent ? player.borderColor : "border-transparent"
+                }`}
+              >
+                <h3
+                  className={`font-semibold ${player.textColor} flex-grow w-12`}
+                >
+                  {player.label}
+                </h3>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80" align="center" side="bottom">
+              <div className="flex flex-col gap-2">
+                <div className="flex justify-between items-center">
+                  <h3 className="font-semibold text-lg">{player.label}</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <span className="font-medium">Pieces:</span>{" "}
+                    {pieceCounts[pieceKey]}
+                  </div>
+                  <div>
+                    <span className="font-medium">Kings:</span>{" "}
+                    {pieceCounts[kingKey]}
+                  </div>
+                </div>
+                <div className="md:hidden">
+                  <h4 className="font-medium mb-2">Move History</h4>
+                  <div className="h-48 overflow-y-auto space-y-1 text-sm">
+                    {moveHistory.length === 0 ? (
+                      <p className="text-gray-500 italic">No moves yet</p>
+                    ) : (
+                      moveHistory.map((move, index) => (
+                        <div
+                          key={move.id}
+                          className={`flex justify-between items-center py-1 px-2 rounded ${
+                            move.piece.color === "RED"
+                              ? players[0].bgColor
+                              : players[1].bgColor
+                          }`}
+                        >
+                          <span
+                            className={
+                              move.piece.color === "RED"
+                                ? players[0].textShade
+                                : players[1].textShade
+                            }
+                          >
+                            {index + 1}. {move.piece.color}{" "}
+                            {String.fromCharCode(97 + move.from.col)}
+                            {8 - move.from.row} →{" "}
+                            {String.fromCharCode(97 + move.to.col)}
+                            {8 - move.to.row}
+                            {move.type === "CAPTURE" && " (cap)"}
+                          </span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
               </div>
-              <div>
-                <span className="font-medium">Kings:</span> {blackKings}
-              </div>
-            </div>
-            <div className="md:hidden">
-              <h4 className="font-medium mb-2">Move History</h4>
-              <div className="h-48 overflow-y-auto space-y-1 text-sm">
-                {gameState.moveHistory.length === 0 ? (
-                  <p className="text-gray-500 italic">No moves yet</p>
-                ) : (
-                  gameState.moveHistory.map((move, index) => (
-                    <div
-                      key={move.id}
-                      className={`flex justify-between items-center py-1 px-2 rounded ${
-                        move.piece.color === "RED" ? "bg-red-50" : "bg-gray-50"
-                      }`}
-                    >
-                      <span
-                        className={
-                          move.piece.color === "RED"
-                            ? "text-red-700"
-                            : "text-gray-700"
-                        }
-                      >
-                        {index + 1}.{" "}
-                        {move.piece.color === "RED" ? "RED" : "BLACK"}{" "}
-                        {String.fromCharCode(97 + move.from.col)}
-                        {8 - move.from.row} →{" "}
-                        {String.fromCharCode(97 + move.to.col)}
-                        {8 - move.to.row}
-                        {move.type === "CAPTURE" && " (cap)"}
-                      </span>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          </div>
-        </PopoverContent>
-      </Popover>
+            </PopoverContent>
+          </Popover>
+        );
+      })}
     </div>
   );
 }
