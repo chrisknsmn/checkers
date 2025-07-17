@@ -35,7 +35,6 @@ export function TimingRow({
     }
     return "Game Over";
   };
-
   return (
     <div>
       {gameState.gameStatus === "PLAYING" ? (

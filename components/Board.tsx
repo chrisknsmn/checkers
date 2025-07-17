@@ -59,7 +59,6 @@ function DroppableCell({
           // Base colors for all cells
           "bg-tile-light": !cell.isDark,
           "bg-tile-dark": cell.isDark,
-          // Override with special states
           "bg-green-200": showHoverMove && !cell.checker,
           "bg-green-300": isOver && showHoverMove,
         }
@@ -109,7 +108,7 @@ export function Board({ gameState, onDragEnd, onDragStart }: BoardProps) {
     setPiecesWithCaptures(getAllPiecesWithCaptures(gameState));
   }, [gameState]);
 
-  // Clear hover state only when the current player changes (turn ends)
+  // Clear hover state when turn ends
   useEffect(() => {
     setHoverValidMoves([]);
     setHoveredCell(null);

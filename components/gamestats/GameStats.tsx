@@ -38,13 +38,11 @@ export function GameStats({
           onToggleAI={onToggleAI}
           onToggleTurnTimeLimit={onToggleTurnTimeLimit}
         />
-
         <TimingRow
           gameState={gameState}
           gameTime={gameTime}
           onShowScoreModal={onShowScoreModal}
         />
-
         <PlayerRows
           gameState={gameState}
           redPieces={redPieces}
@@ -52,7 +50,6 @@ export function GameStats({
           redKings={redKings}
           blackKings={blackKings}
         />
-
         <MoveHistory gameState={gameState} moveCount={moveCount} />
       </div>
     </div>
