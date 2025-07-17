@@ -63,7 +63,7 @@ export function GameStats({
 
   return (
     <div className="flex flex-0 md:flex-1 items-center justify-center order-1 md:order-2">
-      <div className="flex flex-col gap-2 bg-white rounded-xl p-4 shadow-lg aspect-auto md:aspect-square w-full h-full md:h-auto overflow-hidden">
+      <div className="flex flex-col gap-4 bg-white rounded-xl p-4 shadow-lg aspect-auto md:aspect-square w-full h-full md:h-auto overflow-hidden">
         <div className="flex">
           <h2 className="text-4xl font-bold text-gray-600 flex-1">Checkers</h2>
           <div className="flex gap-4">
@@ -141,90 +141,103 @@ export function GameStats({
             </Popover>
           </div>
         </div>
-        <div className="flex flex-col gap-2">
-          <div>
-            {gameState.gameStatus === "PLAYING" ? (
-              <div className="transition-all duration-500 w-full bg-gray-100 rounded-xl p-4">
-                <div className="flex items-center gap-2 w-full text-lg">
+
+        <div>
+          {gameState.gameStatus === "PLAYING" ? (
+            <div className="transition-all duration-500 w-full bg-gray-100 rounded-xl p-2">
+              <div className="flex items-center gap-2 w-full text-lg">
+                <div className="flex items-center gap-2 w-full">
+                  <Timer className="w-4 h-4 text-gray-600" />
+                  <p className="text-gray-600">Time: {formatTime(gameTime)}</p>
+                </div>
+                {gameState.turnTimeLimitEnabled && (
                   <div className="flex items-center gap-2 w-full">
                     <Timer className="w-4 h-4 text-gray-600" />
                     <p className="text-gray-600">
-                      Time: {formatTime(gameTime)}
+                      Turn Time: {Math.ceil(gameState.turnTimeRemaining / 1000)}
+                      s
                     </p>
                   </div>
-                  {gameState.turnTimeLimitEnabled && (
-                    <div className="flex items-center gap-2 w-full">
-                      <Timer className="w-4 h-4 text-gray-600" />
-                      <p className="text-gray-600">
-                        Turn Time:{" "}
-                        {Math.ceil(gameState.turnTimeRemaining / 1000)}s
-                      </p>
-                    </div>
-                  )}
+                )}
+              </div>
+            </div>
+          ) : (
+            <Button
+              onClick={onShowScoreModal}
+              variant="secondary"
+              className={`w-full justify-center font-semibold ${getResultColor()} hover:bg-gray-200`}
+            >
+              {getResultText()} - View Score
+            </Button>
+          )}
+        </div>
+
+        <div className="flex gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={`p-4 border-4 rounded-xl bg-gray-100 transition-all duration-500 flex flex-1 text-center ${
+                  currentPlayer === "RED"
+                    ? "border-red-500"
+                    : "border-transparent"
+                }`}
+              >
+                <h3 className="font-semibold text-red-500 flex-grow w-12">
+                  RED
+                </h3>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80" align="start" side="bottom">
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <h3 className="font-semibold text-red-500 text-lg">RED</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <span className="font-medium">Pieces:</span> {redPieces}
+                  </div>
+                  <div>
+                    <span className="font-medium">Kings:</span> {redKings}
+                  </div>
                 </div>
               </div>
-            ) : (
+            </PopoverContent>
+          </Popover>
+
+          <Popover>
+            <PopoverTrigger asChild>
               <Button
-                onClick={onShowScoreModal}
-                variant="secondary"
-                size="lg"
-                className={`w-full justify-center font-semibold ${getResultColor()} hover:bg-gray-200`}
+                variant="outline"
+                className={`p-4 border-4 rounded-xl bg-gray-100 transition-all duration-500 flex flex-1 text-center ${
+                  currentPlayer === "RED"
+                    ? "border-transparent"
+                    : "border-red-500"
+                }`}
               >
-                {getResultText()} - View Score
+                <h3 className="font-semibold text-gray-800 flex-grow w-12">
+                  BLACK
+                </h3>
               </Button>
-            )}
-          </div>
-
-          <div className="hidden md:flex flex-col gap-2">
-            <div
-              className={`p-2 border-4 rounded-xl bg-gray-100 transition-all duration-500 flex ${
-                currentPlayer === "RED"
-                  ? "border-red-500"
-                  : "border-transparent"
-              }`}
-            >
-              <h3 className="font-semibold text-red-500 flex-grow w-12">RED</h3>
-              <p className="flex-grow">Pieces: {redPieces}</p>
-              <p className="flex-grow">Kings: {redKings}</p>
-            </div>
-            <div
-              className={`p-2 border-4 rounded-xl bg-gray-100 transition-all duration-500 flex ${
-                currentPlayer === "RED"
-                  ? "border-transparent"
-                  : "border-red-500"
-              }`}
-            >
-              <h3 className="font-semibold text-gray-800 flex-grow w-12">
-                BLACK
-              </h3>
-              <p className="flex-grow">Pieces: {blackPieces}</p>
-              <p className="flex-grow">Kings: {blackKings}</p>
-            </div>
-          </div>
-
-          <div className="flex md:hidden flex gap-2">
-            <div
-              className={`p-2 border-4 rounded-xl bg-gray-100 transition-all duration-500 flex w-full text-center ${
-                currentPlayer === "RED"
-                  ? "border-red-500"
-                  : "border-transparent"
-              }`}
-            >
-              <h3 className="font-semibold text-red-500 flex-grow w-12">RED</h3>
-            </div>
-            <div
-              className={`p-2 border-4 rounded-xl bg-gray-100 transition-all duration-500 flex w-full text-center ${
-                currentPlayer === "RED"
-                  ? "border-transparent"
-                  : "border-red-500"
-              }`}
-            >
-              <h3 className="font-semibold text-gray-800 flex-grow w-12">
-                BLACK
-              </h3>
-            </div>
-          </div>
+            </PopoverTrigger>
+            <PopoverContent className="w-80" align="end" side="bottom">
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <h3 className="font-semibold text-gray-800 text-lg">BLACK</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <span className="font-medium">Pieces:</span> {blackPieces}
+                  </div>
+                  <div>
+                    <span className="font-medium">Kings:</span> {blackKings}
+                  </div>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
+
         <div className="p-4 rounded-xl bg-gray-100 transition-all duration-500 h-full flex-grow overflow-auto hidden md:block">
           <div className="flex justify-between mb-3">
             <h3 className="font-semibold text-gray-600">Move History</h3>
