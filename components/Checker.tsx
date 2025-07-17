@@ -24,7 +24,6 @@ export function Checker({
   return (
     <div
       ref={setNodeRef}
-      // style={style}
       className={cn(
         "checker w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-all duration-150 touch-none select-none",
         {
