@@ -39,31 +39,14 @@ export const INITIAL_POSITIONS: Record<Player, Position[]> = {
   ],
 };
 
-export const PLAYER_COLORS = {
-  RED: "#dc2626",
-  BLACK: "#1f2937",
-} as const;
-
-export const BOARD_COLORS = {
-  LIGHT: "#deb887",
-  DARK: "#8b4513",
-} as const;
-
-export const UI_COLORS = {
-  HIGHLIGHT: "#fbbf24",
-  VALID_MOVE: "#22c55e",
-  SELECTED: "#3b82f6",
-  DANGER: "#ef4444",
-} as const;
-
 export const PLAYER_DIRECTIONS: Record<Player, number> = {
-  RED: 1, // Red moves down (positive row direction)
-  BLACK: -1, // Black moves up (negative row direction)
+  RED: 1,
+  BLACK: -1,
 };
 
 export const KING_ROW: Record<Player, number> = {
-  RED: 7, // Red pieces become kings on row 7
-  BLACK: 0, // Black pieces become kings on row 0
+  RED: 7,
+  BLACK: 0,
 };
 
 export const DEFAULT_SETTINGS: GameSettings = {
@@ -71,7 +54,7 @@ export const DEFAULT_SETTINGS: GameSettings = {
   aiPlayer: "BLACK",
   forcedCaptureEnabled: true,
   timerEnabled: false,
-  moveTimeLimit: 60000, // 60 seconds in milliseconds
+  moveTimeLimit: 60000,
 };
 
 export const GAME_RULES = {
