@@ -31,7 +31,6 @@ interface BoardProps {
 interface DroppableCellProps {
   id: string;
   cell: Cell;
-  isSelected: boolean;
   isHovered: boolean;
   showHoverMove: boolean;
   gameState: GameState;
@@ -42,7 +41,6 @@ interface DroppableCellProps {
 function DroppableCell({
   id,
   cell,
-  isSelected,
   isHovered,
   showHoverMove,
   gameState,
@@ -65,8 +63,7 @@ function DroppableCell({
           // Override with special states
           "bg-green-200": showHoverMove && !cell.checker,
           "bg-green-500": isOver && showHoverMove,
-          "bg-green-300": isSelected,
-          "bg-blue-200": isHovered && !showHoverMove && !isSelected,
+          "bg-blue-200": isHovered && !showHoverMove,
         }
       )}
       onMouseEnter={() => onCellHover(cell.position)}
@@ -90,7 +87,6 @@ function DroppableCell({
         <div className="relative w-full h-full flex items-center justify-center">
           <Checker
             piece={cell.checker}
-            isSelected={isSelected}
             isDraggable={cell.checker.color === gameState.currentPlayer}
             cellId={id}
           />
@@ -215,9 +211,6 @@ export function Board({ gameState, onDragEnd, onDragStart }: BoardProps) {
       <div className="grid grid-cols-8 gap-1 p-2 bg-gray-400 w-full h-full rounded-xl">
         {board.map((row, rowIndex) =>
           row.map((cell, colIndex) => {
-            const isSelected =
-              selectedPiece?.row === rowIndex &&
-              selectedPiece?.col === colIndex;
             const isHovered =
               hoveredCell?.row === rowIndex && hoveredCell?.col === colIndex;
             const showHoverMove = hoverValidMoves.some(
@@ -235,7 +228,6 @@ export function Board({ gameState, onDragEnd, onDragStart }: BoardProps) {
                 key={`${rowIndex}-${colIndex}`}
                 id={`${rowIndex}-${colIndex}`}
                 cell={cell}
-                isSelected={isSelected}
                 isHovered={isHovered}
                 showHoverMove={showHoverMove}
                 gameState={gameState}
@@ -271,7 +263,6 @@ export function Board({ gameState, onDragEnd, onDragStart }: BoardProps) {
         {activeChecker && (
           <Checker
             piece={activeChecker}
-            isSelected={true}
             isDraggable={false}
             cellId=""
           />

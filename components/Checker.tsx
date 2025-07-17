@@ -5,14 +5,12 @@ import { cn } from "@/lib/utils";
 
 interface CheckerProps {
   piece: CheckerType;
-  isSelected?: boolean;
   isDraggable?: boolean;
   cellId: string;
 }
 
 export function Checker({
   piece,
-  isSelected = false,
   isDraggable = true,
   cellId,
 }: CheckerProps) {
@@ -29,7 +27,6 @@ export function Checker({
         {
           "bg-red-500 text-white": piece.color === "RED",
           "bg-gray-800 text-white": piece.color === "BLACK",
-          "": isSelected,
           "opacity-50": isDragging,
           "cursor-grab": isDraggable,
           "cursor-grabbing": isDragging,
