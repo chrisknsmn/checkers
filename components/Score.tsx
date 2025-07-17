@@ -15,39 +15,50 @@ export default function Score({
   onNewGame,
   onClose,
 }: ScoreProps) {
-  if (gameState.gameStatus === "PLAYING") {
-    return null;
-  }
+  if (gameState.gameStatus === "PLAYING") return null;
 
-  const getResultText = () => {
-    if (gameState.gameStatus === "DRAW") {
-      return "It's a Tie!";
-    }
+  const isDraw = gameState.gameStatus === "DRAW";
+  const winner = gameState.winner;
+  const resultText = isDraw
+    ? "It's a Tie!"
+    : winner === "RED"
+    ? "Red Wins!"
+    : winner === "BLACK"
+    ? "Black Wins!"
+    : "Game Over";
 
-    const winner = gameState.winner;
-    if (winner === "RED") {
-      return "Red Wins!";
-    } else if (winner === "BLACK") {
-      return "Black Wins!";
-    }
+  const resultColor = isDraw
+    ? "text-gray-600"
+    : winner === "RED"
+    ? "text-red-600"
+    : "text-gray-800";
 
-    return "Game Over";
+  const formatTime = (ms: number) => {
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = String(totalSeconds % 60).padStart(2, "0");
+    return `${minutes}:${seconds}`;
   };
 
-  const getResultColor = () => {
-    if (gameState.gameStatus === "DRAW") {
-      return "text-gray-600";
-    }
-
-    return gameState.winner === "RED" ? "text-red-600" : "text-gray-800";
-  };
-
-  const formatTime = (milliseconds: number) => {
-    const seconds = Math.floor(milliseconds / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-  };
+  const renderStatsSection = (
+    title: string,
+    colorClass: string,
+    pieces: number,
+    kings: number,
+    captured: number
+  ) => (
+    <>
+      <span className={`text-lg font-semibold ${colorClass} col-span-2`}>
+        {title}
+      </span>
+      <span className="font-medium">Remaining:</span>
+      <span>{pieces}</span>
+      <span className="font-medium">Kings:</span>
+      <span>{kings}</span>
+      <span className="font-medium">Captured:</span>
+      <span>{captured}</span>
+    </>
+  );
 
   return (
     <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
@@ -59,8 +70,8 @@ export default function Score({
         </div>
 
         <div className="flex flex-col gap-4">
-          <h2 className={`text-3xl font-bold text-center ${getResultColor()}`}>
-            {getResultText()}
+          <h2 className={`text-3xl font-bold text-center ${resultColor}`}>
+            {resultText}
           </h2>
 
           <div className="grid grid-cols-2 gap-2 text-sm text-left">
@@ -72,27 +83,22 @@ export default function Score({
               {formatTime(gameStats.gameTime)}
             </span>
             <span className="font-medium">Total Moves:</span>
-            <div className="text-gray-600">{gameStats.totalMoves}</div>
+            <span className="text-gray-600">{gameStats.totalMoves}</span>
 
-            <span className="text-lg font-semibold text-red-700 col-span-2">
-              Red
-            </span>
-            <span className="font-medium">Remaining:</span>
-            <span>{gameStats.redPieces}</span>
-            <span className="font-medium">Kings:</span>
-            <span>{gameStats.redKings}</span>
-            <span className="font-medium">Captured:</span>
-            <span>{gameStats.capturedPieces.red.length}</span>
-
-            <span className="text-lg font-semibold text-gray-700 col-span-2">
-              Black
-            </span>
-            <span className="font-medium">Remaining:</span>
-            <span>{gameStats.blackPieces}</span>
-            <span className="font-medium">Kings:</span>
-            <span>{gameStats.blackKings}</span>
-            <span className="font-medium">Captured:</span>
-            <span>{gameStats.capturedPieces.red.length}</span>
+            {renderStatsSection(
+              "Red",
+              "text-red-700",
+              gameStats.redPieces,
+              gameStats.redKings,
+              gameStats.capturedPieces.red.length
+            )}
+            {renderStatsSection(
+              "Black",
+              "text-gray-700",
+              gameStats.blackPieces,
+              gameStats.blackKings,
+              gameStats.capturedPieces.black.length
+            )}
           </div>
 
           <Button onClick={onNewGame} variant="outline">
