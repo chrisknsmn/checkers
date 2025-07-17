@@ -1,13 +1,20 @@
 import React from "react";
 import { GameState, GameStats } from "@/types/game";
+import { Button } from "@/components/ui/button";
 
 interface ScoreProps {
   gameState: GameState;
   gameStats: GameStats;
   onNewGame: () => void;
+  onClose: () => void;
 }
 
-export default function Score({ gameState, gameStats, onNewGame }: ScoreProps) {
+export default function Score({
+  gameState,
+  gameStats,
+  onNewGame,
+  onClose,
+}: ScoreProps) {
   if (gameState.gameStatus === "PLAYING") {
     return null;
   }
@@ -44,7 +51,13 @@ export default function Score({ gameState, gameStats, onNewGame }: ScoreProps) {
 
   return (
     <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-2xl">
+      <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-2xl relative">
+        <div className="absolute top-4 right-4">
+          <Button onClick={onClose} variant="ghost" size="sm">
+            ✕
+          </Button>
+        </div>
+
         <div className="flex flex-col gap-4">
           <h2 className={`text-3xl font-bold text-center ${getResultColor()}`}>
             {getResultText()}
@@ -82,12 +95,9 @@ export default function Score({ gameState, gameStats, onNewGame }: ScoreProps) {
             <span>{gameStats.capturedPieces.red.length}</span>
           </div>
 
-          <button
-            onClick={onNewGame}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 w-full"
-          >
+          <Button onClick={onNewGame} variant="outline">
             New Game
-          </button>
+          </Button>
         </div>
       </div>
     </div>

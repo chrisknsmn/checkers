@@ -1,4 +1,5 @@
 "use client";
+import { useState, useEffect } from "react";
 import { Board } from "@/components/Board";
 import { GameStats } from "@/components/GameStats";
 import Score from "@/components/Score";
@@ -7,6 +8,14 @@ import { GameStats as GameStatsType, Checker } from "@/types/game";
 
 export default function Home() {
   const { gameState, handleDragEnd, handleDragStart, resetGame, toggleAI, toggleTurnTimeLimit } = useGame();
+  const [showScoreModal, setShowScoreModal] = useState(false);
+  
+  // Show modal when game ends
+  useEffect(() => {
+    if (gameState.gameStatus !== "PLAYING") {
+      setShowScoreModal(true);
+    }
+  }, [gameState.gameStatus]);
   
   const calculateGameStats = (): GameStatsType => {
     const redPieces = gameState.checkers.filter((c) => c.color === "RED").length;
@@ -51,14 +60,26 @@ export default function Home() {
             />
           </div>
         </div>
-        <GameStats gameState={gameState} onReset={resetGame} onToggleAI={toggleAI} onToggleTurnTimeLimit={toggleTurnTimeLimit} />
+        <GameStats 
+          gameState={gameState} 
+          onReset={resetGame} 
+          onToggleAI={toggleAI} 
+          onToggleTurnTimeLimit={toggleTurnTimeLimit}
+          onShowScoreModal={() => setShowScoreModal(true)}
+        />
       </div>
       
-      <Score 
-        gameState={gameState}
-        gameStats={calculateGameStats()}
-        onNewGame={resetGame}
-      />
+      {showScoreModal && (
+        <Score 
+          gameState={gameState}
+          gameStats={calculateGameStats()}
+          onNewGame={() => {
+            resetGame();
+            setShowScoreModal(true);
+          }}
+          onClose={() => setShowScoreModal(false)}
+        />
+      )}
     </main>
   );
 }

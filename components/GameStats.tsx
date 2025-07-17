@@ -13,6 +13,7 @@ interface GameStatsProps {
   onReset: () => void;
   onToggleAI: (enabled: boolean) => void;
   onToggleTurnTimeLimit: (enabled: boolean) => void;
+  onShowScoreModal: () => void;
 }
 
 function formatTime(milliseconds: number): string {
@@ -29,6 +30,7 @@ export function GameStats({
   onReset,
   onToggleAI,
   onToggleTurnTimeLimit,
+  onShowScoreModal,
 }: GameStatsProps) {
   const { currentPlayer, moveCount, checkers, gameTime } = gameState;
 
@@ -38,6 +40,26 @@ export function GameStats({
   const blackKings = checkers.filter(
     (c) => c.color === "BLACK" && c.isKing
   ).length;
+
+  const getResultText = () => {
+    if (gameState.gameStatus === "DRAW") {
+      return "It's a Tie!";
+    }
+    if (gameState.winner === "RED") {
+      return "Red Wins!";
+    }
+    if (gameState.winner === "BLACK") {
+      return "Black Wins!";
+    }
+    return "Game Over";
+  };
+
+  const getResultColor = () => {
+    if (gameState.gameStatus === "DRAW") {
+      return "text-gray-600";
+    }
+    return gameState.winner === "RED" ? "text-red-600" : "text-gray-800";
+  };
 
   return (
     <div className="flex flex-0 md:flex-1 items-center justify-center order-1 md:order-2">
@@ -120,21 +142,37 @@ export function GameStats({
           </div>
         </div>
         <div className="flex flex-col gap-2">
-          <div className="transition-all duration-500 w-full bg-gray-100 rounded-xl p-4">
-            <div className="flex items-center gap-2 w-full">
-              <div className="flex items-center gap-2 w-full">
-                <Timer className="w-4 h-4 text-gray-600" />
-                <p className="text-gray-600">Time: {formatTime(gameTime)}</p>
-              </div>
-              {gameState.turnTimeLimitEnabled && (
-                <div className="flex items-center gap-2 w-full">
-                  <Timer className="w-4 h-4 text-gray-600" />
-                  <p className="text-gray-600">
-                    Turn Time: {Math.ceil(gameState.turnTimeRemaining / 1000)}s
-                  </p>
+          <div>
+            {gameState.gameStatus === "PLAYING" ? (
+              <div className="transition-all duration-500 w-full bg-gray-100 rounded-xl p-4">
+                <div className="flex items-center gap-2 w-full text-lg">
+                  <div className="flex items-center gap-2 w-full">
+                    <Timer className="w-4 h-4 text-gray-600" />
+                    <p className="text-gray-600">
+                      Time: {formatTime(gameTime)}
+                    </p>
+                  </div>
+                  {gameState.turnTimeLimitEnabled && (
+                    <div className="flex items-center gap-2 w-full">
+                      <Timer className="w-4 h-4 text-gray-600" />
+                      <p className="text-gray-600">
+                        Turn Time:{" "}
+                        {Math.ceil(gameState.turnTimeRemaining / 1000)}s
+                      </p>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              <Button
+                onClick={onShowScoreModal}
+                variant="secondary"
+                size="lg"
+                className={`w-full justify-center font-semibold ${getResultColor()} hover:bg-gray-200`}
+              >
+                {getResultText()} - View Score
+              </Button>
+            )}
           </div>
 
           <div className="hidden md:flex flex-col gap-2">
@@ -161,6 +199,29 @@ export function GameStats({
               </h3>
               <p className="flex-grow">Pieces: {blackPieces}</p>
               <p className="flex-grow">Kings: {blackKings}</p>
+            </div>
+          </div>
+
+          <div className="flex md:hidden flex gap-2">
+            <div
+              className={`p-2 border-4 rounded-xl bg-gray-100 transition-all duration-500 flex w-full text-center ${
+                currentPlayer === "RED"
+                  ? "border-red-500"
+                  : "border-transparent"
+              }`}
+            >
+              <h3 className="font-semibold text-red-500 flex-grow w-12">RED</h3>
+            </div>
+            <div
+              className={`p-2 border-4 rounded-xl bg-gray-100 transition-all duration-500 flex w-full text-center ${
+                currentPlayer === "RED"
+                  ? "border-transparent"
+                  : "border-red-500"
+              }`}
+            >
+              <h3 className="font-semibold text-gray-800 flex-grow w-12">
+                BLACK
+              </h3>
             </div>
           </div>
         </div>
