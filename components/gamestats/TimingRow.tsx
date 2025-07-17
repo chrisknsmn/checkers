@@ -18,7 +18,11 @@ function formatTime(milliseconds: number): string {
     .padStart(2, "0")}`;
 }
 
-export function TimingRow({ gameState, gameTime, onShowScoreModal }: TimingRowProps) {
+export function TimingRow({
+  gameState,
+  gameTime,
+  onShowScoreModal,
+}: TimingRowProps) {
   const getResultText = () => {
     if (gameState.gameStatus === "DRAW") {
       return "It's a Tie!";
@@ -42,18 +46,17 @@ export function TimingRow({ gameState, gameTime, onShowScoreModal }: TimingRowPr
   return (
     <div>
       {gameState.gameStatus === "PLAYING" ? (
-        <div className="transition-all duration-500 w-full bg-gray-100 rounded-xl p-2">
+        <div className="transition-all duration-500 w-full bg-muted text-foreground rounded-xl p-2">
           <div className="flex items-center gap-2 w-full text-lg">
             <div className="flex items-center gap-2 w-full">
-              <Timer className="w-4 h-4 text-gray-600" />
-              <p className="text-gray-600">Time: {formatTime(gameTime)}</p>
+              <Timer className="w-4 h-4" />
+              <p>Time: {formatTime(gameTime)}</p>
             </div>
             {gameState.turnTimeLimitEnabled && (
               <div className="flex items-center gap-2 w-full">
-                <Timer className="w-4 h-4 text-gray-600" />
-                <p className="text-gray-600">
-                  Turn Time: {Math.ceil(gameState.turnTimeRemaining / 1000)}
-                  s
+                <Timer className="w-4 h-4" />
+                <p>
+                  Turn Time: {Math.ceil(gameState.turnTimeRemaining / 1000)}s
                 </p>
               </div>
             )}

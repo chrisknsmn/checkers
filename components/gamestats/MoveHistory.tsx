@@ -8,14 +8,14 @@ interface MoveHistoryProps {
 
 export function MoveHistory({ gameState, moveCount }: MoveHistoryProps) {
   return (
-    <div className="p-4 rounded-xl bg-gray-100 transition-all duration-500 h-full flex-grow overflow-auto hidden md:block">
+    <div className="p-4 rounded-xl bg-muted text-foreground transition-all duration-500 h-full flex-grow overflow-auto hidden md:block">
       <div className="flex justify-between mb-3">
-        <h3 className="font-semibold text-gray-600">Move History</h3>
-        <p className="text-gray-600">Total Turns: {moveCount}</p>
+        <h3 className="font-semibold">Move History</h3>
+        <p>Total Turns: {moveCount}</p>
       </div>
       <div className="overflow-y-auto space-y-1 text-sm">
         {gameState.moveHistory.length === 0 ? (
-          <p className="text-gray-500 italic">No moves yet</p>
+          <p className="italic">No moves yet</p>
         ) : (
           gameState.moveHistory.map((move, index) => {
             const moveTime =
@@ -34,7 +34,7 @@ export function MoveHistory({ gameState, moveCount }: MoveHistoryProps) {
               <div
                 key={move.id}
                 className={`flex justify-between items-center py-1 px-2 rounded ${
-                  move.piece.color === "RED" ? "bg-red-50" : "bg-gray-50"
+                  move.piece.color === "RED" ? "bg-red-100" : "bg-gray-100"
                 }`}
               >
                 <span
@@ -49,12 +49,11 @@ export function MoveHistory({ gameState, moveCount }: MoveHistoryProps) {
                     {move.piece.color === "RED" ? "RED" : "BLACK"}
                   </span>
                   {String.fromCharCode(97 + move.from.col)}
-                  {8 - move.from.row} →{" "}
-                  {String.fromCharCode(97 + move.to.col)}
+                  {8 - move.from.row} → {String.fromCharCode(97 + move.to.col)}
                   {8 - move.to.row}
                   {move.type === "CAPTURE" && " (cap)"}
                 </span>
-                <span className="text-gray-500 text-xs">{moveTime}s</span>
+                <span className="text-xs">{moveTime}s</span>
               </div>
             );
           })

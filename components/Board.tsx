@@ -61,25 +61,12 @@ function DroppableCell({
           "bg-tile-dark": cell.isDark,
           // Override with special states
           "bg-green-200": showHoverMove && !cell.checker,
-          "bg-green-500": isOver && showHoverMove,
+          "bg-green-300": isOver && showHoverMove,
         }
       )}
       onMouseEnter={() => onCellHover(cell.position)}
       onMouseLeave={() => onCellHover(null)}
       data-testid={`board-square-${id}`}
-      style={{
-        backgroundColor: (() => {
-          // Fallback color for cells
-          if (isOver && showHoverMove) {
-            return "#7bf1a8";
-          }
-          // Not selected
-          if (isOver && !showHoverMove) {
-            return cell.isDark ? "#e5e7eb" : "#f9fafb";
-          }
-          return undefined;
-        })(),
-      }}
     >
       {cell.checker && (
         <div className="relative w-full h-full flex items-center justify-center">
@@ -203,7 +190,7 @@ export function Board({ gameState, onDragEnd, onDragStart }: BoardProps) {
 
   const boardContent = (
     <div className="w-full aspect-square max-w-full max-h-full">
-      <div className="grid grid-cols-8 gap-1 p-2 bg-gray-400 w-full h-full rounded-xl">
+      <div className="grid grid-cols-8 gap-1 p-2 bg-board w-full h-full rounded-xl">
         {board.map((row, rowIndex) =>
           row.map((cell, colIndex) => {
             const isHovered =
@@ -249,12 +236,7 @@ export function Board({ gameState, onDragEnd, onDragStart }: BoardProps) {
       onDragEnd={handleDragEnd}
     >
       {boardContent}
-      <DragOverlay
-        style={{
-          boxShadow: "none !important",
-          filter: "none !important",
-        }}
-      >
+      <DragOverlay>
         {activeChecker && (
           <Checker piece={activeChecker} isDraggable={false} cellId="" />
         )}

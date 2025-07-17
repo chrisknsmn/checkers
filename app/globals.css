@@ -22,7 +22,7 @@
   --color-ring: #a3a3a3;
   --color-board-back: #a3a3a3;
 
-  --color-tile: #a3a3a3;
+  --color-board: #9ca3af;
   --color-tile-light: #e5e7eb;
   --color-tile-dark: #d1d5db;
 }
@@ -47,6 +47,9 @@
   --color-border: #e5e5e5;
   --color-input: #e5e5e5;
   --color-ring: #a3a3a3;
+  --color-board: #9ca3af;
+  --color-tile-light: #e5e7eb;
+  --color-tile-dark: #d1d5db;
 }
 
 .dark {
@@ -68,4 +71,7 @@
   --color-border: rgba(255, 255, 255, 0.1);
   --color-input: rgba(255, 255, 255, 0.15);
   --color-ring: #737373;
+  --color-board: #9ca3af;
+  --color-tile-light: #e5e7eb;
+  --color-tile-dark: #d1d5db;
 }
