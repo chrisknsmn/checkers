@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Board } from "@/components/Board";
-import { GameStats } from "@/components/GameStats";
+import { GameStats } from "@/components/gamestats/GameStats";
 import Score from "@/components/Score";
 import { useGame } from "@/hooks/useGame";
 import { GameStats as GameStatsType, Checker } from "@/types/game";
