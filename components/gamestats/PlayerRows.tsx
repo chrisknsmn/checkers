@@ -31,18 +31,14 @@ export function PlayerRows({
           <Button
             variant="outline"
             className={`p-4 border-4 rounded-xl bg-gray-100 transition-all duration-500 flex flex-1 text-center ${
-              currentPlayer === "RED"
-                ? "border-red-500"
-                : "border-transparent"
+              currentPlayer === "RED" ? "border-red-500" : "border-transparent"
             }`}
           >
-            <h3 className="font-semibold text-red-500 flex-grow w-12">
-              RED
-            </h3>
+            <h3 className="font-semibold text-red-500 flex-grow w-12">RED</h3>
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-80" align="start" side="bottom">
-          <div className="space-y-3">
+          <div className="flex flex-col gap-2">
             <div className="flex justify-between items-center">
               <h3 className="font-semibold text-red-500 text-lg">RED</h3>
             </div>
@@ -74,8 +70,12 @@ export function PlayerRows({
                             : "text-gray-700"
                         }
                       >
-                        {index + 1}. {move.piece.color === "RED" ? "RED" : "BLACK"}{" "}
-                        {String.fromCharCode(97 + move.from.col)}{8 - move.from.row} → {String.fromCharCode(97 + move.to.col)}{8 - move.to.row}
+                        {index + 1}.{" "}
+                        {move.piece.color === "RED" ? "RED" : "BLACK"}{" "}
+                        {String.fromCharCode(97 + move.from.col)}
+                        {8 - move.from.row} →{" "}
+                        {String.fromCharCode(97 + move.to.col)}
+                        {8 - move.to.row}
                         {move.type === "CAPTURE" && " (cap)"}
                       </span>
                     </div>
@@ -92,9 +92,7 @@ export function PlayerRows({
           <Button
             variant="outline"
             className={`p-4 border-4 rounded-xl bg-gray-100 transition-all duration-500 flex flex-1 text-center ${
-              currentPlayer === "RED"
-                ? "border-transparent"
-                : "border-red-500"
+              currentPlayer === "RED" ? "border-transparent" : "border-red-500"
             }`}
           >
             <h3 className="font-semibold text-gray-800 flex-grow w-12">
@@ -103,7 +101,7 @@ export function PlayerRows({
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-80" align="end" side="bottom">
-          <div className="space-y-3">
+          <div className="flex flex-col gap-2">
             <div className="flex justify-between items-center">
               <h3 className="font-semibold text-gray-800 text-lg">BLACK</h3>
             </div>
@@ -135,8 +133,12 @@ export function PlayerRows({
                             : "text-gray-700"
                         }
                       >
-                        {index + 1}. {move.piece.color === "RED" ? "RED" : "BLACK"}{" "}
-                        {String.fromCharCode(97 + move.from.col)}{8 - move.from.row} → {String.fromCharCode(97 + move.to.col)}{8 - move.to.row}
+                        {index + 1}.{" "}
+                        {move.piece.color === "RED" ? "RED" : "BLACK"}{" "}
+                        {String.fromCharCode(97 + move.from.col)}
+                        {8 - move.from.row} →{" "}
+                        {String.fromCharCode(97 + move.to.col)}
+                        {8 - move.to.row}
                         {move.type === "CAPTURE" && " (cap)"}
                       </span>
                     </div>

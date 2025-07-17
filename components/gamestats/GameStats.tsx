@@ -13,7 +13,6 @@ interface GameStatsProps {
   onShowScoreModal: () => void;
 }
 
-
 export function GameStats({
   gameState,
   onReset,
@@ -21,7 +20,7 @@ export function GameStats({
   onToggleTurnTimeLimit,
   onShowScoreModal,
 }: GameStatsProps) {
-  const { currentPlayer, moveCount, checkers, gameTime } = gameState;
+  const { moveCount, checkers, gameTime } = gameState;
 
   const redPieces = checkers.filter((c) => c.color === "RED").length;
   const blackPieces = checkers.filter((c) => c.color === "BLACK").length;
@@ -29,7 +28,6 @@ export function GameStats({
   const blackKings = checkers.filter(
     (c) => c.color === "BLACK" && c.isKing
   ).length;
-
 
   return (
     <div className="flex flex-0 md:flex-1 items-center justify-center order-1 md:order-2">
@@ -41,10 +39,10 @@ export function GameStats({
           onToggleTurnTimeLimit={onToggleTurnTimeLimit}
         />
 
-        <TimingRow 
-          gameState={gameState} 
-          gameTime={gameTime} 
-          onShowScoreModal={onShowScoreModal} 
+        <TimingRow
+          gameState={gameState}
+          gameTime={gameTime}
+          onShowScoreModal={onShowScoreModal}
         />
 
         <PlayerRows
