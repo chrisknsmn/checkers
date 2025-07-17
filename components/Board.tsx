@@ -103,7 +103,7 @@ function DroppableCell({
       {(cell.isValidMove || showHoverMove) && !cell.checker && (
         <div
           className={cn(
-            "w-4 h-4 bg-green-400 rounded-full opacity-80 transition-all duration-150 border",
+            "w-4 h-4 bg-green-400 rounded-full opacity-80 transition-all duration-150",
             {
               "w-4 h-4 bg-green-400 opacity-100": isHovered || isOver,
             }
