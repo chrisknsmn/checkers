@@ -25,8 +25,9 @@ type GameAction =
 function startNewTurn(state: GameState): GameState {
   return {
     ...state,
-    turnStartTime: state.turnTimeLimitEnabled && state.gameStartTime ? Date.now() : null,
-    turnTimeRemaining: 5000
+    turnStartTime:
+      state.turnTimeLimitEnabled && state.gameStartTime ? Date.now() : null,
+    turnTimeRemaining: 5000,
   };
 }
 
@@ -48,7 +49,10 @@ function gameReducer(state: GameState, action: GameAction): GameState {
     case "MAKE_MOVE": {
       const newState = makeMove(state, action.payload);
       // Start new turn timer if the player changed OR if player continues after capture
-      if (newState.currentPlayer !== state.currentPlayer || newState.mustContinueCapture) {
+      if (
+        newState.currentPlayer !== state.currentPlayer ||
+        newState.mustContinueCapture
+      ) {
         return startNewTurn(newState);
       }
       return newState;
@@ -64,13 +68,19 @@ function gameReducer(state: GameState, action: GameAction): GameState {
           timerRunning: true,
         };
         // Start new turn timer if the player changed OR if player continues after capture
-        if (timerStarted.currentPlayer !== state.currentPlayer || timerStarted.mustContinueCapture) {
+        if (
+          timerStarted.currentPlayer !== state.currentPlayer ||
+          timerStarted.mustContinueCapture
+        ) {
           return startNewTurn(timerStarted);
         }
         return timerStarted;
       }
       // Start new turn timer if the player changed OR if player continues after capture
-      if (newState.currentPlayer !== state.currentPlayer || newState.mustContinueCapture) {
+      if (
+        newState.currentPlayer !== state.currentPlayer ||
+        newState.mustContinueCapture
+      ) {
         return startNewTurn(newState);
       }
       return newState;
@@ -129,7 +139,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 
     case "TURN_TIME_EXPIRED": {
       // Forfeit the turn - switch to the other player
-      const nextPlayer = state.currentPlayer === 'RED' ? 'BLACK' : 'RED';
+      const nextPlayer = state.currentPlayer === "RED" ? "BLACK" : "RED";
       return startNewTurn({
         ...state,
         currentPlayer: nextPlayer,
@@ -150,13 +160,17 @@ export function useGame() {
     null,
     initializeGameState
   );
-  
+
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const turnTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Timer effect
   useEffect(() => {
-    if (gameState.timerRunning && gameState.gameStartTime && gameState.gameStatus === 'PLAYING') {
+    if (
+      gameState.timerRunning &&
+      gameState.gameStartTime &&
+      gameState.gameStatus === "PLAYING"
+    ) {
       timerRef.current = setInterval(() => {
         const elapsed = Date.now() - gameState.gameStartTime!;
         dispatch({ type: "UPDATE_TIMER", payload: elapsed });
@@ -178,11 +192,15 @@ export function useGame() {
 
   // Turn Timer Effect
   useEffect(() => {
-    if (gameState.turnTimeLimitEnabled && gameState.turnStartTime && gameState.gameStatus === 'PLAYING') {
+    if (
+      gameState.turnTimeLimitEnabled &&
+      gameState.turnStartTime &&
+      gameState.gameStatus === "PLAYING"
+    ) {
       turnTimerRef.current = setInterval(() => {
         const elapsed = Date.now() - gameState.turnStartTime!;
         const remaining = Math.max(0, 5000 - elapsed);
-        
+
         if (remaining <= 0) {
           dispatch({ type: "TURN_TIME_EXPIRED" });
         } else {
@@ -202,21 +220,32 @@ export function useGame() {
         turnTimerRef.current = null;
       }
     };
-  }, [gameState.turnTimeLimitEnabled, gameState.turnStartTime, gameState.gameStatus]);
+  }, [
+    gameState.turnTimeLimitEnabled,
+    gameState.turnStartTime,
+    gameState.gameStatus,
+  ]);
 
   // AI Move Effect
   useEffect(() => {
-    if (gameState.isAIEnabled && 
-        gameState.currentPlayer === gameState.aiPlayer && 
-        gameState.gameStatus === 'PLAYING') {
-      
+    if (
+      gameState.isAIEnabled &&
+      gameState.currentPlayer === gameState.aiPlayer &&
+      gameState.gameStatus === "PLAYING"
+    ) {
       const aiMoveTimer = setTimeout(() => {
         dispatch({ type: "MAKE_AI_MOVE" });
       }, 1000); // 1 second delay for AI move
-      
+
       return () => clearTimeout(aiMoveTimer);
     }
-  }, [gameState.isAIEnabled, gameState.currentPlayer, gameState.aiPlayer, gameState.gameStatus, gameState.mustContinueCapture]);
+  }, [
+    gameState.isAIEnabled,
+    gameState.currentPlayer,
+    gameState.aiPlayer,
+    gameState.gameStatus,
+    gameState.mustContinueCapture,
+  ]);
 
   const selectPieceHandler = useCallback((position: Position) => {
     dispatch({ type: "SELECT_PIECE", payload: position });
@@ -253,12 +282,15 @@ export function useGame() {
     [gameState]
   );
 
-  const handleDragStart = useCallback((position: Position) => {
-    // Start timer when first piece is dragged
-    if (!gameState.gameStartTime && !gameState.timerRunning) {
-      dispatch({ type: "START_TIMER" });
-    }
-  }, [gameState.gameStartTime, gameState.timerRunning]);
+  const handleDragStart = useCallback(
+    (position: Position) => {
+      // Start timer when first piece is dragged
+      if (!gameState.gameStartTime && !gameState.timerRunning) {
+        dispatch({ type: "START_TIMER" });
+      }
+    },
+    [gameState.gameStartTime, gameState.timerRunning]
+  );
 
   return {
     gameState,
