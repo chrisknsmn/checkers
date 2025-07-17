@@ -41,7 +41,6 @@ interface DroppableCellProps {
 function DroppableCell({
   id,
   cell,
-  isHovered,
   showHoverMove,
   gameState,
   onCellHover,
@@ -58,12 +57,11 @@ function DroppableCell({
         "relative touch-none select-none",
         {
           // Base colors for all cells
-          "bg-gray-50": !cell.isDark,
-          "bg-gray-200": cell.isDark,
+          "bg-tile-light": !cell.isDark,
+          "bg-tile-dark": cell.isDark,
           // Override with special states
           "bg-green-200": showHoverMove && !cell.checker,
           "bg-green-500": isOver && showHoverMove,
-          "bg-blue-200": isHovered && !showHoverMove,
         }
       )}
       onMouseEnter={() => onCellHover(cell.position)}
@@ -99,10 +97,7 @@ function DroppableCell({
       {(cell.isValidMove || showHoverMove) && !cell.checker && (
         <div
           className={cn(
-            "w-4 h-4 bg-green-400 rounded-full opacity-80 transition-all duration-150",
-            {
-              "w-4 h-4 bg-green-400 opacity-100": isHovered || isOver,
-            }
+            "w-4 h-4 bg-green-400 rounded-full opacity-80 transition-all duration-150"
           )}
         />
       )}
