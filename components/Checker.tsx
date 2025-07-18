@@ -27,7 +27,7 @@ export function Checker({
   const dragStatus = isDragging ? 'being dragged' : isDraggable ? 'draggable' : 'not draggable';
 
   // Extract role from attributes to avoid conflict
-  const { role, ...otherAttributes } = attributes;
+  const { role: _role, ...otherAttributes } = attributes;
 
   return (
     <div

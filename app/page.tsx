@@ -45,7 +45,7 @@ export default function Home() {
       
       setAnnouncements(prev => [...prev, moveAnnouncement]);
     }
-  }, [gameState.moveHistory.length]);
+  }, [gameState.moveHistory]);
   
   const calculateGameStats = (): GameStatsType => {
     const redPieces = gameState.checkers.filter((c) => c.color === "RED").length;
