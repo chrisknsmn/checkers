@@ -1,5 +1,8 @@
 # Checkers Game
 
+**Live Demo:**  
+[https://checkers-azure.vercel.app](https://checkers-azure.vercel.app)
+
 ## Challenge
 
 Checkers take-home challenge:
