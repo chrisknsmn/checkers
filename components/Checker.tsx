@@ -7,7 +7,7 @@ interface CheckerProps {
   piece: CheckerType;
   isDraggable?: boolean;
   cellId: string;
-  borderVariant?: string;
+  borderVariant?: "default" | "solid" | "dashed" | "groove" | "ridge" | "inset" | "outset" | "none";
 }
 
 export function Checker({ piece, isDraggable = true, cellId, borderVariant = "default" }: CheckerProps) {
@@ -34,7 +34,7 @@ export function Checker({ piece, isDraggable = true, cellId, borderVariant = "de
   return (
     <UIChecker
       ref={setNodeRef}
-      variant={borderVariant as any}
+      variant={borderVariant}
       color={piece.color === "RED" ? "red" : "black"}
       dragging={isDragging}
       isKing={piece.isKing}
