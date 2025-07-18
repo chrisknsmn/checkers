@@ -24,14 +24,12 @@ export default function Home() {
     
     if (gameState.gameStatus === "PLAYING") {
       newAnnouncements.push(`${gameState.currentPlayer.toLowerCase()} player's turn`);
-    } else if (gameState.gameStatus === "FINISHED") {
-      if (gameState.winner === "RED") {
-        newAnnouncements.push("Game over! Red player wins!");
-      } else if (gameState.winner === "BLACK") {
-        newAnnouncements.push("Game over! Black player wins!");
-      } else {
-        newAnnouncements.push("Game over! It's a draw!");
-      }
+    } else if (gameState.gameStatus === "RED_WINS") {
+      newAnnouncements.push("Game over! Red player wins!");
+    } else if (gameState.gameStatus === "BLACK_WINS") {
+      newAnnouncements.push("Game over! Black player wins!");
+    } else if (gameState.gameStatus === "DRAW") {
+      newAnnouncements.push("Game over! It's a draw!");
     }
     
     setAnnouncements(newAnnouncements);
