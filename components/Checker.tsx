@@ -28,7 +28,7 @@ export function Checker({ piece, isDraggable = true, cellId }: CheckerProps) {
     ? "draggable"
     : "not draggable";
 
-  const { role, ...otherAttributes } = attributes;
+  const { ...otherAttributes } = attributes;
 
   return (
     <div
@@ -43,7 +43,6 @@ export function Checker({ piece, isDraggable = true, cellId }: CheckerProps) {
           "cursor-grabbing": isDragging,
         }
       )}
-      role="button"
       aria-label={`${pieceDescription} on ${position}, ${dragStatus}`}
       data-testid="checker"
       {...listeners}
