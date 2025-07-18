@@ -493,26 +493,47 @@ export function applyMove(
 
   processPieceMove(newGameState, from, to);
 
-  const moveType: MoveType = canCapture(gameState, from, to)
-    ? "CAPTURE"
-    : "MOVE";
+  const isCapture = canCapture(gameState, from, to);
   const capturedPieces: Checker[] = [];
 
   // Handle capture
-  if (moveType === "CAPTURE") {
+  if (isCapture) {
     capturedPieces.push(...processCaptureMove(newGameState, from, to));
 
-    // After a capture, check if player can make additional moves
-    newGameState.mustContinueCapture = to;
-    newGameState.selectedPiece = to;
-    newGameState.validMoves = getValidMoves(newGameState, to);
-
-    // If no valid moves are available after capture, end the turn
-    if (newGameState.validMoves.length === 0) {
+    // Check if additional captures are available from the new position
+    const additionalCaptures = getCaptureMoves(newGameState, to);
+    
+    if (additionalCaptures.length > 0) {
+      // Multi-capture scenario - player must continue
+      newGameState.mustContinueCapture = to;
+      newGameState.selectedPiece = to;
+      newGameState.validMoves = additionalCaptures;
+      
+      // Create move record for multi-capture
+      const move: Move = {
+        id: `move-${Date.now()}`,
+        from,
+        to,
+        type: "MULTI_CAPTURE",
+        piece,
+        capturedPieces,
+        timestamp: Date.now(),
+      };
+      
+      newGameState.moveHistory.push(move);
+      newGameState.lastMove = move;
+      newGameState.moveCount++;
+      
+      updateValidMoveIndicators(newGameState);
+      
+      // Don't switch players - same player continues
+      return newGameState;
+    } else {
+      // No additional captures - end turn
       newGameState.mustContinueCapture = null;
       clearSelection(newGameState);
-
-      // Create move record for the capture
+      
+      // Create move record for final capture
       const move: Move = {
         id: `move-${Date.now()}`,
         from,
@@ -522,54 +543,28 @@ export function applyMove(
         capturedPieces,
         timestamp: Date.now(),
       };
-
+      
       newGameState.moveHistory.push(move);
       newGameState.lastMove = move;
       newGameState.moveCount++;
-
+      
       switchPlayer(newGameState);
       clearValidMoveIndicators(newGameState.board);
       updateGameEndConditions(newGameState);
-
+      
       return newGameState;
     }
-
-    // Update move type to indicate multi-capture
-    const move: Move = {
-      id: `move-${Date.now()}`,
-      from,
-      to,
-      type: "MULTI_CAPTURE",
-      piece,
-      capturedPieces,
-      timestamp: Date.now(),
-    };
-
-    newGameState.moveHistory.push(move);
-    newGameState.lastMove = move;
-    newGameState.moveCount++;
-
-    updateValidMoveIndicators(newGameState);
-
-    // Don't switch players - same player continues
-    return newGameState;
-  } else {
-    // Regular move, clear continue capture state
-    newGameState.mustContinueCapture = null;
   }
 
-  // If this was a move during a mustContinueCapture state (bonus move after capture)
-  // and it was a regular move (not another capture), end the turn
-  if (gameState.mustContinueCapture && moveType === "MOVE") {
-    newGameState.mustContinueCapture = null;
-  }
+  // Regular move - clear any multi-capture state
+  newGameState.mustContinueCapture = null;
 
   // Create move record
   const move: Move = {
     id: `move-${Date.now()}`,
     from,
     to,
-    type: moveType,
+    type: "MOVE",
     piece,
     capturedPieces,
     timestamp: Date.now(),
@@ -602,6 +597,7 @@ export function selectPiece(
     ) {
       newGameState.selectedPiece = position;
       newGameState.validMoves = getValidMoves(newGameState, position);
+      updateValidMoveIndicators(newGameState);
     } else {
       // Don't allow selecting other pieces
       return newGameState;
@@ -609,12 +605,10 @@ export function selectPiece(
   } else if (piece && piece.color === newGameState.currentPlayer) {
     newGameState.selectedPiece = position;
     newGameState.validMoves = getValidMoves(newGameState, position);
-
     updateValidMoveIndicators(newGameState);
   } else {
     newGameState.selectedPiece = null;
     newGameState.validMoves = [];
-
     clearValidMoveIndicators(newGameState.board);
   }
 
