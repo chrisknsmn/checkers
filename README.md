@@ -1,5 +1,7 @@
 # Checkers Game
 
+## Challenge
+
 Checkers take-home challenge:
 
 The goal of this exercise is to write a simple checkers game app, preferably using ReactJS. The minimal requirements are:
@@ -33,7 +35,7 @@ The best way to stand out of the crowd is to find a particular part of the probl
 1. Clone the repository:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/chrisknsmn/checkers
 cd checkers
 ```
 
@@ -55,9 +57,59 @@ npm run dev
 http://localhost:3000
 ```
 
-## 🧪 Testing
+## Structure
 
-This project uses Jest and React Testing Library for comprehensive testing with a focus on business logic validation, React hook testing, and end-to-end game flow verification.
+```
+checkers/
+├── app/                    # Next.js app router pages
+│   ├── globals.css         # Global styles and CSS variables
+│   ├── layout.tsx          # Root layout component
+│   └── page.tsx            # Main page component
+├── components/             # Reusable React components
+│   ├── Board.tsx           # Game board component
+│   ├── Checker.tsx         # Individual checker piece
+│   ├── Score.tsx           # Score display component
+│   ├── gamestats/          # Game statistics components
+│   │   ├── GameStats.tsx   # Main stats container
+│   │   ├── MoveHistory.tsx # Move history display
+│   │   ├── PlayerRows.tsx  # Player information
+│   │   ├── SettingsRow.tsx # Game settings
+│   │   └── TimingRow.tsx   # Timer display
+│   └── ui/                 # shadcn/ui components
+├── constants/              # Game constants and configuration
+│   ├── game.ts             # Core game constants
+│   └── game.test.ts        # Constants tests
+├── hooks/                  # React hooks
+│   ├── useGame.ts          # Main game state hook
+│   ├── useGame.test.ts     # Game hook tests
+│   └── useTheme.ts         # Theme management hook
+├── lib/                    # Utility functions
+│   └── utils.ts            # Common utilities (cn function)
+├── types/                  # TypeScript type definitions
+│   └── game.ts             # Game-related types
+├── utils/                  # Game utility functions
+│   ├── gameUtils.ts        # Core game logic
+│   └── gameUtils.test.ts   # Game logic tests
+├── jest.config.js          # Jest testing configuration
+├── jest.setup.js           # Jest setup and mocks
+├── eslint.config.mjs       # ESLint configuration
+├── next.config.ts          # Next.js configuration
+├── postcss.config.mjs      # PostCSS configuration
+├── tsconfig.json           # TypeScript configuration
+└── components.json         # shadcn/ui configuration
+```
+
+## Testing
+
+This project uses TypeScript, Jest, and React Testing Library to validate game logic and custom hooks.
+
+### Key Areas Covered
+
+- Game Logic: Move validation, captures, king promotion, multi-capture
+- React Hooks: State transitions, timers, AI turns, cleanup
+- Configuration: Board size, piece positions, player rules
+- Edge Cases: Invalid input, empty states, lifecycle behavior
+- AI Logic: Random valid move generation with capture priority
 
 ### Running Tests
 
@@ -65,257 +117,39 @@ This project uses Jest and React Testing Library for comprehensive testing with 
 # Run all tests once
 npm test
 
-# Run tests in watch mode (re-runs on file changes)
+# Watch mode (auto-restarts on file changes)
 npm run test:watch
 
-# Run tests with coverage report
+# Run with coverage report
 npm run test:coverage
-
-# Run specific test file
-npm test gameUtils.test.ts
-npm test useGame.test.ts
-npm test game.test.ts
 ```
-
-### Testing Strategy
-
-Our testing approach follows the **Testing Pyramid** principle:
-
-- **70% Unit Tests**: Core game logic and utilities
-- **20% Integration Tests**: Component interactions and game flows
-- **10% End-to-End Tests**: Complete user scenarios
-
-#### Test Prioritization
-
-1. **Critical Business Logic** (gameUtils.ts) - Game rules, move validation, AI logic
-2. **State Management** (useGame.ts) - React hooks, timers, action dispatching
-3. **Configuration** (game.ts) - Constants and game settings validation
-
-### Test Files Overview
-
-#### 1. `constants/game.test.ts` - Configuration Testing
-
-**Purpose**: Validates game constants and configuration settings
-**Coverage**: 100% of game constants and rules
-
-```typescript
-describe("Game Constants", () => {
-  // Board configuration validation
-  // Initial piece positioning tests
-  // Player movement rules verification
-  // Game settings validation
-});
-```
-
-**Key Test Areas**:
-
-- ✅ Board size and structure validation
-- ✅ Initial piece positioning on dark squares
-- ✅ Player movement directions and king rows
-- ✅ Game rules and settings consistency
-- ✅ Animation timings and UI constants
-
-**Why This Matters**: Ensures game configuration is correct and consistent, preventing runtime errors from invalid constants.
-
----
-
-#### 2. `utils/gameUtils.test.ts` - Core Game Logic Testing
-
-**Purpose**: Comprehensive testing of game engine and business logic
-**Coverage**: 95%+ of all game utility functions with edge cases
-
-```typescript
-describe("gameUtils", () => {
-  // Board initialization and validation
-  // Move calculation and validation
-  // Capture logic and multi-capture scenarios
-  // AI decision making and scoring
-  // Game state transitions
-});
-```
-
-**Key Test Areas**:
-
-- ✅ **Board Initialization**: 8x8 grid creation, checker placement, dark square validation
-- ✅ **Position Validation**: Boundary checking, coordinate validation
-- ✅ **Move Validation**: Legal move generation, capture detection, force capture rules
-- ✅ **Game State Management**: Piece selection, move execution, player switching
-- ✅ **King Logic**: Promotion conditions, bidirectional movement
-- ✅ **Capture Mechanics**: Single captures, multi-capture sequences, piece removal
-- ✅ **AI Intelligence**: Move scoring, capture preference, strategic positioning
-- ✅ **Edge Cases**: Empty boards, boundary conditions, invalid inputs
-
-**Critical Test Scenarios**:
-
-```typescript
-it("should handle multi-capture scenarios", () => {
-  // Tests complex capture sequences
-  // Validates mustContinueCapture logic
-  // Ensures proper piece removal
-});
-
-it("should promote piece to king when reaching end", () => {
-  // Tests king promotion conditions
-  // Validates king movement abilities
-});
-
-it("should prefer capture moves in AI logic", () => {
-  // Tests AI decision making
-  // Validates move scoring algorithms
-});
-```
-
-**Why This Matters**: The game engine is the heart of the application. These tests ensure all checkers rules are implemented correctly, preventing game-breaking bugs.
-
----
-
-#### 3. `hooks/useGame.test.ts` - React Hook Testing
-
-**Purpose**: Tests React state management, timers, and user interactions
-**Coverage**: 100% of hook functionality including custom hooks and memoization
-
-```typescript
-describe("useGame Hook", () => {
-  // Hook initialization and state management
-  // Timer functionality (game timer, turn timer)
-  // AI integration and move automation
-  // User interaction handlers
-  // Performance and memoization
-});
-```
-
-**Key Test Areas**:
-
-- ✅ **Hook Initialization**: Proper state setup, function availability
-- ✅ **Game Actions**: Piece selection, move execution, game reset
-- ✅ **Timer System**: Game timer, turn timer, timer cleanup
-- ✅ **AI Integration**: Automated moves, delay handling, turn management
-- ✅ **Drag & Drop**: Piece dragging validation, move execution
-- ✅ **Performance**: Function memoization, re-render optimization
-- ✅ **Error Handling**: Invalid moves, null checks, graceful failures
-
-**Advanced Testing Patterns**:
-
-```typescript
-it("should handle timer cleanup on unmount", () => {
-  // Tests React lifecycle management
-  // Prevents memory leaks
-});
-
-it("should maintain stable function references", () => {
-  // Tests memoization effectiveness
-  // Ensures performance optimization
-});
-
-it("should make AI move when it is AI player turn", () => {
-  // Tests AI integration with timers
-  // Validates async behavior
-});
-```
-
-**Mock Strategy**:
-
-```typescript
-jest.mock("@/utils/gameUtils", () => ({
-  initializeGameState: jest.fn(),
-  selectPiece: jest.fn(),
-  makeMove: jest.fn(),
-  // ... other mocked functions
-}));
-```
-
-**Why This Matters**: React hooks manage application state and side effects. These tests ensure reliable state transitions, proper timer management, and optimal performance.
-
-### Test Architecture
-
-#### Testing Tools & Libraries
-
-- **Jest**: Test runner and assertion library
-- **React Testing Library**: React component and hook testing
-- **@testing-library/react-hooks**: Custom hook testing utilities
-- **jest.useFakeTimers()**: Timer and async behavior testing
-
-#### Mock Strategy
-
-- **Game Utils**: Isolated unit testing of React logic
-- **Timer Functions**: Controlled async behavior testing
-- **AI Integration**: Predictable move generation testing
-
-#### Coverage Goals
-
-- **Statements**: 95%+
-- **Branches**: 90%+
-- **Functions**: 100%
-- **Lines**: 95%+
 
 ### Running Specific Test Suites
 
 ```bash
-# Test game constants and configuration
+# Test configuration and constants
 npm test constants/game.test.ts
 
-# Test core game logic and algorithms
+# Test core game logic
 npm test utils/gameUtils.test.ts
 
-# Test React hooks and state management
+# Test React hooks and state
 npm test hooks/useGame.test.ts
 
-# Run tests matching a pattern
+# Run by test name pattern
 npm test -- --testNamePattern="capture"
 npm test -- --testNamePattern="AI"
 npm test -- --testNamePattern="timer"
 ```
 
-### Test Development Best Practices
+### Tooling & Strategy
 
-1. **Test Structure**: Follow AAA pattern (Arrange, Act, Assert)
-2. **Mock Strategy**: Mock dependencies, not implementation details
-3. **Edge Cases**: Test boundary conditions and error scenarios
-4. **Performance**: Verify memoization and optimization
-5. **Integration**: Test complete user flows and interactions
-
-### Continuous Integration
-
-Tests run automatically on:
-
-- **Pre-commit**: Staged files only
-- **Pull Requests**: Full test suite
-- **Main Branch**: Full test suite + coverage report
-
-### Test Coverage Reports
-
-Generate detailed coverage reports:
-
-```bash
-npm run test:coverage
-```
-
-Coverage reports are available in `coverage/lcov-report/index.html`
-
-## Structure
-
-```
-checkers/
-├── app/                    # Next.js app router pages
-│   ├── globals.css        # Global styles and CSS variables
-│   └── layout.tsx         # Root layout component
-├── components/            # Reusable React components
-│   └── ui/               # shadcn/ui components
-├── constants/            # Game constants and configuration
-│   ├── game.ts          # Core game constants
-│   └── game.test.ts     # Constants tests
-├── lib/                  # Utility functions and hooks
-│   └── utils.ts         # Common utilities (cn function)
-├── types/               # TypeScript type definitions
-│   └── game.ts         # Game-related types
-├── jest.config.js      # Jest testing configuration
-├── jest.setup.js       # Jest setup and mocks
-└── components.json     # shadcn/ui configuration
-```
+- jest.mock() for isolating utilities
+- jest.useFakeTimers() to control async timers
+- @testing-library/react-hooks for testing custom hooks
+- Coverage goal: 90%+ on core logic and hooks
 
 ## Features
-
-### Current Features
 
 - Modern Next.js 15 setup with TypeScript
 - Tailwind CSS styling with custom game themes
@@ -323,6 +157,49 @@ checkers/
 - Comprehensive type definitions
 - Game constants and rules configuration
 - Jest testing framework setup
+- Advanced drag and drop functionality with @dnd-kit
+
+## Drag and Drop Implementation
+
+The game features a sophisticated drag and drop system built with [@dnd-kit/core](https://dndkit.com/) that provides smooth, accessible, and performant piece movement.
+
+### Key Features
+
+- **Cross-Platform Support**: Works seamlessly on both desktop (mouse) and mobile (touch) devices
+- **Visual Feedback**: Real-time highlighting of valid moves and drag states
+- **Accessibility**: Built-in keyboard and screen reader support via @dnd-kit
+- **Performance**: Optimized collision detection and minimal re-renders
+- **Smooth Animations**: Fluid drag transitions and hover effects
+
+### Technical Implementation
+
+#### Components Structure
+
+- **`Board.tsx`**: Main drag and drop context with collision detection
+- **`Checker.tsx`**: Individual draggable checker pieces
+- **`DroppableCell.tsx`**: Drop zones for each board square
+
+#### Visual Feedback System
+
+- **Valid Moves**: Green dots indicate legal destinations
+- **Hover Effects**: Cells highlight when hovered during drag
+- **Drag Overlay**: Semi-transparent piece follows cursor/finger
+- **Capture Indicators**: Pulsing green borders on pieces that can capture
+- **Piece States**: Visual distinction between draggable and non-draggable pieces
+
+#### Performance Optimizations
+
+- **Client-Side Hydration**: Prevents SSR/client mismatch
+- **Collision Detection**: Uses `pointerWithin` for precise drop targeting
+- **State Management**: Efficient hover and drag state updates
+- **Memoization**: Prevents unnecessary re-renders during drag operations
+
+### Accessibility Features
+
+- **Keyboard Navigation**: Tab through pieces, use arrow keys to move
+- **Screen Reader Support**: Announces piece positions and valid moves
+- **Focus Management**: Maintains logical tab order during interactions
+- **ARIA Labels**: Descriptive labels for all interactive elements
 
 ## Stack
 
