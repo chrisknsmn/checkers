@@ -29,7 +29,7 @@ function ToggleOption<T extends string>({
 }) {
   return (
     <div
-      className="flex items-center bg-background rounded-full p-1 w-full"
+      className="flex items-center bg-popover rounded-full p-1 w-full"
       role="group"
     >
       {options.map((opt) => (
@@ -38,7 +38,7 @@ function ToggleOption<T extends string>({
           type="button"
           className={`cursor-pointer w-full px-3 py-1 rounded-full text-xs font-medium transition-colors flex items-center justify-center gap-1 ${
             value === opt
-              ? "bg-card text-card-foreground shadow-sm"
+              ? "bg-background text-card-foreground shadow-sm"
               : "text-muted-foreground hover:text-foreground"
           }`}
           onClick={() => onChange(opt)}
