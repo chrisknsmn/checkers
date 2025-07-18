@@ -9,11 +9,7 @@ interface CheckerProps {
   cellId: string;
 }
 
-export function Checker({
-  piece,
-  isDraggable = true,
-  cellId,
-}: CheckerProps) {
+export function Checker({ piece, isDraggable = true, cellId }: CheckerProps) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: cellId,
     disabled: !isDraggable,
@@ -22,12 +18,17 @@ export function Checker({
   // Parse position from cellId for accessibility
   const [row, col] = cellId.split("-").map(Number);
   const position = `${String.fromCharCode(65 + col)}${8 - row}`;
-  
-  const pieceDescription = `${piece.color.toLowerCase()} ${piece.isKing ? 'king' : 'checker'}`;
-  const dragStatus = isDragging ? 'being dragged' : isDraggable ? 'draggable' : 'not draggable';
 
-  // Extract role from attributes to avoid conflict
-  const { role: _role, ...otherAttributes } = attributes;
+  const pieceDescription = `${piece.color.toLowerCase()} ${
+    piece.isKing ? "king" : "checker"
+  }`;
+  const dragStatus = isDragging
+    ? "being dragged"
+    : isDraggable
+    ? "draggable"
+    : "not draggable";
+
+  const { role, ...otherAttributes } = attributes;
 
   return (
     <div
@@ -44,18 +45,12 @@ export function Checker({
       )}
       role="button"
       aria-label={`${pieceDescription} on ${position}, ${dragStatus}`}
-      aria-describedby={isDragging ? "drag-instructions" : undefined}
-      aria-grabbed={isDragging}
-      tabIndex={isDraggable ? 0 : -1}
       data-testid="checker"
       {...listeners}
       {...otherAttributes}
     >
       {piece.isKing && (
-        <span 
-          className="text-yellow-300"
-          aria-hidden="true"
-        >
+        <span className="text-yellow-300" aria-hidden="true">
           ♔
         </span>
       )}
