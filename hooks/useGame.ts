@@ -186,7 +186,7 @@ function useAIPlayer(
 
       return () => clearTimeout(aiMoveTimer);
     }
-  }, [shouldMakeAIMove, dispatch, gameState.mustContinueCapture]);
+  }, [shouldMakeAIMove]);
 }
 
 // ============================================================================
@@ -351,8 +351,11 @@ export function useGame() {
   );
   const canDragPiece = useMemo(
     () => (position: Position) => {
-      const cell = gameState.board[position.row][position.col];
-      return cell.checker && cell.checker.color === gameState.currentPlayer;
+      if (!position || position.row < 0 || position.row >= 8 || position.col < 0 || position.col >= 8) {
+        return false;
+      }
+      const cell = gameState.board[position.row]?.[position.col];
+      return !!(cell?.checker && cell.checker.color === gameState.currentPlayer);
     },
     [gameState.board, gameState.currentPlayer]
   );

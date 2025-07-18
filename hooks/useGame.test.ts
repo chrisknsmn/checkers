@@ -53,6 +53,7 @@ describe('useGame Hook', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.useFakeTimers();
     (initializeGameState as jest.Mock).mockReturnValue(mockGameState);
     
     // Mock board with a checker
@@ -70,7 +71,7 @@ describe('useGame Hook', () => {
   });
 
   afterEach(() => {
-    jest.runOnlyPendingTimers();
+    jest.clearAllTimers();
     jest.useRealTimers();
   });
 
@@ -330,10 +331,15 @@ describe('useGame Hook', () => {
 
   describe('AI Functionality', () => {
     it('should make AI move when it is AI player turn', () => {
-      const { getAIMove: mockGetAIMove } = require('@/utils/gameUtils');
+      const { getAIMove: mockGetAIMove, applyMove: mockApplyMove } = require('@/utils/gameUtils');
       mockGetAIMove.mockReturnValue({
         from: { row: 5, col: 0 },
         to: { row: 4, col: 1 },
+      });
+      mockApplyMove.mockReturnValue({
+        ...mockGameState,
+        currentPlayer: 'RED' as const,
+        moveCount: 1,
       });
 
       const gameStateAITurn = {
@@ -353,6 +359,7 @@ describe('useGame Hook', () => {
       });
 
       expect(mockGetAIMove).toHaveBeenCalledWith(gameStateAITurn);
+      expect(mockApplyMove).toHaveBeenCalledWith(gameStateAITurn, { row: 5, col: 0 }, { row: 4, col: 1 });
     });
 
     it('should not make AI move when AI is disabled', () => {
@@ -420,10 +427,15 @@ describe('useGame Hook', () => {
     });
 
     it('should handle AI move with continue capture', () => {
-      const { getAIMove: mockGetAIMove } = require('@/utils/gameUtils');
+      const { getAIMove: mockGetAIMove, applyMove: mockApplyMove } = require('@/utils/gameUtils');
       mockGetAIMove.mockReturnValue({
         from: { row: 5, col: 0 },
         to: { row: 4, col: 1 },
+      });
+      mockApplyMove.mockReturnValue({
+        ...mockGameState,
+        currentPlayer: 'RED' as const,
+        moveCount: 1,
       });
 
       const gameStateWithContinueCapture = {
@@ -444,6 +456,7 @@ describe('useGame Hook', () => {
       });
 
       expect(mockGetAIMove).toHaveBeenCalledWith(gameStateWithContinueCapture);
+      expect(mockApplyMove).toHaveBeenCalledWith(gameStateWithContinueCapture, { row: 5, col: 0 }, { row: 4, col: 1 });
     });
   });
 
@@ -718,10 +731,15 @@ describe('useGame Hook', () => {
     });
 
     it('should handle timer and AI interactions', () => {
-      const { getAIMove: mockGetAIMove } = require('@/utils/gameUtils');
+      const { getAIMove: mockGetAIMove, applyMove: mockApplyMove } = require('@/utils/gameUtils');
       mockGetAIMove.mockReturnValue({
         from: { row: 5, col: 0 },
         to: { row: 4, col: 1 },
+      });
+      mockApplyMove.mockReturnValue({
+        ...mockGameState,
+        currentPlayer: 'RED' as const,
+        moveCount: 1,
       });
 
       const gameStateAIWithTimer = {
@@ -744,7 +762,19 @@ describe('useGame Hook', () => {
         jest.advanceTimersByTime(1000);
       });
 
-      expect(mockGetAIMove).toHaveBeenCalledWith(gameStateAIWithTimer);
+      expect(mockGetAIMove).toHaveBeenCalledWith(expect.objectContaining({
+        currentPlayer: 'BLACK',
+        isAIEnabled: true,
+        aiPlayer: 'BLACK',
+        gameStatus: 'PLAYING',
+        turnTimeLimitEnabled: true,
+      }));
+      expect(mockApplyMove).toHaveBeenCalledWith(expect.objectContaining({
+        currentPlayer: 'BLACK',
+        isAIEnabled: true,
+        aiPlayer: 'BLACK',
+        gameStatus: 'PLAYING',
+      }), { row: 5, col: 0 }, { row: 4, col: 1 });
     });
   });
 });

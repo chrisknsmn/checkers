@@ -18,7 +18,7 @@ import {
 // ============================================================================
 
 function cloneGameState(gameState: GameState): GameState {
-  return structuredClone(gameState);
+  return JSON.parse(JSON.stringify(gameState));
 }
 
 function getDirectionsForPiece(piece: Checker): number[] {
@@ -64,6 +64,8 @@ function calculateMoveScore(
 
 export function isValidPosition(position: Position): boolean {
   return (
+    Number.isInteger(position.row) &&
+    Number.isInteger(position.col) &&
     position.row >= 0 &&
     position.row < BOARD_SIZE &&
     position.col >= 0 &&
@@ -240,7 +242,7 @@ export function getValidMoves(
     return [];
   }
 
-  // If we must continue after a capture, allow any valid move for that piece
+  // If we must continue after a capture, only allow capture moves for that piece
   if (mustContinueCapture) {
     if (
       position.row !== mustContinueCapture.row ||
@@ -248,12 +250,12 @@ export function getValidMoves(
     ) {
       return [];
     }
-    const { captureMoves, regularMoves } = calculateMovePositions(
+    const { captureMoves } = calculateMovePositions(
       gameState,
       position,
       piece
     );
-    return [...captureMoves, ...regularMoves];
+    return captureMoves;
   }
 
   // Check if any pieces can capture - if so, only allow those pieces to move
