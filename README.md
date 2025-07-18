@@ -161,6 +161,7 @@ npm test -- --testNamePattern="timer"
 - Game constants and rules configuration
 - Jest testing framework setup
 - Advanced drag and drop functionality with @dnd-kit
+- Customizable checker border styles with real-time preview
 
 ## Drag and Drop Implementation
 
@@ -170,7 +171,7 @@ The game features a sophisticated drag and drop system built with [@dnd-kit/core
 
 - **Cross-Platform Support**: Works seamlessly on both desktop (mouse) and mobile (touch) devices
 - **Visual Feedback**: Real-time highlighting of valid moves and drag states
-- **Accessibility**: Built-in keyboard and screen reader support via @dnd-kit
+- **Accessibility**: Built-in keyboard and screen reader support via @dnd-kit, WCAG 2.1 AA compliance, tested with WAVE and axe DevTools
 - **Performance**: Optimized collision detection and minimal re-renders
 - **Smooth Animations**: Fluid drag transitions and hover effects
 
