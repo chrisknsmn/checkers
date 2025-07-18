@@ -11,6 +11,8 @@ interface GameStatsProps {
   onToggleAI: (enabled: boolean) => void;
   onToggleTurnTimeLimit: (enabled: boolean) => void;
   onShowScoreModal: () => void;
+  checkerBorderVariant: string;
+  onCheckerBorderVariantChange: (variant: string) => void;
 }
 
 export function GameStats({
@@ -19,6 +21,8 @@ export function GameStats({
   onToggleAI,
   onToggleTurnTimeLimit,
   onShowScoreModal,
+  checkerBorderVariant,
+  onCheckerBorderVariantChange,
 }: GameStatsProps) {
   const { moveCount, checkers, gameTime } = gameState;
 
@@ -41,6 +45,8 @@ export function GameStats({
           onReset={onReset}
           onToggleAI={onToggleAI}
           onToggleTurnTimeLimit={onToggleTurnTimeLimit}
+          checkerBorderVariant={checkerBorderVariant}
+          onCheckerBorderVariantChange={onCheckerBorderVariantChange}
         />
         <TimingRow
           gameState={gameState}

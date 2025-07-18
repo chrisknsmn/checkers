@@ -26,6 +26,7 @@ interface BoardProps {
   gameState: GameState;
   onDragEnd: (from: Position, to: Position) => void;
   onDragStart?: (position: Position) => void;
+  borderVariant?: string;
 }
 
 interface DroppableCellProps {
@@ -36,6 +37,7 @@ interface DroppableCellProps {
   gameState: GameState;
   onCellHover: (position: Position | null) => void;
   hasCapture: boolean;
+  borderVariant?: string;
 }
 
 function DroppableCell({
@@ -45,6 +47,7 @@ function DroppableCell({
   gameState,
   onCellHover,
   hasCapture,
+  borderVariant,
 }: DroppableCellProps) {
   const { setNodeRef, isOver } = useDroppable({ id });
   
@@ -91,6 +94,7 @@ function DroppableCell({
             piece={cell.checker}
             isDraggable={cell.checker.color === gameState.currentPlayer}
             cellId={id}
+            borderVariant={borderVariant}
           />
           {hasCapture && (
             <div className="absolute inset-[5px] rounded-full border-4 border-green-500 animate-pulse pointer-events-none" />
@@ -109,7 +113,7 @@ function DroppableCell({
   );
 }
 
-export function Board({ gameState, onDragEnd, onDragStart }: BoardProps) {
+export function Board({ gameState, onDragEnd, onDragStart, borderVariant }: BoardProps) {
   const { board } = gameState;
   const [activeChecker, setActiveChecker] = useState<CheckerType | null>(null);
   const [hoveredCell, setHoveredCell] = useState<Position | null>(null);
@@ -238,6 +242,7 @@ export function Board({ gameState, onDragEnd, onDragStart }: BoardProps) {
                   gameState={gameState}
                   onCellHover={handleCellHover}
                   hasCapture={!!hasCapture}
+                  borderVariant={borderVariant}
                 />
               );
             })}
@@ -271,7 +276,7 @@ export function Board({ gameState, onDragEnd, onDragStart }: BoardProps) {
       {boardContent}
       <DragOverlay>
         {activeChecker && (
-          <Checker piece={activeChecker} isDraggable={false} cellId="" />
+          <Checker piece={activeChecker} isDraggable={false} cellId="" borderVariant={borderVariant} />
         )}
       </DragOverlay>
     </DndContext>

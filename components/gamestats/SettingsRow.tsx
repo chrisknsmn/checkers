@@ -14,6 +14,8 @@ interface SettingsRowProps {
   onReset: () => void;
   onToggleAI: (enabled: boolean) => void;
   onToggleTurnTimeLimit: (enabled: boolean) => void;
+  checkerBorderVariant: string;
+  onCheckerBorderVariantChange: (variant: string) => void;
 }
 
 function ToggleOption<T extends string>({
@@ -58,6 +60,8 @@ export function SettingsRow({
   onReset,
   onToggleAI,
   onToggleTurnTimeLimit,
+  checkerBorderVariant,
+  onCheckerBorderVariantChange,
 }: SettingsRowProps) {
   const { theme, toggleTheme } = useTheme();
 
@@ -122,6 +126,19 @@ export function SettingsRow({
                     options={["Off", "On"]}
                     value={gameState.turnTimeLimitEnabled ? "On" : "Off"}
                     onChange={(val) => onToggleTurnTimeLimit(val === "On")}
+                  />
+                </div>
+              </div>
+              {/* Checker Border Style */}
+              <div className="grid gap-1">
+                <label className="text-sm font-medium" id="border-label">
+                  Checker Border Style
+                </label>
+                <div role="group" aria-labelledby="border-label">
+                  <ToggleOption
+                    options={["default", "solid", "dashed", "none"]}
+                    value={checkerBorderVariant}
+                    onChange={onCheckerBorderVariantChange}
                   />
                 </div>
               </div>

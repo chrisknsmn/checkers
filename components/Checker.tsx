@@ -1,15 +1,16 @@
 import React from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { Checker as CheckerType } from "@/types/game";
-import { cn } from "@/lib/utils";
+import { Checker as UIChecker } from "@/components/ui/checker";
 
 interface CheckerProps {
   piece: CheckerType;
   isDraggable?: boolean;
   cellId: string;
+  borderVariant?: string;
 }
 
-export function Checker({ piece, isDraggable = true, cellId }: CheckerProps) {
+export function Checker({ piece, isDraggable = true, cellId, borderVariant = "default" }: CheckerProps) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: cellId,
     disabled: !isDraggable,
@@ -31,28 +32,16 @@ export function Checker({ piece, isDraggable = true, cellId }: CheckerProps) {
   const { ...otherAttributes } = attributes;
 
   return (
-    <div
+    <UIChecker
       ref={setNodeRef}
-      className={cn(
-        "w-4/5 h-4/5 rounded-full border-4 border-black/30 cursor-grab transition-all duration-100 relative flex items-center justify-center touch-none",
-        {
-          "bg-red-500 text-white": piece.color === "RED",
-          "bg-gray-800 text-white": piece.color === "BLACK",
-          "opacity-50": isDragging,
-          "cursor-grab": isDraggable,
-          "cursor-grabbing": isDragging,
-        }
-      )}
+      variant={borderVariant as any}
+      color={piece.color === "RED" ? "red" : "black"}
+      dragging={isDragging}
+      isKing={piece.isKing}
       aria-label={`${pieceDescription} on ${position}, ${dragStatus}`}
       data-testid="checker"
       {...listeners}
       {...otherAttributes}
-    >
-      {piece.isKing && (
-        <span className="text-yellow-300" aria-hidden="true">
-          ♔
-        </span>
-      )}
-    </div>
+    />
   );
 }

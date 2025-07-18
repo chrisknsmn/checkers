@@ -17,6 +17,7 @@ export default function Home() {
   } = useGame();
   const [showScoreModal, setShowScoreModal] = useState(false);
   const [announcements, setAnnouncements] = useState<string[]>([]);
+  const [checkerBorderVariant, setCheckerBorderVariant] = useState("default");
 
   // Show modal when game ends
   useEffect(() => {
@@ -120,6 +121,7 @@ export default function Home() {
               gameState={gameState}
               onDragEnd={handleDragEnd}
               onDragStart={handleDragStart}
+              borderVariant={checkerBorderVariant}
             />
           </div>
         </div>
@@ -129,6 +131,8 @@ export default function Home() {
           onToggleAI={toggleAI}
           onToggleTurnTimeLimit={toggleTurnTimeLimit}
           onShowScoreModal={() => setShowScoreModal(true)}
+          checkerBorderVariant={checkerBorderVariant}
+          onCheckerBorderVariantChange={setCheckerBorderVariant}
         />
       </div>
 
