@@ -26,6 +26,9 @@ export function Checker({
   const pieceDescription = `${piece.color.toLowerCase()} ${piece.isKing ? 'king' : 'checker'}`;
   const dragStatus = isDragging ? 'being dragged' : isDraggable ? 'draggable' : 'not draggable';
 
+  // Extract role from attributes to avoid conflict
+  const { role, ...otherAttributes } = attributes;
+
   return (
     <div
       ref={setNodeRef}
@@ -46,7 +49,7 @@ export function Checker({
       tabIndex={isDraggable ? 0 : -1}
       data-testid="checker"
       {...listeners}
-      {...attributes}
+      {...otherAttributes}
     >
       {piece.isKing && (
         <span 
