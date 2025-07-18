@@ -258,7 +258,11 @@ export function getValidMoves(
       position,
       piece
     );
-    return [...captureMoves, ...regularMoves];
+    // If captures are available during continuation, only allow captures (mandatory capture rule)
+    if (captureMoves.length > 0) {
+      return captureMoves;
+    }
+    return regularMoves;
   }
 
   // Check if any pieces can capture - if so, only allow those pieces to move

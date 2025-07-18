@@ -293,6 +293,56 @@ describe('gameUtils', () => {
       const continueMoves = getValidMoves(gameState, { row: 2, col: 1 });
       expect(continueMoves.length).toBeGreaterThanOrEqual(0);
     });
+
+    it('should prioritize capture moves during mustContinueCapture', () => {
+      const gameState = initializeGameState();
+      
+      // Create a multi-capture scenario
+      gameState.board.forEach(row => {
+        row.forEach(cell => {
+          cell.checker = null;
+        });
+      });
+      
+      const redPiece: Checker = {
+        id: 'test-red',
+        color: 'RED',
+        position: { row: 3, col: 2 },
+        isKing: false
+      };
+      
+      const blackPiece1: Checker = {
+        id: 'test-black-1',
+        color: 'BLACK',
+        position: { row: 4, col: 3 },
+        isKing: false
+      };
+      
+      const blackPiece2: Checker = {
+        id: 'test-black-2',
+        color: 'BLACK',
+        position: { row: 2, col: 1 },
+        isKing: false
+      };
+      
+      gameState.board[3][2].checker = redPiece;
+      gameState.board[4][3].checker = blackPiece1;
+      gameState.board[2][1].checker = blackPiece2;
+      gameState.checkers = [redPiece, blackPiece1, blackPiece2];
+      gameState.currentPlayer = 'RED';
+      gameState.mustContinueCapture = { row: 3, col: 2 };
+      
+      const moves = getValidMoves(gameState, { row: 3, col: 2 });
+      
+      // Should only return capture moves, not regular moves
+      expect(moves.length).toBeGreaterThan(0);
+      
+      // Verify all returned moves are captures
+      moves.forEach(move => {
+        expect(Math.abs(move.row - 3)).toBe(2);
+        expect(Math.abs(move.col - 2)).toBe(2);
+      });
+    });
   });
 
   describe('canCapture', () => {
