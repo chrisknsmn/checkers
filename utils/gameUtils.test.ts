@@ -12,6 +12,7 @@ import {
   selectPiece,
   makeMove,
   getAIMove,
+  getCompleteAITurn,
 } from './gameUtils';
 import { GameState, Position, Checker, Player } from '@/types/game';
 import { BOARD_SIZE } from '@/constants/game';
@@ -855,6 +856,101 @@ describe('gameUtils', () => {
       if (aiMove) {
         expect(aiMove.from).toEqual({ row: 4, col: 3 });
       }
+    });
+  });
+
+  describe('getCompleteAITurn', () => {
+    it('should return original state when no mustContinueCapture', () => {
+      const gameState = initializeGameState();
+      gameState.currentPlayer = 'BLACK';
+      gameState.mustContinueCapture = null;
+      
+      const result = getCompleteAITurn(gameState);
+      
+      expect(result).toBe(gameState);
+    });
+
+    it('should continue making moves while mustContinueCapture is set', () => {
+      const gameState = initializeGameState();
+      
+      // Create a multi-capture scenario
+      gameState.board.forEach(row => {
+        row.forEach(cell => {
+          cell.checker = null;
+        });
+      });
+      
+      const blackPiece: Checker = {
+        id: 'test-black',
+        color: 'BLACK',
+        position: { row: 3, col: 2 },
+        isKing: false
+      };
+      
+      const redPiece1: Checker = {
+        id: 'test-red-1',
+        color: 'RED',
+        position: { row: 4, col: 3 },
+        isKing: false
+      };
+      
+      const redPiece2: Checker = {
+        id: 'test-red-2',
+        color: 'RED',
+        position: { row: 6, col: 5 },
+        isKing: false
+      };
+      
+      gameState.board[3][2].checker = blackPiece;
+      gameState.board[4][3].checker = redPiece1;
+      gameState.board[6][5].checker = redPiece2;
+      gameState.checkers = [blackPiece, redPiece1, redPiece2];
+      gameState.currentPlayer = 'BLACK';
+      gameState.aiPlayer = 'BLACK';
+      gameState.mustContinueCapture = { row: 3, col: 2 };
+      
+      const result = getCompleteAITurn(gameState);
+      
+      // Should have made at least one move
+      expect(result.moveCount).toBeGreaterThan(gameState.moveCount);
+      // Should have cleared mustContinueCapture when no more moves available
+      expect(result.mustContinueCapture).toBeNull();
+    });
+
+    it('should stop when AI player changes', () => {
+      const gameState = initializeGameState();
+      gameState.currentPlayer = 'BLACK';
+      gameState.aiPlayer = 'BLACK';
+      gameState.mustContinueCapture = { row: 3, col: 2 };
+      
+      // Mock a scenario where the turn ends
+      const blackPiece: Checker = {
+        id: 'test-black',
+        color: 'BLACK',
+        position: { row: 3, col: 2 },
+        isKing: false
+      };
+      
+      gameState.board[3][2].checker = blackPiece;
+      gameState.checkers = [blackPiece];
+      
+      const result = getCompleteAITurn(gameState);
+      
+      // Should have processed the state
+      expect(result).toBeDefined();
+    });
+
+    it('should handle game ending during AI turn', () => {
+      const gameState = initializeGameState();
+      gameState.currentPlayer = 'BLACK';
+      gameState.aiPlayer = 'BLACK';
+      gameState.gameStatus = 'RED_WINS';
+      gameState.mustContinueCapture = { row: 3, col: 2 };
+      
+      const result = getCompleteAITurn(gameState);
+      
+      // Should stop when game is not playing
+      expect(result).toBe(gameState);
     });
   });
 

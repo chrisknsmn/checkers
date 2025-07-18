@@ -10,6 +10,7 @@ jest.mock('@/utils/gameUtils', () => ({
   makeMove: jest.fn(),
   applyMove: jest.fn(),
   getAIMove: jest.fn(),
+  getCompleteAITurn: jest.fn(),
 }));
 
 // Mock timers
@@ -457,6 +458,60 @@ describe('useGame Hook', () => {
 
       expect(mockGetAIMove).toHaveBeenCalledWith(gameStateWithContinueCapture);
       expect(mockApplyMove).toHaveBeenCalledWith(gameStateWithContinueCapture, { row: 5, col: 0 }, { row: 4, col: 1 });
+    });
+
+    it('should continue making AI moves until turn is complete', () => {
+      const { getAIMove: mockGetAIMove, applyMove: mockApplyMove } = require('@/utils/gameUtils');
+      
+      // First move - results in mustContinueCapture
+      mockGetAIMove.mockReturnValueOnce({
+        from: { row: 5, col: 0 },
+        to: { row: 4, col: 1 },
+      });
+      mockApplyMove.mockReturnValueOnce({
+        ...mockGameState,
+        currentPlayer: 'BLACK' as const,
+        mustContinueCapture: { row: 4, col: 1 },
+        moveCount: 1,
+      });
+
+      // Second move - completes the turn
+      mockGetAIMove.mockReturnValueOnce({
+        from: { row: 4, col: 1 },
+        to: { row: 3, col: 2 },
+      });
+      mockApplyMove.mockReturnValueOnce({
+        ...mockGameState,
+        currentPlayer: 'RED' as const,
+        mustContinueCapture: null,
+        moveCount: 2,
+      });
+
+      const gameStateAITurn = {
+        ...mockGameState,
+        currentPlayer: 'BLACK' as const,
+        isAIEnabled: true,
+        aiPlayer: 'BLACK' as const,
+        gameStatus: 'PLAYING' as const,
+      };
+
+      (initializeGameState as jest.Mock).mockReturnValue(gameStateAITurn);
+
+      const { result } = renderHook(() => useGame());
+
+      act(() => {
+        jest.advanceTimersByTime(1000); // First move
+      });
+
+      expect(mockGetAIMove).toHaveBeenCalledTimes(1);
+      expect(mockApplyMove).toHaveBeenCalledTimes(1);
+
+      act(() => {
+        jest.advanceTimersByTime(1000); // Second move
+      });
+
+      expect(mockGetAIMove).toHaveBeenCalledTimes(2);
+      expect(mockApplyMove).toHaveBeenCalledTimes(2);
     });
   });
 

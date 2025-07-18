@@ -6,6 +6,7 @@ import {
   makeMove,
   applyMove,
   getAIMove,
+  getCompleteAITurn,
 } from "@/utils/gameUtils";
 
 // ============================================================================
@@ -178,15 +179,31 @@ function useAIPlayer(
     gameState.gameStatus,
   ]);
 
+  // Handle continuation moves (when AI must continue capturing)
+  const shouldContinueAIMove = useMemo(() => {
+    return (
+      gameState.isAIEnabled &&
+      gameState.currentPlayer === gameState.aiPlayer &&
+      gameState.gameStatus === "PLAYING" &&
+      gameState.mustContinueCapture !== null
+    );
+  }, [
+    gameState.isAIEnabled,
+    gameState.currentPlayer,
+    gameState.aiPlayer,
+    gameState.gameStatus,
+    gameState.mustContinueCapture,
+  ]);
+
   useEffect(() => {
-    if (shouldMakeAIMove) {
+    if (shouldMakeAIMove || shouldContinueAIMove) {
       const aiMoveTimer = setTimeout(() => {
         dispatch(actionCreators.makeAIMove());
       }, GAME_CONFIG.AI_DELAY);
 
       return () => clearTimeout(aiMoveTimer);
     }
-  }, [shouldMakeAIMove]);
+  }, [shouldMakeAIMove, shouldContinueAIMove]);
 }
 
 // ============================================================================

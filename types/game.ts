@@ -29,7 +29,7 @@ export interface Cell {
   isDark: boolean;
 }
 
-export type MoveType = 'MOVE' | 'CAPTURE' | 'MULTI_CAPTURE';
+export type MoveType = 'MOVE' | 'CAPTURE' | 'MULTI_CAPTURE' | 'CONTINUATION_MOVE';
 
 export interface Move {
   id: string;

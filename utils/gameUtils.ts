@@ -209,7 +209,10 @@ export function getAllPiecesWithCaptures(gameState: GameState): Position[] {
 
   return board.flatMap((row, rowIndex) =>
     row
-      .map((cell, colIndex) => ({ cell, position: { row: rowIndex, col: colIndex } }))
+      .map((cell, colIndex) => ({
+        cell,
+        position: { row: rowIndex, col: colIndex },
+      }))
       .filter(({ cell }) => cell.checker?.color === currentPlayer)
       .map(({ position }) => position)
       .filter((position) => getCaptureMoves(gameState, position).length > 0)
@@ -242,7 +245,7 @@ export function getValidMoves(
     return [];
   }
 
-  // If we must continue after a capture, only allow capture moves for that piece
+  // If we must continue after a capture, allow any moves for that piece
   if (mustContinueCapture) {
     if (
       position.row !== mustContinueCapture.row ||
@@ -250,12 +253,12 @@ export function getValidMoves(
     ) {
       return [];
     }
-    const { captureMoves } = calculateMovePositions(
+    const { captureMoves, regularMoves } = calculateMovePositions(
       gameState,
       position,
       piece
     );
-    return captureMoves;
+    return [...captureMoves, ...regularMoves];
   }
 
   // Check if any pieces can capture - if so, only allow those pieces to move
@@ -292,14 +295,17 @@ export function checkForValidMoves(gameState: GameState): boolean {
   return board.some((row, rowIndex) =>
     row.some((cell, colIndex) => {
       if (!cell.checker) return false;
-      
+
       const tempGameState = {
         ...gameState,
         currentPlayer: cell.checker.color,
         mustContinueCapture: null,
       };
-      
-      return getValidMoves(tempGameState, { row: rowIndex, col: colIndex }).length > 0;
+
+      return (
+        getValidMoves(tempGameState, { row: rowIndex, col: colIndex }).length >
+        0
+      );
     })
   );
 }
@@ -337,17 +343,25 @@ export function getAIMove(
     ? [mustContinueCapture]
     : board.flatMap((row, rowIndex) =>
         row
-          .map((cell, colIndex) => ({ cell, position: { row: rowIndex, col: colIndex } }))
+          .map((cell, colIndex) => ({
+            cell,
+            position: { row: rowIndex, col: colIndex },
+          }))
           .filter(({ cell }) => cell.checker?.color === currentPlayer)
           .map(({ position }) => position)
       );
 
   positions.forEach((position) => {
     const validMoves = getValidMoves(gameState, position);
-    
+
     validMoves.forEach((move) => {
       const isCaptureMove = isCapture(position, move);
-      const score = calculateMoveScore(position, move, currentPlayer, isCaptureMove);
+      const score = calculateMoveScore(
+        position,
+        move,
+        currentPlayer,
+        isCaptureMove
+      );
 
       allMoves.push({
         from: position,
@@ -366,6 +380,26 @@ export function getAIMove(
   const randomMove = topMoves[Math.floor(Math.random() * topMoves.length)];
 
   return { from: randomMove.from, to: randomMove.to };
+}
+
+export function getCompleteAITurn(gameState: GameState): GameState {
+  let currentState = gameState;
+
+  while (
+    currentState.currentPlayer === currentState.aiPlayer &&
+    currentState.gameStatus === "PLAYING" &&
+    currentState.mustContinueCapture !== null
+  ) {
+    const aiMove = getAIMove(currentState);
+
+    if (!aiMove) {
+      break;
+    }
+
+    currentState = applyMove(currentState, aiMove.from, aiMove.to);
+  }
+
+  return currentState;
 }
 
 // ============================================================================
@@ -500,40 +534,38 @@ export function applyMove(
   if (isCapture) {
     capturedPieces.push(...processCaptureMove(newGameState, from, to));
 
-    // Check if additional captures are available from the new position
-    const additionalCaptures = getCaptureMoves(newGameState, to);
-    
-    if (additionalCaptures.length > 0) {
-      // Multi-capture scenario - player must continue
+    const additionalMoves = getValidMoves(newGameState, to);
+
+    if (additionalMoves.length > 0) {
       newGameState.mustContinueCapture = to;
       newGameState.selectedPiece = to;
-      newGameState.validMoves = additionalCaptures;
-      
-      // Create move record for multi-capture
+      newGameState.validMoves = additionalMoves;
+
+      const hasCaptures = additionalMoves.some((move) =>
+        canCapture(newGameState, to, move)
+      );
+
       const move: Move = {
         id: `move-${Date.now()}`,
         from,
         to,
-        type: "MULTI_CAPTURE",
+        type: hasCaptures ? "MULTI_CAPTURE" : "CAPTURE",
         piece,
         capturedPieces,
         timestamp: Date.now(),
       };
-      
+
       newGameState.moveHistory.push(move);
       newGameState.lastMove = move;
       newGameState.moveCount++;
-      
+
       updateValidMoveIndicators(newGameState);
-      
-      // Don't switch players - same player continues
+
       return newGameState;
     } else {
-      // No additional captures - end turn
       newGameState.mustContinueCapture = null;
       clearSelection(newGameState);
-      
-      // Create move record for final capture
+
       const move: Move = {
         id: `move-${Date.now()}`,
         from,
@@ -543,23 +575,46 @@ export function applyMove(
         capturedPieces,
         timestamp: Date.now(),
       };
-      
+
       newGameState.moveHistory.push(move);
       newGameState.lastMove = move;
       newGameState.moveCount++;
-      
+
       switchPlayer(newGameState);
       clearValidMoveIndicators(newGameState.board);
       updateGameEndConditions(newGameState);
-      
+
       return newGameState;
     }
   }
 
-  // Regular move - clear any multi-capture state
+  if (gameState.mustContinueCapture) {
+    newGameState.mustContinueCapture = null;
+
+    const move: Move = {
+      id: `move-${Date.now()}`,
+      from,
+      to,
+      type: "CONTINUATION_MOVE",
+      piece,
+      capturedPieces,
+      timestamp: Date.now(),
+    };
+
+    newGameState.moveHistory.push(move);
+    newGameState.lastMove = move;
+    newGameState.moveCount++;
+
+    switchPlayer(newGameState);
+    clearSelection(newGameState);
+    clearValidMoveIndicators(newGameState.board);
+    updateGameEndConditions(newGameState);
+
+    return newGameState;
+  }
+
   newGameState.mustContinueCapture = null;
 
-  // Create move record
   const move: Move = {
     id: `move-${Date.now()}`,
     from,
@@ -589,7 +644,6 @@ export function selectPiece(
   const newGameState = { ...gameState };
   const piece = newGameState.board[position.row][position.col].checker;
 
-  // If we must continue capturing, only allow selecting the specific piece
   if (newGameState.mustContinueCapture) {
     if (
       position.row === newGameState.mustContinueCapture.row &&
@@ -599,7 +653,6 @@ export function selectPiece(
       newGameState.validMoves = getValidMoves(newGameState, position);
       updateValidMoveIndicators(newGameState);
     } else {
-      // Don't allow selecting other pieces
       return newGameState;
     }
   } else if (piece && piece.color === newGameState.currentPlayer) {
