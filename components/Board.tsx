@@ -26,7 +26,7 @@ interface BoardProps {
   gameState: GameState;
   onDragEnd: (from: Position, to: Position) => void;
   onDragStart?: (position: Position) => void;
-  borderVariant?: string;
+  borderVariant?: "default" | "solid" | "dashed" | "groove" | "ridge" | "inset" | "outset" | "none";
 }
 
 interface DroppableCellProps {
@@ -37,7 +37,7 @@ interface DroppableCellProps {
   gameState: GameState;
   onCellHover: (position: Position | null) => void;
   hasCapture: boolean;
-  borderVariant?: string;
+  borderVariant?: "default" | "solid" | "dashed" | "groove" | "ridge" | "inset" | "outset" | "none";
 }
 
 function DroppableCell({
