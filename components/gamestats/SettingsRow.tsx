@@ -14,8 +14,8 @@ interface SettingsRowProps {
   onReset: () => void;
   onToggleAI: (enabled: boolean) => void;
   onToggleTurnTimeLimit: (enabled: boolean) => void;
-  checkerBorderVariant: string;
-  onCheckerBorderVariantChange: (variant: string) => void;
+  checkerBorderVariant: "default" | "solid" | "dashed" | "groove" | "ridge" | "inset" | "outset" | "none";
+  onCheckerBorderVariantChange: (variant: "default" | "solid" | "dashed" | "groove" | "ridge" | "inset" | "outset" | "none") => void;
 }
 
 function ToggleOption<T extends string>({

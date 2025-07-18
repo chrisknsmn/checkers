@@ -17,7 +17,7 @@ export default function Home() {
   } = useGame();
   const [showScoreModal, setShowScoreModal] = useState(false);
   const [announcements, setAnnouncements] = useState<string[]>([]);
-  const [checkerBorderVariant, setCheckerBorderVariant] = useState("default");
+  const [checkerBorderVariant, setCheckerBorderVariant] = useState<"default" | "solid" | "dashed" | "groove" | "ridge" | "inset" | "outset" | "none">("default");
 
   // Show modal when game ends
   useEffect(() => {

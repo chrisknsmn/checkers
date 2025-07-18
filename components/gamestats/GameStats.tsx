@@ -11,8 +11,8 @@ interface GameStatsProps {
   onToggleAI: (enabled: boolean) => void;
   onToggleTurnTimeLimit: (enabled: boolean) => void;
   onShowScoreModal: () => void;
-  checkerBorderVariant: string;
-  onCheckerBorderVariantChange: (variant: string) => void;
+  checkerBorderVariant: "default" | "solid" | "dashed" | "groove" | "ridge" | "inset" | "outset" | "none";
+  onCheckerBorderVariantChange: (variant: "default" | "solid" | "dashed" | "groove" | "ridge" | "inset" | "outset" | "none") => void;
 }
 
 export function GameStats({
