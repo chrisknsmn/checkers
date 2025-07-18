@@ -28,7 +28,10 @@ function ToggleOption<T extends string>({
   icons?: Record<T, React.ReactNode>;
 }) {
   return (
-    <div className="flex items-center bg-background rounded-full p-1 w-full">
+    <div
+      className="flex items-center bg-background rounded-full p-1 w-full"
+      role="group"
+    >
       {options.map((opt) => (
         <button
           key={opt}
@@ -39,8 +42,10 @@ function ToggleOption<T extends string>({
               : "text-muted-foreground hover:text-foreground"
           }`}
           onClick={() => onChange(opt)}
+          aria-pressed={value === opt}
+          aria-label={`Select ${opt}`}
         >
-          {icons?.[opt]}
+          {icons?.[opt] && <span aria-hidden="true">{icons[opt]}</span>}
           {opt}
         </button>
       ))}
@@ -58,49 +63,67 @@ export function SettingsRow({
 
   return (
     <div className="flex items-center justify-between">
-      <h2 className="text-4xl font-bold text-foreground">Checkers</h2>
+      <h1 className="text-4xl font-bold text-foreground">Checkers</h1>
       <div className="flex gap-4">
         <Button variant="outline" onClick={onReset} aria-label="Reset Game">
-          <RotateCcw className="w-4 h-4" />
+          <RotateCcw className="w-4 h-4" aria-hidden="true" />
         </Button>
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" aria-label="Settings">
-              <Settings className="w-4 h-4" />
+            <Button variant="outline" aria-label="Open game settings">
+              <Settings className="w-4 h-4" aria-hidden="true" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-80" align="end" side="bottom">
+          <PopoverContent
+            className="w-80"
+            align="end"
+            side="bottom"
+            role="dialog"
+            aria-label="Game Settings"
+          >
             <div className="grid gap-4">
               {/* Theme */}
               <div className="grid gap-1">
-                <label className="text-sm font-medium">Theme</label>
-                <ToggleOption
-                  options={["light", "dark"]}
-                  value={theme}
-                  onChange={toggleTheme}
-                  icons={{
-                    light: <Sun className="w-3 h-3" />,
-                    dark: <Moon className="w-3 h-3" />,
-                  }}
-                />
+                <label className="text-sm font-medium" id="theme-label">
+                  Theme
+                </label>
+                <div role="group" aria-labelledby="theme-label">
+                  <ToggleOption
+                    options={["light", "dark"]}
+                    value={theme}
+                    onChange={toggleTheme}
+                    icons={{
+                      light: <Sun className="w-3 h-3" />,
+                      dark: <Moon className="w-3 h-3" />,
+                    }}
+                  />
+                </div>
               </div>
               {/* Game Mode */}
               <div className="grid gap-1">
-                <label className="text-sm font-medium">Game Mode</label>
-                <ToggleOption
-                  options={["AI", "2P"]}
-                  value={gameState.isAIEnabled ? "AI" : "2P"}
-                  onChange={(val) => onToggleAI(val === "AI")}
-                />
+                <label className="text-sm font-medium" id="gamemode-label">
+                  Game Mode
+                </label>
+                <div role="group" aria-labelledby="gamemode-label">
+                  <ToggleOption
+                    options={["AI", "2P"]}
+                    value={gameState.isAIEnabled ? "AI" : "2P"}
+                    onChange={(val) => onToggleAI(val === "AI")}
+                  />
+                </div>
               </div>
               {/* Time Limit */}
               <div className="grid gap-1">
-                <label className="text-sm font-medium">Time Limit</label>
-                <ToggleOption
-                  options={["Off", "On"]}
-                  value={gameState.turnTimeLimitEnabled ? "On" : "Off"}
-                  onChange={(val) => onToggleTurnTimeLimit(val === "On")}
-                />
+                <label className="text-sm font-medium" id="timelimit-label">
+                  Time Limit
+                </label>
+                <div role="group" aria-labelledby="timelimit-label">
+                  <ToggleOption
+                    options={["Off", "On"]}
+                    value={gameState.turnTimeLimitEnabled ? "On" : "Off"}
+                    onChange={(val) => onToggleTurnTimeLimit(val === "On")}
+                  />
+                </div>
               </div>
             </div>
           </PopoverContent>

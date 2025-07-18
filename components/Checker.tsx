@@ -19,6 +19,13 @@ export function Checker({
     disabled: !isDraggable,
   });
 
+  // Parse position from cellId for accessibility
+  const [row, col] = cellId.split("-").map(Number);
+  const position = `${String.fromCharCode(65 + col)}${8 - row}`;
+  
+  const pieceDescription = `${piece.color.toLowerCase()} ${piece.isKing ? 'king' : 'checker'}`;
+  const dragStatus = isDragging ? 'being dragged' : isDraggable ? 'draggable' : 'not draggable';
+
   return (
     <div
       ref={setNodeRef}
@@ -32,11 +39,23 @@ export function Checker({
           "cursor-grabbing": isDragging,
         }
       )}
+      role="button"
+      aria-label={`${pieceDescription} on ${position}, ${dragStatus}`}
+      aria-describedby={isDragging ? "drag-instructions" : undefined}
+      aria-grabbed={isDragging}
+      tabIndex={isDraggable ? 0 : -1}
       data-testid="checker"
       {...listeners}
       {...attributes}
     >
-      {piece.isKing && <span className="text-yellow-300">♔</span>}
+      {piece.isKing && (
+        <span 
+          className="text-yellow-300"
+          aria-hidden="true"
+        >
+          ♔
+        </span>
+      )}
     </div>
   );
 }

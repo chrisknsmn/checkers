@@ -8,14 +8,20 @@ interface MoveHistoryProps {
 
 export function MoveHistory({ gameState, moveCount }: MoveHistoryProps) {
   return (
-    <div className="p-4 rounded-lg bg-muted text-foreground transition-all duration-500 h-full flex-grow overflow-auto hidden md:block">
+    <div 
+      className="p-4 rounded-lg bg-muted text-foreground transition-all duration-500 h-full flex-grow overflow-auto hidden md:block"
+      role="log"
+      aria-label="Move history"
+    >
       <div className="flex justify-between mb-3">
-        <h3 className="font-semibold">Move History</h3>
-        <p>Total Turns: {moveCount}</p>
+        <h2 className="font-semibold">Move History</h2>
+        <p aria-label={`Total turns played: ${moveCount}`}>
+          Total Turns: {moveCount}
+        </p>
       </div>
-      <div className="overflow-y-auto space-y-1 text-sm">
+      <div className="overflow-y-auto space-y-1 text-sm" role="list">
         {gameState.moveHistory.length === 0 ? (
-          <p className="italic">No moves yet</p>
+          <div className="italic" role="listitem">No moves yet</div>
         ) : (
           gameState.moveHistory.map((move, index) => {
             const moveTime =
@@ -36,6 +42,8 @@ export function MoveHistory({ gameState, moveCount }: MoveHistoryProps) {
                 className={`flex justify-between items-center py-1 px-2 rounded ${
                   move.piece.color === "RED" ? "bg-red-100" : "bg-gray-100"
                 }`}
+                role="listitem"
+                aria-label={`Move ${index + 1}: ${move.piece.color.toLowerCase()} piece from ${String.fromCharCode(97 + move.from.col)}${8 - move.from.row} to ${String.fromCharCode(97 + move.to.col)}${8 - move.to.row}${move.type === "CAPTURE" ? " capturing opponent piece" : ""}, took ${moveTime} seconds`}
               >
                 <span
                   className={

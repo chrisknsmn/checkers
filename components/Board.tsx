@@ -47,6 +47,20 @@ function DroppableCell({
   hasCapture,
 }: DroppableCellProps) {
   const { setNodeRef, isOver } = useDroppable({ id });
+  
+  // Parse position for accessibility
+  const [row, col] = id.split("-").map(Number);
+  const position = `${String.fromCharCode(65 + col)}${8 - row}`;
+  
+  // Create descriptive cell state
+  const cellState = cell.checker 
+    ? `occupied by ${cell.checker.color.toLowerCase()} ${cell.checker.isKing ? 'king' : 'checker'}`
+    : cell.isDark 
+      ? 'empty dark square'
+      : 'empty light square';
+  
+  const validMoveState = showHoverMove && !cell.checker ? ', valid move target' : '';
+  const dropState = isOver && showHoverMove ? ', drop target active' : '';
 
   return (
     <div
@@ -63,6 +77,10 @@ function DroppableCell({
           "bg-green-300": isOver && showHoverMove,
         }
       )}
+      role="gridcell"
+      aria-label={`${position}, ${cellState}${validMoveState}${dropState}`}
+      aria-dropeffect={showHoverMove ? "move" : "none"}
+      tabIndex={cell.isDark ? 0 : -1}
       onMouseEnter={() => onCellHover(cell.position)}
       onMouseLeave={() => onCellHover(null)}
       data-testid={`board-square-${id}`}
@@ -189,35 +207,42 @@ export function Board({ gameState, onDragEnd, onDragStart }: BoardProps) {
 
   const boardContent = (
     <div className="w-full aspect-square max-w-full max-h-full">
-      <div className="grid grid-cols-8 gap-1 p-2 bg-board w-full h-full rounded-lg">
-        {board.map((row, rowIndex) =>
-          row.map((cell, colIndex) => {
-            const isHovered =
-              hoveredCell?.row === rowIndex && hoveredCell?.col === colIndex;
-            const showHoverMove = hoverValidMoves.some(
-              (move) => move.row === rowIndex && move.col === colIndex
-            );
-            const hasCapture =
-              cell.checker &&
-              cell.checker.color === gameState.currentPlayer &&
-              piecesWithCaptures.some(
-                (pos) => pos.row === rowIndex && pos.col === colIndex
+      <div 
+        className="grid grid-cols-8 gap-1 p-2 bg-board w-full h-full rounded-lg"
+        role="grid"
+        aria-label={`Checkers board, ${gameState.currentPlayer.toLowerCase()} player's turn`}
+        aria-describedby="board-instructions"
+      >
+        {board.map((row, rowIndex) => (
+          <div key={`row-${rowIndex}`} role="row" className="contents">
+            {row.map((cell, colIndex) => {
+              const isHovered =
+                hoveredCell?.row === rowIndex && hoveredCell?.col === colIndex;
+              const showHoverMove = hoverValidMoves.some(
+                (move) => move.row === rowIndex && move.col === colIndex
               );
+              const hasCapture =
+                cell.checker &&
+                cell.checker.color === gameState.currentPlayer &&
+                piecesWithCaptures.some(
+                  (pos) => pos.row === rowIndex && pos.col === colIndex
+                );
 
-            return (
-              <DroppableCell
-                key={`${rowIndex}-${colIndex}`}
-                id={`${rowIndex}-${colIndex}`}
-                cell={cell}
-                isHovered={isHovered}
-                showHoverMove={showHoverMove}
-                gameState={gameState}
-                onCellHover={handleCellHover}
-                hasCapture={!!hasCapture}
-              />
-            );
-          })
-        )}
+              return (
+                <DroppableCell
+                  key={`${rowIndex}-${colIndex}`}
+                  id={`${rowIndex}-${colIndex}`}
+                  cell={cell}
+                  isHovered={isHovered}
+                  showHoverMove={showHoverMove}
+                  gameState={gameState}
+                  onCellHover={handleCellHover}
+                  hasCapture={!!hasCapture}
+                />
+              );
+            })}
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -234,6 +259,15 @@ export function Board({ gameState, onDragEnd, onDragStart }: BoardProps) {
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
+      {/* Hidden instructions for screen readers */}
+      <div id="board-instructions" className="sr-only">
+        Use arrow keys to navigate the board. Press space or enter to select a piece. 
+        Drag and drop pieces to move them, or use keyboard navigation.
+      </div>
+      <div id="drag-instructions" className="sr-only">
+        Piece is being dragged. Navigate to a valid square and release to move.
+      </div>
+      
       {boardContent}
       <DragOverlay>
         {activeChecker && (

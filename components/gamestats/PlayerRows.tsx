@@ -18,11 +18,11 @@ interface PlayerRowsProps {
 const players = [
   {
     label: "RED",
-    textColor: "text-red-500",
+    textColor: "text-foreground",
     pieceCountKey: "redPieces",
     kingCountKey: "redKings",
     borderColor: "border-red-500",
-    textShade: "text-red-700",
+    textShade: "text-gray-700",
     bgColor: "bg-red-50",
     align: "start",
   },
@@ -55,7 +55,7 @@ export function PlayerRows({
   };
 
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2" role="group" aria-label="Player information">
       {players.map((player) => {
         const isCurrent = currentPlayer === player.label;
         const pieceKey = player.label.toLowerCase() + "Pieces";
@@ -69,18 +69,24 @@ export function PlayerRows({
                 className={`p-4 border-4 rounded-lg transition-all duration-500 flex flex-1 text-center ${
                   isCurrent ? player.borderColor : "border-transparent"
                 }`}
+                aria-label={`${player.label} player: ${
+                  pieceCounts[pieceKey]
+                } pieces, ${pieceCounts[kingKey]} kings${
+                  isCurrent ? ", current turn" : ""
+                }`}
+                aria-pressed={isCurrent}
               >
-                <h3
+                <div
                   className={`font-semibold ${player.textColor} flex-grow w-12`}
                 >
                   {player.label}
-                </h3>
+                </div>
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-80" align="center" side="bottom">
               <div className="flex flex-col gap-2">
                 <div className="flex justify-between items-center">
-                  <h3 className="font-semibold text-lg">{player.label}</h3>
+                  <h2 className="font-semibold text-lg">{player.label}</h2>
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
@@ -93,7 +99,7 @@ export function PlayerRows({
                   </div>
                 </div>
                 <div className="md:hidden">
-                  <h4 className="font-medium mb-2">Move History</h4>
+                  <h3 className="font-medium mb-2">Move History</h3>
                   <div className="h-48 overflow-y-auto space-y-1 text-sm">
                     {moveHistory.length === 0 ? (
                       <p className="text-gray-500 italic">No moves yet</p>

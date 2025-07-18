@@ -31,7 +31,11 @@ export function GameStats({
 
   return (
     <div className="flex flex-0 md:flex-1 items-center justify-center order-1 md:order-2">
-      <div className="flex flex-col gap-4 bg-card rounded-lg p-4 shadow-lg aspect-auto md:aspect-square w-full h-full md:h-auto overflow-hidden">
+      <div 
+        className="flex flex-col gap-4 bg-card rounded-lg p-4 shadow-lg aspect-auto md:aspect-square w-full h-full md:h-auto overflow-hidden"
+        role="complementary"
+        aria-label="Game statistics and controls"
+      >
         <SettingsRow
           gameState={gameState}
           onReset={onReset}
