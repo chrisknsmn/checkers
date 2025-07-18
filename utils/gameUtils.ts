@@ -1,11 +1,4 @@
-import {
-  GameState,
-  Cell,
-  Checker,
-  Position,
-  Move,
-  MoveType,
-} from "@/types/game";
+import { GameState, Cell, Checker, Position, Move } from "@/types/game";
 import {
   BOARD_SIZE,
   INITIAL_POSITIONS,
@@ -245,7 +238,6 @@ export function getValidMoves(
     return [];
   }
 
-  // If we must continue after a capture, allow any moves for that piece
   if (mustContinueCapture) {
     if (
       position.row !== mustContinueCapture.row ||
@@ -258,24 +250,22 @@ export function getValidMoves(
       position,
       piece
     );
-    // If captures are available during continuation, only allow captures (mandatory capture rule)
+    // Only allow captures if available
     if (captureMoves.length > 0) {
       return captureMoves;
     }
     return regularMoves;
   }
 
-  // Check if any pieces can capture - if so, only allow those pieces to move
+  // Check if any pieces can capture
   const piecesWithCaptures = getAllPiecesWithCaptures(gameState);
   if (piecesWithCaptures.length > 0) {
-    // Only allow pieces that can capture to move
     const canThisPieceCapture = piecesWithCaptures.some(
       (pos) => pos.row === position.row && pos.col === position.col
     );
     if (!canThisPieceCapture) {
       return [];
     }
-    // Return only capture moves for this piece
     return getCaptureMoves(gameState, position);
   }
 
@@ -285,7 +275,6 @@ export function getValidMoves(
     piece
   );
 
-  // If captures are available, only return captures (mandatory capture rule)
   if (captureMoves.length > 0) {
     return captureMoves;
   }
