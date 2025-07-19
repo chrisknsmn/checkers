@@ -13,7 +13,7 @@ import {
   makeMove,
   getAIMove,
 } from "./gameUtils";
-import { GameState, Position, Checker, Player } from "@/types/game";
+import { Checker } from "@/types/game";
 import { BOARD_SIZE } from "@/constants/game";
 
 describe("gameUtils", () => {
