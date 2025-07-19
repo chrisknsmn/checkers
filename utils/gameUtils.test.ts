@@ -118,7 +118,7 @@ describe('gameUtils', () => {
       
       expect(gameState.board).toHaveLength(BOARD_SIZE);
       expect(gameState.checkers).toHaveLength(24);
-      expect(gameState.currentPlayer).toBe('RED');
+      expect(gameState.currentPlayer).toBe('BLACK');
       expect(gameState.selectedPiece).toBeNull();
       expect(gameState.validMoves).toHaveLength(0);
       expect(gameState.moveHistory).toHaveLength(0);
@@ -132,7 +132,7 @@ describe('gameUtils', () => {
       expect(gameState.gameTime).toBe(0);
       expect(gameState.timerRunning).toBe(false);
       expect(gameState.isAIEnabled).toBe(true);
-      expect(gameState.aiPlayer).toBe('BLACK');
+      expect(gameState.aiPlayer).toBe('RED');
       expect(gameState.turnTimeLimitEnabled).toBe(false);
       expect(gameState.turnStartTime).toBeNull();
       expect(gameState.turnTimeRemaining).toBe(5000);
@@ -956,7 +956,7 @@ describe('gameUtils', () => {
       gameState.board[6][5].checker = redPiece2;
       gameState.checkers = [blackPiece, redPiece1, redPiece2];
       gameState.currentPlayer = 'BLACK';
-      gameState.aiPlayer = 'BLACK';
+      gameState.aiPlayer = 'RED';
       gameState.mustContinueCapture = { row: 3, col: 2 };
       
       const result = getCompleteAITurn(gameState);
@@ -970,7 +970,7 @@ describe('gameUtils', () => {
     it('should stop when AI player changes', () => {
       const gameState = initializeGameState();
       gameState.currentPlayer = 'BLACK';
-      gameState.aiPlayer = 'BLACK';
+      gameState.aiPlayer = 'RED';
       gameState.mustContinueCapture = { row: 3, col: 2 };
       
       // Mock a scenario where the turn ends
@@ -993,7 +993,7 @@ describe('gameUtils', () => {
     it('should handle game ending during AI turn', () => {
       const gameState = initializeGameState();
       gameState.currentPlayer = 'BLACK';
-      gameState.aiPlayer = 'BLACK';
+      gameState.aiPlayer = 'RED';
       gameState.gameStatus = 'RED_WINS';
       gameState.mustContinueCapture = { row: 3, col: 2 };
       

@@ -129,7 +129,7 @@ export function initializeGameState(): GameState {
   return {
     board,
     checkers,
-    currentPlayer: "RED",
+    currentPlayer: "BLACK",
     selectedPiece: null,
     validMoves: [],
     moveHistory: [],
@@ -143,7 +143,7 @@ export function initializeGameState(): GameState {
     gameTime: 0,
     timerRunning: false,
     isAIEnabled: true,
-    aiPlayer: "BLACK",
+    aiPlayer: "RED",
     turnTimeLimitEnabled: false,
     turnStartTime: null,
     turnTimeRemaining: 5000,

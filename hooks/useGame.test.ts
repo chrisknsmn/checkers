@@ -25,7 +25,7 @@ describe('useGame Hook', () => {
       isDark: false,
     }))),
     checkers: [],
-    currentPlayer: 'RED' as const,
+    currentPlayer: 'BLACK' as const,
     selectedPiece: null,
     validMoves: [],
     moveHistory: [],
@@ -39,7 +39,7 @@ describe('useGame Hook', () => {
     gameTime: 0,
     timerRunning: false,
     isAIEnabled: true,
-    aiPlayer: 'BLACK' as const,
+    aiPlayer: 'RED' as const,
     turnTimeLimitEnabled: false,
     turnStartTime: null,
     turnTimeRemaining: 5000,
@@ -94,7 +94,7 @@ describe('useGame Hook', () => {
     mockMakeMove.mockReturnValue({
       ...mockGameState,
       moveCount: 1,
-      currentPlayer: 'BLACK',
+      currentPlayer: 'RED',
     });
 
     const { result } = renderHook(() => useGame());
@@ -112,7 +112,7 @@ describe('useGame Hook', () => {
     mockApplyMove.mockReturnValue({
       ...mockGameState,
       moveCount: 1,
-      currentPlayer: 'BLACK',
+      currentPlayer: 'RED',
     });
 
     const { result } = renderHook(() => useGame());
@@ -144,7 +144,7 @@ describe('useGame Hook', () => {
     });
     mockApplyMove.mockReturnValue({
       ...mockGameState,
-      currentPlayer: 'RED' as const,
+      currentPlayer: 'BLACK' as const,
       moveCount: 1,
     });
 
@@ -152,7 +152,7 @@ describe('useGame Hook', () => {
       ...mockGameState,
       currentPlayer: 'BLACK' as const,
       isAIEnabled: true,
-      aiPlayer: 'BLACK' as const,
+      aiPlayer: 'RED' as const,
       gameStatus: 'PLAYING' as const,
     };
 

@@ -17,16 +17,6 @@ interface PlayerRowsProps {
 
 const players = [
   {
-    label: "RED",
-    textColor: "text-foreground",
-    pieceCountKey: "redPieces",
-    kingCountKey: "redKings",
-    borderColor: "border-red-500",
-    textShade: "text-gray-700",
-    bgColor: "bg-red-50",
-    align: "start",
-  },
-  {
     label: "BLACK",
     textColor: "text-foreground",
     pieceCountKey: "blackPieces",
@@ -35,6 +25,16 @@ const players = [
     textShade: "text-gray-700",
     bgColor: "bg-gray-50",
     align: "end",
+  },
+  {
+    label: "RED",
+    textColor: "text-foreground",
+    pieceCountKey: "redPieces",
+    kingCountKey: "redKings",
+    borderColor: "border-red-500",
+    textShade: "text-gray-700",
+    bgColor: "bg-red-50",
+    align: "start",
   },
 ];
 
