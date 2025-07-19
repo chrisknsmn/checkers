@@ -64,14 +64,6 @@ export interface GameState {
   turnTimeRemaining: number;
 }
 
-export interface GameSettings {
-  isAIEnabled: boolean;
-  aiPlayer: Player;
-  forcedCaptureEnabled: boolean;
-  timerEnabled: boolean;
-  moveTimeLimit: number;
-}
-
 export interface GameStats {
   redPieces: number;
   blackPieces: number;
@@ -84,3 +76,19 @@ export interface GameStats {
     black: Checker[];
   };
 }
+
+export type BorderVariant = "default" | "solid" | "dashed" | "groove" | "ridge" | "inset" | "outset" | "none";
+
+export type GameAction =
+  | { type: "SELECT_PIECE"; payload: Position }
+  | { type: "MAKE_MOVE"; payload: Position }
+  | { type: "MAKE_DIRECT_MOVE"; payload: { from: Position; to: Position } }
+  | { type: "RESET_GAME" }
+  | { type: "START_TIMER" }
+  | { type: "UPDATE_TIMER"; payload: number }
+  | { type: "TOGGLE_AI"; payload: boolean }
+  | { type: "MAKE_AI_MOVE" }
+  | { type: "TOGGLE_TURN_TIME_LIMIT"; payload: boolean }
+  | { type: "START_TURN_TIMER" }
+  | { type: "UPDATE_TURN_TIMER"; payload: number }
+  | { type: "TURN_TIME_EXPIRED" };

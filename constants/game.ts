@@ -1,4 +1,4 @@
-import { Player, Position, GameSettings } from "@/types/game";
+import { Player, Position } from "@/types/game";
 
 export const BOARD_SIZE = 8;
 
@@ -48,46 +48,3 @@ export const KING_ROW: Record<Player, number> = {
   RED: 7,
   BLACK: 0,
 };
-
-export const DEFAULT_SETTINGS: GameSettings = {
-  isAIEnabled: false,
-  aiPlayer: "BLACK",
-  forcedCaptureEnabled: true,
-  timerEnabled: false,
-  moveTimeLimit: 60000,
-};
-
-export const GAME_RULES = {
-  MAX_PIECES_PER_PLAYER: 12,
-  MIN_PIECES_FOR_GAME: 1,
-  CAPTURE_REQUIRED: true,
-  MULTIPLE_CAPTURES_REQUIRED: true,
-  KING_CAN_MOVE_BACKWARDS: true,
-  REGULAR_PIECE_SINGLE_STEP: true,
-} as const;
-
-export const ANIMATION_DURATIONS = {
-  PIECE_MOVE: 300,
-  PIECE_CAPTURE: 200,
-  BOARD_HIGHLIGHT: 150,
-  KING_PROMOTION: 500,
-} as const;
-
-export const BOARD_LAYOUT = {
-  CELL_SIZE: 64,
-  PIECE_SIZE_RATIO: 0.8,
-  BORDER_WIDTH: 2,
-  GAP_SIZE: 1,
-} as const;
-
-export const GAME_MESSAGES = {
-  RED_TURN: "Red's Turn",
-  BLACK_TURN: "Black's Turn",
-  RED_WINS: "Red Wins!",
-  BLACK_WINS: "Black Wins!",
-  DRAW: "Game Draw",
-  SELECT_PIECE: "Select a piece to move",
-  INVALID_MOVE: "Invalid move",
-  CAPTURE_REQUIRED: "You must capture when possible",
-  PROMOTION: "Piece promoted to King!",
-} as const;

@@ -17,6 +17,7 @@ import {
   Position,
   Cell,
   Checker as CheckerType,
+  BorderVariant,
 } from "@/types/game";
 import { Checker } from "./Checker";
 import { cn } from "@/lib/utils";
@@ -26,7 +27,7 @@ interface BoardProps {
   gameState: GameState;
   onDragEnd: (from: Position, to: Position) => void;
   onDragStart?: (position: Position) => void;
-  borderVariant?: "default" | "solid" | "dashed" | "groove" | "ridge" | "inset" | "outset" | "none";
+  borderVariant?: BorderVariant;
 }
 
 interface DroppableCellProps {
@@ -37,7 +38,7 @@ interface DroppableCellProps {
   gameState: GameState;
   onCellHover: (position: Position | null) => void;
   hasCapture: boolean;
-  borderVariant?: "default" | "solid" | "dashed" | "groove" | "ridge" | "inset" | "outset" | "none";
+  borderVariant?: BorderVariant;
 }
 
 function DroppableCell({
@@ -50,20 +51,23 @@ function DroppableCell({
   borderVariant,
 }: DroppableCellProps) {
   const { setNodeRef, isOver } = useDroppable({ id });
-  
+
   // Parse position for accessibility
   const [row, col] = id.split("-").map(Number);
   const position = `${String.fromCharCode(65 + col)}${8 - row}`;
-  
+
   // Create descriptive cell state
-  const cellState = cell.checker 
-    ? `occupied by ${cell.checker.color.toLowerCase()} ${cell.checker.isKing ? 'king' : 'checker'}`
-    : cell.isDark 
-      ? 'empty dark square'
-      : 'empty light square';
-  
-  const validMoveState = showHoverMove && !cell.checker ? ', valid move target' : '';
-  const dropState = isOver && showHoverMove ? ', drop target active' : '';
+  const cellState = cell.checker
+    ? `occupied by ${cell.checker.color.toLowerCase()} ${
+        cell.checker.isKing ? "king" : "checker"
+      }`
+    : cell.isDark
+    ? "empty dark square"
+    : "empty light square";
+
+  const validMoveState =
+    showHoverMove && !cell.checker ? ", valid move target" : "";
+  const dropState = isOver && showHoverMove ? ", drop target active" : "";
 
   return (
     <div
@@ -82,7 +86,6 @@ function DroppableCell({
       )}
       role="gridcell"
       aria-label={`${position}, ${cellState}${validMoveState}${dropState}`}
-      aria-dropeffect={showHoverMove ? "move" : "none"}
       tabIndex={cell.isDark ? 0 : -1}
       onMouseEnter={() => onCellHover(cell.position)}
       onMouseLeave={() => onCellHover(null)}
@@ -113,7 +116,12 @@ function DroppableCell({
   );
 }
 
-export function Board({ gameState, onDragEnd, onDragStart, borderVariant }: BoardProps) {
+export function Board({
+  gameState,
+  onDragEnd,
+  onDragStart,
+  borderVariant,
+}: BoardProps) {
   const { board } = gameState;
   const [activeChecker, setActiveChecker] = useState<CheckerType | null>(null);
   const [hoveredCell, setHoveredCell] = useState<Position | null>(null);
@@ -211,7 +219,7 @@ export function Board({ gameState, onDragEnd, onDragStart, borderVariant }: Boar
 
   const boardContent = (
     <div className="w-full aspect-square max-w-full max-h-full">
-      <div 
+      <div
         className="grid grid-cols-8 gap-1 p-2 bg-board w-full h-full rounded-lg"
         role="grid"
         aria-label={`Checkers board, ${gameState.currentPlayer.toLowerCase()} player's turn`}
@@ -266,17 +274,22 @@ export function Board({ gameState, onDragEnd, onDragStart, borderVariant }: Boar
     >
       {/* Hidden instructions for screen readers */}
       <div id="board-instructions" className="sr-only">
-        Use arrow keys to navigate the board. Press space or enter to select a piece. 
-        Drag and drop pieces to move them, or use keyboard navigation.
+        Use arrow keys to navigate the board. Press space or enter to select a
+        piece. Drag and drop pieces to move them, or use keyboard navigation.
       </div>
       <div id="drag-instructions" className="sr-only">
         Piece is being dragged. Navigate to a valid square and release to move.
       </div>
-      
+
       {boardContent}
       <DragOverlay>
         {activeChecker && (
-          <Checker piece={activeChecker} isDraggable={false} cellId="" borderVariant={borderVariant} />
+          <Checker
+            piece={activeChecker}
+            isDraggable={false}
+            cellId=""
+            borderVariant={borderVariant}
+          />
         )}
       </DragOverlay>
     </DndContext>

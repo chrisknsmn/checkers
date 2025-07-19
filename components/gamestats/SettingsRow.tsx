@@ -1,5 +1,5 @@
 import React from "react";
-import { GameState } from "@/types/game";
+import { GameState, BorderVariant } from "@/types/game";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -14,8 +14,8 @@ interface SettingsRowProps {
   onReset: () => void;
   onToggleAI: (enabled: boolean) => void;
   onToggleTurnTimeLimit: (enabled: boolean) => void;
-  checkerBorderVariant: "default" | "solid" | "dashed" | "groove" | "ridge" | "inset" | "outset" | "none";
-  onCheckerBorderVariantChange: (variant: "default" | "solid" | "dashed" | "groove" | "ridge" | "inset" | "outset" | "none") => void;
+  checkerBorderVariant: BorderVariant;
+  onCheckerBorderVariantChange: (variant: BorderVariant) => void;
 }
 
 function ToggleOption<T extends string>({

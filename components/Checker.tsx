@@ -1,13 +1,13 @@
 import React from "react";
 import { useDraggable } from "@dnd-kit/core";
-import { Checker as CheckerType } from "@/types/game";
+import { Checker as CheckerType, BorderVariant } from "@/types/game";
 import { Checker as UIChecker } from "@/components/ui/checker";
 
 interface CheckerProps {
   piece: CheckerType;
   isDraggable?: boolean;
   cellId: string;
-  borderVariant?: "default" | "solid" | "dashed" | "groove" | "ridge" | "inset" | "outset" | "none";
+  borderVariant?: BorderVariant;
 }
 
 export function Checker({ piece, isDraggable = true, cellId, borderVariant = "default" }: CheckerProps) {

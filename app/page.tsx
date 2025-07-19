@@ -4,7 +4,7 @@ import { Board } from "@/components/Board";
 import { GameStats } from "@/components/gamestats/GameStats";
 import Score from "@/components/Score";
 import { useGame } from "@/hooks/useGame";
-import { GameStats as GameStatsType, Checker } from "@/types/game";
+import { GameStats as GameStatsType, Checker, BorderVariant } from "@/types/game";
 
 export default function Home() {
   const {
@@ -17,7 +17,7 @@ export default function Home() {
   } = useGame();
   const [showScoreModal, setShowScoreModal] = useState(false);
   const [announcements, setAnnouncements] = useState<string[]>([]);
-  const [checkerBorderVariant, setCheckerBorderVariant] = useState<"default" | "solid" | "dashed" | "groove" | "ridge" | "inset" | "outset" | "none">("default");
+  const [checkerBorderVariant, setCheckerBorderVariant] = useState<BorderVariant>("default");
 
   // Show modal when game ends
   useEffect(() => {

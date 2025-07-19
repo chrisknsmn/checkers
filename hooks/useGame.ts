@@ -1,5 +1,5 @@
 import { useReducer, useCallback, useEffect, useRef, useMemo } from "react";
-import { GameState, Position } from "@/types/game";
+import { GameState, Position, GameAction } from "@/types/game";
 import {
   initializeGameState,
   selectPiece,
@@ -23,19 +23,6 @@ const GAME_CONFIG = {
 // TYPES AND ACTION CREATORS
 // ============================================================================
 
-type GameAction =
-  | { type: "SELECT_PIECE"; payload: Position }
-  | { type: "MAKE_MOVE"; payload: Position }
-  | { type: "MAKE_DIRECT_MOVE"; payload: { from: Position; to: Position } }
-  | { type: "RESET_GAME" }
-  | { type: "START_TIMER" }
-  | { type: "UPDATE_TIMER"; payload: number }
-  | { type: "TOGGLE_AI"; payload: boolean }
-  | { type: "MAKE_AI_MOVE" }
-  | { type: "TOGGLE_TURN_TIME_LIMIT"; payload: boolean }
-  | { type: "START_TURN_TIMER" }
-  | { type: "UPDATE_TURN_TIMER"; payload: number }
-  | { type: "TURN_TIME_EXPIRED" };
 
 /**
  * Action creators for better type safety and maintainability

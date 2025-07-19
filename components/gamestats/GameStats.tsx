@@ -1,5 +1,5 @@
 import React from "react";
-import { GameState } from "@/types/game";
+import { GameState, BorderVariant } from "@/types/game";
 import { MoveHistory } from "./MoveHistory";
 import { TimingRow } from "./TimingRow";
 import { SettingsRow } from "./SettingsRow";
@@ -11,8 +11,8 @@ interface GameStatsProps {
   onToggleAI: (enabled: boolean) => void;
   onToggleTurnTimeLimit: (enabled: boolean) => void;
   onShowScoreModal: () => void;
-  checkerBorderVariant: "default" | "solid" | "dashed" | "groove" | "ridge" | "inset" | "outset" | "none";
-  onCheckerBorderVariantChange: (variant: "default" | "solid" | "dashed" | "groove" | "ridge" | "inset" | "outset" | "none") => void;
+  checkerBorderVariant: BorderVariant;
+  onCheckerBorderVariantChange: (variant: BorderVariant) => void;
 }
 
 export function GameStats({
