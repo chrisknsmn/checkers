@@ -1,4 +1,4 @@
-export type Player = 'RED' | 'BLACK';
+export type Player = "RED" | "BLACK";
 
 export enum GameConstants {
   CAPTURE_DISTANCE = 2,
@@ -7,7 +7,7 @@ export enum GameConstants {
   DIRECTION_ROWS = 1,
   KING_SCORE_BONUS = 5,
   CAPTURE_SCORE_BONUS = 10,
-  MAX_AI_MOVES_CONSIDERED = 3
+  MAX_AI_MOVES_CONSIDERED = 3,
 }
 
 export interface Position {
@@ -29,7 +29,11 @@ export interface Cell {
   isDark: boolean;
 }
 
-export type MoveType = 'MOVE' | 'CAPTURE' | 'MULTI_CAPTURE' | 'CONTINUATION_MOVE';
+export type MoveType =
+  | "MOVE"
+  | "CAPTURE"
+  | "MULTI_CAPTURE"
+  | "CONTINUATION_MOVE";
 
 export interface Move {
   id: string;
@@ -49,7 +53,7 @@ export interface GameState {
   validMoves: Position[];
   moveHistory: Move[];
   moveCount: number;
-  gameStatus: 'PLAYING' | 'RED_WINS' | 'BLACK_WINS' | 'DRAW';
+  gameStatus: "PLAYING" | "RED_WINS" | "BLACK_WINS" | "DRAW";
   winner: Player | null;
   forcedCapture: boolean;
   lastMove: Move | null;
@@ -77,7 +81,7 @@ export interface GameStats {
   };
 }
 
-export type BorderVariant = "default" | "solid" | "dashed" | "groove" | "ridge" | "inset" | "outset" | "none";
+export type BorderVariant = "default" | "solid" | "dashed" | "none";
 
 export type GameAction =
   | { type: "SELECT_PIECE"; payload: Position }
