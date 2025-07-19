@@ -375,26 +375,6 @@ export function getAIMove(
   return { from: randomMove.from, to: randomMove.to };
 }
 
-export function getCompleteAITurn(gameState: GameState): GameState {
-  let currentState = gameState;
-
-  while (
-    currentState.currentPlayer === currentState.aiPlayer &&
-    currentState.gameStatus === "PLAYING" &&
-    currentState.mustContinueCapture !== null
-  ) {
-    const aiMove = getAIMove(currentState);
-
-    if (!aiMove) {
-      break;
-    }
-
-    currentState = applyMove(currentState, aiMove.from, aiMove.to);
-  }
-
-  return currentState;
-}
-
 // ============================================================================
 // GAME STATE UPDATES
 // ============================================================================

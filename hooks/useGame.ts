@@ -6,7 +6,6 @@ import {
   makeMove,
   applyMove,
   getAIMove,
-  getCompleteAITurn,
 } from "@/utils/gameUtils";
 
 // ============================================================================
@@ -22,7 +21,6 @@ const GAME_CONFIG = {
 // ============================================================================
 // TYPES AND ACTION CREATORS
 // ============================================================================
-
 
 /**
  * Action creators for better type safety and maintainability
@@ -355,11 +353,19 @@ export function useGame() {
   );
   const canDragPiece = useMemo(
     () => (position: Position) => {
-      if (!position || position.row < 0 || position.row >= 8 || position.col < 0 || position.col >= 8) {
+      if (
+        !position ||
+        position.row < 0 ||
+        position.row >= 8 ||
+        position.col < 0 ||
+        position.col >= 8
+      ) {
         return false;
       }
       const cell = gameState.board[position.row]?.[position.col];
-      return !!(cell?.checker && cell.checker.color === gameState.currentPlayer);
+      return !!(
+        cell?.checker && cell.checker.color === gameState.currentPlayer
+      );
     },
     [gameState.board, gameState.currentPlayer]
   );

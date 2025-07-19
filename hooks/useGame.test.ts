@@ -9,8 +9,7 @@ jest.mock('@/utils/gameUtils', () => ({
   selectPiece: jest.fn(),
   makeMove: jest.fn(),
   applyMove: jest.fn(),
-  getAIMove: jest.fn(),
-  getCompleteAITurn: jest.fn(),
+  getAIMove: jest.fn()
 }));
 
 // Mock timers
