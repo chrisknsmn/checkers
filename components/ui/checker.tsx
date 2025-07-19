@@ -3,22 +3,18 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const checkerVariants = cva(
-  "w-4/5 h-4/5 rounded-full transition-all duration-100 relative flex items-center justify-center touch-none",
+  "w-4/5 h-4/5 rounded-full transition-all duration-100 relative flex items-center justify-center touch-none overflow-hidden",
   {
     variants: {
       variant: {
-        default: "border-4 border-black/30",
-        solid: "border-4 border-black",
-        dashed: "border-4 border-dashed border-black/60",
-        groove: "border-4 border-groove border-black/40",
-        ridge: "border-4 border-ridge border-black/40",
-        inset: "border-4 border-inset border-black/50",
-        outset: "border-4 border-outset border-black/50",
-        none: "border-0",
+        default: "",
+        solid: "",
+        dashed: "",
+        none: "",
       },
       color: {
-        red: "bg-red-500 text-white",
-        black: "bg-gray-800 text-white",
+        red: "text-white",
+        black: "text-white",
       },
       dragging: {
         true: "opacity-50 cursor-grabbing",
@@ -40,19 +36,105 @@ export interface CheckerProps
 }
 
 const Checker = React.forwardRef<HTMLDivElement, CheckerProps>(
-  ({ className, variant, color, dragging, isKing, children, ...props }, ref) => {
+  (
+    { className, variant, color, dragging, isKing, children, ...props },
+    ref
+  ) => {
+    // SVG patterns for consistent rendering across devices
+    const getSVGPattern = () => {
+      const baseColor = color === "red" ? "#ef4444" : "#374151";
+      const borderColor = color === "red" ? "#dc2626" : "#1f2937";
+
+      switch (variant) {
+        case "solid":
+          return (
+            <svg
+              className="w-full h-full"
+              viewBox="0 0 100 100"
+              preserveAspectRatio="xMidYMid meet"
+            >
+              <circle
+                cx="50"
+                cy="50"
+                r="46"
+                fill={baseColor}
+                stroke={borderColor}
+                strokeWidth="8"
+              />
+            </svg>
+          );
+
+        case "dashed":
+          return (
+            <svg
+              className="w-full h-full"
+              viewBox="0 0 100 100"
+              preserveAspectRatio="xMidYMid meet"
+            >
+              <circle
+                cx="50"
+                cy="50"
+                r="46"
+                fill={baseColor}
+                stroke={borderColor}
+                strokeWidth="6"
+                strokeDasharray="12 8"
+                strokeDashoffset="0"
+              />
+            </svg>
+          );
+
+        case "none":
+          return (
+            <svg
+              className="w-full h-full"
+              viewBox="0 0 100 100"
+              preserveAspectRatio="xMidYMid meet"
+            >
+              <circle cx="50" cy="50" r="48" fill={baseColor} />
+            </svg>
+          );
+
+        default:
+          return (
+            <svg
+              className="w-full h-full"
+              viewBox="0 0 100 100"
+              preserveAspectRatio="xMidYMid meet"
+            >
+              <circle
+                cx="50"
+                cy="50"
+                r="46"
+                fill={baseColor}
+                stroke={borderColor}
+                strokeWidth="6"
+              />
+            </svg>
+          );
+      }
+    };
+
     return (
       <div
         className={cn(checkerVariants({ variant, color, dragging, className }))}
         ref={ref}
         {...props}
       >
+        {getSVGPattern()}
         {isKing && (
-          <span className="text-yellow-300" aria-hidden="true">
+          <span
+            className="absolute text-yellow-300 text-2xl font-bold z-10"
+            aria-hidden="true"
+          >
             ♔
           </span>
         )}
-        {children}
+        {children && (
+          <div className="absolute inset-0 flex items-center justify-center z-10">
+            {children}
+          </div>
+        )}
       </div>
     );
   }
