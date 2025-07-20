@@ -4,6 +4,7 @@ import { MoveHistory } from "./MoveHistory";
 import { TimingRow } from "./TimingRow";
 import { SettingsRow } from "./SettingsRow";
 import { PlayerRows } from "./PlayerRows";
+import { labels } from "@/constants/text";
 
 interface GameStatsProps {
   gameState: GameState;
@@ -38,7 +39,7 @@ export function GameStats({
       <div
         className="flex flex-col gap-4 bg-card rounded-lg p-4 shadow-lg aspect-auto md:aspect-square w-full h-full md:h-auto overflow-hidden"
         role="complementary"
-        aria-label="Game statistics and controls"
+        aria-label={labels.GAME_STATS_LABEL}
       >
         <SettingsRow
           gameState={gameState}

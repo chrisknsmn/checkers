@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { labels } from "@/constants/text";
 
 export const metadata: Metadata = {
-  title: "Checkers",
-  description: "Checkers",
+  title: labels.APP_TITLE,
+  description: labels.APP_DESCRIPTION,
   icons: {
     icon: "/icon.svg",
   },

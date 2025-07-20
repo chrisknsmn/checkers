@@ -1,5 +1,6 @@
 import React from "react";
 import { GameState } from "@/types/game";
+import { labels } from "@/constants/text";
 
 interface MoveHistoryProps {
   gameState: GameState;
@@ -11,18 +12,18 @@ export function MoveHistory({ gameState, moveCount }: MoveHistoryProps) {
     <div
       className="p-4 rounded-lg bg-muted text-foreground transition-all duration-500 h-full flex-grow overflow-auto hidden md:block"
       role="log"
-      aria-label="Move history"
+      aria-label={labels.MOVE_HISTORY_LABEL}
     >
       <div className="flex justify-between mb-3">
-        <h2 className="font-semibold">Move History</h2>
-        <p aria-label={`Total turns played: ${moveCount}`}>
-          Total Turns: {moveCount}
+        <h2 className="font-semibold">{labels.MOVE_HISTORY}</h2>
+        <p aria-label={`${labels.TOTAL_TURNS_PLAYED} ${moveCount}`}>
+          {labels.TOTAL_TURNS} {moveCount}
         </p>
       </div>
       <div className="overflow-y-auto space-y-1 text-sm" role="list">
         {gameState.moveHistory.length === 0 ? (
           <div className="italic" role="listitem">
-            No moves yet
+            {labels.NO_MOVES}
           </div>
         ) : (
           gameState.moveHistory.map((move, i) => {
@@ -74,7 +75,7 @@ export function MoveHistory({ gameState, moveCount }: MoveHistoryProps) {
                   {i + 1}.{" "}
                   <span className="mr-2">{labelColor.toUpperCase()}</span>
                   {from} → {to}
-                  {move.type === "CAPTURE" && " (cap)"}
+                  {move.type === "CAPTURE" && ` ${labels.CAPTURE_INDICATOR}`}
                 </span>
                 <span className="text-xs">{time}s</span>
               </div>

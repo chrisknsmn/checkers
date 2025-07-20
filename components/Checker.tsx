@@ -2,6 +2,7 @@ import React from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { Checker as CheckerType, BorderVariant } from "@/types/game";
 import { Checker as UIChecker } from "@/components/ui/checker";
+import { labels } from "@/constants/text";
 
 interface CheckerProps {
   piece: CheckerType;
@@ -21,13 +22,13 @@ export function Checker({ piece, isDraggable = true, cellId, borderVariant = "de
   const position = `${String.fromCharCode(65 + col)}${8 - row}`;
 
   const pieceDescription = `${piece.color.toLowerCase()} ${
-    piece.isKing ? "king" : "checker"
+    piece.isKing ? labels.KING : labels.CHECKER
   }`;
   const dragStatus = isDragging
-    ? "being dragged"
+    ? labels.BEING_DRAGGED
     : isDraggable
-    ? "draggable"
-    : "not draggable";
+    ? labels.DRAGGABLE
+    : labels.NOT_DRAGGABLE;
 
   const { ...otherAttributes } = attributes;
 
@@ -38,7 +39,7 @@ export function Checker({ piece, isDraggable = true, cellId, borderVariant = "de
       color={piece.color === "RED" ? "red" : "black"}
       dragging={isDragging}
       isKing={piece.isKing}
-      aria-label={`${pieceDescription} on ${position}, ${dragStatus}`}
+      aria-label={`${pieceDescription} ${labels.ON_POSITION} ${position}, ${dragStatus}`}
       data-testid="checker"
       {...listeners}
       {...otherAttributes}

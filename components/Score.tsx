@@ -1,6 +1,7 @@
 import React from "react";
 import { GameState, GameStats } from "@/types/game";
 import { Button } from "@/components/ui/button";
+import { labels } from "@/constants/text";
 
 interface ScoreProps {
   gameState: GameState;
@@ -24,16 +25,16 @@ export default function Score({
   let resultColor: string;
 
   if (isDraw) {
-    resultText = "It's a Tie!";
+    resultText = labels.TIE;
     resultColor = "text-gray-600";
   } else if (winner === "RED") {
-    resultText = "Red Wins!";
+    resultText = labels.RED_WINS;
     resultColor = "text-red-600";
   } else if (winner === "BLACK") {
-    resultText = "Black Wins!";
+    resultText = labels.BLACK_WINS;
     resultColor = "text-gray-800";
   } else {
-    resultText = "Game Over";
+    resultText = labels.GAME_OVER;
     resultColor = "text-gray-800";
   }
 
@@ -55,11 +56,11 @@ export default function Score({
       <span className={`text-lg font-semibold ${colorClass} col-span-2`}>
         {title}
       </span>
-      <span className="font-medium">Remaining:</span>
+      <span className="font-medium">{labels.REMAINING}</span>
       <span>{pieces}</span>
-      <span className="font-medium">Kings:</span>
+      <span className="font-medium">{labels.KINGS}</span>
       <span>{kings}</span>
-      <span className="font-medium">Captured:</span>
+      <span className="font-medium">{labels.CAPTURED}</span>
       <span>{captured}</span>
     </>
   );
@@ -69,7 +70,7 @@ export default function Score({
       <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-2xl relative">
         <div className="absolute top-4 right-4">
           <Button onClick={onClose} variant="ghost" size="sm">
-            ✕
+            {labels.CLOSE}
           </Button>
         </div>
 
@@ -80,24 +81,24 @@ export default function Score({
 
           <div className="grid grid-cols-2 gap-2 text-sm text-left">
             <span className="text-lg font-semibold text-gray-700 col-span-2">
-              Statistics
+              {labels.STATISTICS}
             </span>
-            <span className="font-medium">Game Time:</span>
+            <span className="font-medium">{labels.GAME_TIME}</span>
             <span className="text-gray-600">
               {formatTime(gameStats.gameTime)}
             </span>
-            <span className="font-medium">Total Moves:</span>
+            <span className="font-medium">{labels.TOTAL_MOVES}</span>
             <span className="text-gray-600">{gameStats.totalMoves}</span>
 
             {renderStatsSection(
-              "Red",
+              labels.RED,
               "text-red-700",
               gameStats.redPieces,
               gameStats.redKings,
               gameStats.capturedPieces.red.length
             )}
             {renderStatsSection(
-              "Black",
+              labels.BLACK,
               "text-gray-700",
               gameStats.blackPieces,
               gameStats.blackKings,
@@ -106,7 +107,7 @@ export default function Score({
           </div>
 
           <Button onClick={onNewGame} variant="outline">
-            New Game
+            {labels.NEW_GAME}
           </Button>
         </div>
       </div>

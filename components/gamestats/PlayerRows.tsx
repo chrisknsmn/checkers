@@ -6,6 +6,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { labels } from "@/constants/text";
 
 interface PlayerRowsProps {
   gameState: GameState;
@@ -17,7 +18,7 @@ interface PlayerRowsProps {
 
 const players = [
   {
-    label: "BLACK",
+    label: labels.BLACK,
     textColor: "text-foreground",
     pieceCountKey: "blackPieces",
     kingCountKey: "blackKings",
@@ -27,7 +28,7 @@ const players = [
     align: "end",
   },
   {
-    label: "RED",
+    label: labels.RED,
     textColor: "text-foreground",
     pieceCountKey: "redPieces",
     kingCountKey: "redKings",
@@ -55,7 +56,7 @@ export function PlayerRows({
   };
 
   return (
-    <div className="flex gap-2" role="group" aria-label="Player information">
+    <div className="flex gap-2" role="group" aria-label={labels.PLAYER_INFO_LABEL}>
       {players.map((player) => {
         const isCurrent = currentPlayer === player.label;
         const pieceKey = player.label.toLowerCase() + "Pieces";
@@ -71,8 +72,8 @@ export function PlayerRows({
                 }`}
                 aria-label={`${player.label} player: ${
                   pieceCounts[pieceKey]
-                } pieces, ${pieceCounts[kingKey]} kings${
-                  isCurrent ? ", current turn" : ""
+                } ${labels.PIECES_COUNT}, ${pieceCounts[kingKey]} ${labels.KINGS_COUNT}${
+                  isCurrent ? `, ${labels.CURRENT_TURN}` : ""
                 }`}
                 aria-pressed={isCurrent}
               >
@@ -90,19 +91,19 @@ export function PlayerRows({
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
-                    <span className="font-medium">Pieces:</span>{" "}
+                    <span className="font-medium">{labels.PIECES}</span>{" "}
                     {pieceCounts[pieceKey]}
                   </div>
                   <div>
-                    <span className="font-medium">Kings:</span>{" "}
+                    <span className="font-medium">{labels.KINGS}</span>{" "}
                     {pieceCounts[kingKey]}
                   </div>
                 </div>
                 <div className="md:hidden">
-                  <h3 className="font-medium mb-2">Move History</h3>
+                  <h3 className="font-medium mb-2">{labels.MOVE_HISTORY}</h3>
                   <div className="h-48 overflow-y-auto space-y-1 text-sm">
                     {moveHistory.length === 0 ? (
-                      <p className="text-gray-500 italic">No moves yet</p>
+                      <p className="text-gray-500 italic">{labels.NO_MOVES}</p>
                     ) : (
                       moveHistory.map((move, index) => (
                         <div
@@ -125,7 +126,7 @@ export function PlayerRows({
                             {8 - move.from.row} →{" "}
                             {String.fromCharCode(97 + move.to.col)}
                             {8 - move.to.row}
-                            {move.type === "CAPTURE" && " (cap)"}
+                            {move.type === "CAPTURE" && ` ${labels.CAPTURE_INDICATOR}`}
                           </span>
                         </div>
                       ))

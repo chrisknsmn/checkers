@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/popover";
 import { RotateCcw, Settings, Sun, Moon } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
+import { labels } from "@/constants/text";
 
 interface SettingsRowProps {
   gameState: GameState;
@@ -67,14 +68,14 @@ export function SettingsRow({
 
   return (
     <div className="flex items-center justify-between">
-      <h1 className="text-4xl font-bold text-foreground">Checkers</h1>
+      <h1 className="text-4xl font-bold text-foreground">{labels.CHECKERS_TITLE}</h1>
       <div className="flex gap-4">
-        <Button variant="outline" onClick={onReset} aria-label="Reset Game">
+        <Button variant="outline" onClick={onReset} aria-label={labels.RESET_GAME}>
           <RotateCcw className="w-4 h-4" aria-hidden="true" />
         </Button>
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" aria-label="Open game settings">
+            <Button variant="outline" aria-label={labels.OPEN_SETTINGS}>
               <Settings className="w-4 h-4" aria-hidden="true" />
             </Button>
           </PopoverTrigger>
@@ -83,17 +84,17 @@ export function SettingsRow({
             align="end"
             side="bottom"
             role="dialog"
-            aria-label="Game Settings"
+            aria-label={labels.GAME_SETTINGS}
           >
             <div className="grid gap-4">
               {/* Theme */}
               <div className="grid gap-1">
                 <label className="text-sm font-medium" id="theme-label">
-                  Theme
+                  {labels.THEME}
                 </label>
                 <div role="group" aria-labelledby="theme-label">
                   <ToggleOption
-                    options={["light", "dark"]}
+                    options={[labels.LIGHT, labels.DARK]}
                     value={theme}
                     onChange={toggleTheme}
                     icons={{
@@ -106,37 +107,37 @@ export function SettingsRow({
               {/* Game Mode */}
               <div className="grid gap-1">
                 <label className="text-sm font-medium" id="gamemode-label">
-                  Game Mode
+                  {labels.GAME_MODE}
                 </label>
                 <div role="group" aria-labelledby="gamemode-label">
                   <ToggleOption
-                    options={["AI", "2P"]}
-                    value={gameState.isAIEnabled ? "AI" : "2P"}
-                    onChange={(val) => onToggleAI(val === "AI")}
+                    options={[labels.AI, labels.TWO_PLAYER]}
+                    value={gameState.isAIEnabled ? labels.AI : labels.TWO_PLAYER}
+                    onChange={(val) => onToggleAI(val === labels.AI)}
                   />
                 </div>
               </div>
               {/* Time Limit */}
               <div className="grid gap-1">
                 <label className="text-sm font-medium" id="timelimit-label">
-                  Time Limit
+                  {labels.TIME_LIMIT}
                 </label>
                 <div role="group" aria-labelledby="timelimit-label">
                   <ToggleOption
-                    options={["Off", "On"]}
-                    value={gameState.turnTimeLimitEnabled ? "On" : "Off"}
-                    onChange={(val) => onToggleTurnTimeLimit(val === "On")}
+                    options={[labels.OFF, labels.ON]}
+                    value={gameState.turnTimeLimitEnabled ? labels.ON : labels.OFF}
+                    onChange={(val) => onToggleTurnTimeLimit(val === labels.ON)}
                   />
                 </div>
               </div>
               {/* Checker Border Style */}
               <div className="grid gap-1">
                 <label className="text-sm font-medium" id="border-label">
-                  Checker Border Style
+                  {labels.CHECKER_BORDER_STYLE}
                 </label>
                 <div role="group" aria-labelledby="border-label">
                   <ToggleOption
-                    options={["default", "solid", "dashed", "none"]}
+                    options={[labels.BORDER_DEFAULT, labels.BORDER_SOLID, labels.BORDER_DASHED, labels.BORDER_NONE]}
                     value={checkerBorderVariant}
                     onChange={onCheckerBorderVariantChange}
                   />

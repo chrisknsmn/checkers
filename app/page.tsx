@@ -5,6 +5,7 @@ import { GameStats } from "@/components/gamestats/GameStats";
 import Score from "@/components/Score";
 import { useGame } from "@/hooks/useGame";
 import { GameStats as GameStatsType, Checker, BorderVariant } from "@/types/game";
+import { labels } from "@/constants/text";
 
 export default function Home() {
   const {
@@ -32,14 +33,14 @@ export default function Home() {
 
     if (gameState.gameStatus === "PLAYING") {
       newAnnouncements.push(
-        `${gameState.currentPlayer.toLowerCase()} player's turn`
+        `${gameState.currentPlayer.toLowerCase()} ${labels.PLAYER_TURN}`
       );
     } else if (gameState.gameStatus === "RED_WINS") {
-      newAnnouncements.push("Game over! Red player wins!");
+      newAnnouncements.push(labels.RED_WINS_MESSAGE);
     } else if (gameState.gameStatus === "BLACK_WINS") {
-      newAnnouncements.push("Game over! Black player wins!");
+      newAnnouncements.push(labels.BLACK_WINS_MESSAGE);
     } else if (gameState.gameStatus === "DRAW") {
-      newAnnouncements.push("Game over! It's a draw!");
+      newAnnouncements.push(labels.DRAW_MESSAGE);
     }
 
     setAnnouncements(newAnnouncements);
@@ -55,8 +56,8 @@ export default function Home() {
       const toPos = `${String.fromCharCode(97 + lastMove.to.col)}${
         8 - lastMove.to.row
       }`;
-      const moveAnnouncement = `${lastMove.piece.color.toLowerCase()} piece moved from ${fromPos} to ${toPos}${
-        lastMove.type === "CAPTURE" ? " and captured opponent piece" : ""
+      const moveAnnouncement = `${lastMove.piece.color.toLowerCase()} ${labels.PIECE_MOVED} ${fromPos} ${labels.TO} ${toPos}${
+        lastMove.type === "CAPTURE" ? ` ${labels.CAPTURED_PIECE}` : ""
       }`;
 
       setAnnouncements((prev) => [...prev, moveAnnouncement]);

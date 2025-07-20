@@ -22,6 +22,7 @@ import {
 import { Checker } from "./Checker";
 import { cn } from "@/lib/utils";
 import { getValidMoves, getAllPiecesWithCaptures } from "@/utils/gameUtils";
+import { labels } from "@/constants/text";
 
 interface BoardProps {
   gameState: GameState;
@@ -58,16 +59,16 @@ function DroppableCell({
 
   // Create descriptive cell state
   const cellState = cell.checker
-    ? `occupied by ${cell.checker.color.toLowerCase()} ${
-        cell.checker.isKing ? "king" : "checker"
+    ? `${labels.OCCUPIED_BY} ${cell.checker.color.toLowerCase()} ${
+        cell.checker.isKing ? labels.KING : labels.CHECKER
       }`
     : cell.isDark
-    ? "empty dark square"
-    : "empty light square";
+    ? labels.EMPTY_DARK_SQUARE
+    : labels.EMPTY_LIGHT_SQUARE;
 
   const validMoveState =
-    showHoverMove && !cell.checker ? ", valid move target" : "";
-  const dropState = isOver && showHoverMove ? ", drop target active" : "";
+    showHoverMove && !cell.checker ? `, ${labels.VALID_MOVE_TARGET}` : "";
+  const dropState = isOver && showHoverMove ? `, ${labels.DROP_TARGET_ACTIVE}` : "";
 
   return (
     <div
@@ -86,7 +87,6 @@ function DroppableCell({
       )}
       role="gridcell"
       aria-label={`${position}, ${cellState}${validMoveState}${dropState}`}
-      tabIndex={cell.isDark ? 0 : -1}
       onMouseEnter={() => onCellHover(cell.position)}
       onMouseLeave={() => onCellHover(null)}
       data-testid={`board-square-${id}`}
@@ -222,7 +222,7 @@ export function Board({
       <div
         className="grid grid-cols-8 gap-1 p-2 bg-board w-full h-full rounded-lg"
         role="grid"
-        aria-label={`Checkers board, ${gameState.currentPlayer.toLowerCase()} player's turn`}
+        aria-label={`${labels.GAME_BOARD}, ${gameState.currentPlayer.toLowerCase()} ${labels.PLAYER_TURN}`}
         aria-describedby="board-instructions"
       >
         {board.map((row, rowIndex) => (
@@ -274,11 +274,10 @@ export function Board({
     >
       {/* Hidden instructions for screen readers */}
       <div id="board-instructions" className="sr-only">
-        Use arrow keys to navigate the board. Press space or enter to select a
-        piece. Drag and drop pieces to move them, or use keyboard navigation.
+        {labels.NAVIGATION_INSTRUCTIONS}
       </div>
       <div id="drag-instructions" className="sr-only">
-        Piece is being dragged. Navigate to a valid square and release to move.
+        {labels.DRAG_INSTRUCTIONS}
       </div>
 
       {boardContent}

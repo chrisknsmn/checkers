@@ -2,6 +2,7 @@ import React from "react";
 import { GameState } from "@/types/game";
 import { Button } from "@/components/ui/button";
 import { Timer } from "lucide-react";
+import { labels } from "@/constants/text";
 
 interface TimingRowProps {
   gameState: GameState;
@@ -25,15 +26,15 @@ export function TimingRow({
 }: TimingRowProps) {
   const getResultText = () => {
     if (gameState.gameStatus === "DRAW") {
-      return "It's a Tie!";
+      return labels.TIE;
     }
     if (gameState.winner === "RED") {
-      return "Red Wins!";
+      return labels.RED_WINS;
     }
     if (gameState.winner === "BLACK") {
-      return "Black Wins!";
+      return labels.BLACK_WINS;
     }
-    return "Game Over";
+    return labels.GAME_OVER;
   };
   return (
     <div>
@@ -41,20 +42,20 @@ export function TimingRow({
         <div 
           className="transition-all duration-500 w-full bg-muted text-foreground rounded-lg p-2"
           role="status"
-          aria-label="Game timing information"
+          aria-label={labels.GAME_TIMING_LABEL}
         >
           <div className="flex items-center gap-2 w-full text-lg">
             <div className="flex items-center gap-2 w-full">
               <Timer className="w-4 h-4" aria-hidden="true" />
-              <p aria-label={`Game time: ${formatTime(gameTime)}`}>
-                Time: {formatTime(gameTime)}
+              <p aria-label={`${labels.GAME_TIME} ${formatTime(gameTime)}`}>
+                {labels.TIME_LABEL} {formatTime(gameTime)}
               </p>
             </div>
             {gameState.turnTimeLimitEnabled && (
               <div className="flex items-center gap-2 w-full">
                 <Timer className="w-4 h-4" aria-hidden="true" />
-                <p aria-label={`Turn time remaining: ${Math.ceil(gameState.turnTimeRemaining / 1000)} seconds`}>
-                  Turn Time: {Math.ceil(gameState.turnTimeRemaining / 1000)}s
+                <p aria-label={`${labels.TURN_TIME_LABEL} ${Math.ceil(gameState.turnTimeRemaining / 1000)} ${labels.SECONDS}`}>
+                  {labels.TURN_TIME_LABEL} {Math.ceil(gameState.turnTimeRemaining / 1000)}s
                 </p>
               </div>
             )}
@@ -65,9 +66,9 @@ export function TimingRow({
           onClick={onShowScoreModal} 
           variant="secondary" 
           size="lg"
-          aria-label={`${getResultText()}, click to view detailed score`}
+          aria-label={`${getResultText()}, ${labels.CLICK_FOR_SCORE}`}
         >
-          {getResultText()} - View Score
+          {getResultText()} - {labels.VIEW_SCORE}
         </Button>
       )}
     </div>
