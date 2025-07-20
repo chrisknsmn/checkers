@@ -59,6 +59,10 @@ const actionCreators = {
     payload: remaining,
   }),
   turnTimeExpired: (): GameAction => ({ type: "TURN_TIME_EXPIRED" }),
+  startGame: (isAI: boolean): GameAction => ({
+    type: "START_GAME",
+    payload: { isAI },
+  }),
 };
 
 // ============================================================================
@@ -284,7 +288,10 @@ function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case "RESET_GAME":
-      return startNewTurn(initializeGameState());
+      return startNewTurn({
+        ...initializeGameState(),
+        gameStarted: false,
+      });
 
     case "START_TIMER":
       return startNewTurn({
@@ -303,6 +310,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       return startNewTurn({
         ...initializeGameState(),
         isAIEnabled: action.payload,
+        gameStarted: false,
       });
 
     case "MAKE_AI_MOVE": {
@@ -333,6 +341,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         ...initializeGameState(),
         isAIEnabled: state.isAIEnabled,
         turnTimeLimitEnabled: action.payload,
+        gameStarted: false,
       });
 
     case "START_TURN_TIMER":
@@ -346,6 +355,13 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 
     case "TURN_TIME_EXPIRED":
       return switchToNextPlayer(state);
+
+    case "START_GAME":
+      return startNewTurn({
+        ...initializeGameState(),
+        isAIEnabled: action.payload.isAI,
+        gameStarted: true,
+      });
 
     default:
       return state;
@@ -416,6 +432,10 @@ export function useGame() {
     dispatch(actionCreators.toggleTurnTimeLimit(enabled));
   }, []);
 
+  const startGame = useCallback((isAI: boolean) => {
+    dispatch(actionCreators.startGame(isAI));
+  }, []);
+
   const handleDragEnd = useCallback(
     (from: Position, to: Position) => {
       if (canDragPiece(from)) {
@@ -442,6 +462,7 @@ export function useGame() {
     resetGame,
     toggleAI,
     toggleTurnTimeLimit,
+    startGame,
     handleDragEnd,
     handleDragStart,
     isGameActive,

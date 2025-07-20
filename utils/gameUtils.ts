@@ -148,6 +148,7 @@ export function initializeGameState(): GameState {
     turnTimeLimitEnabled: false,
     turnStartTime: null,
     turnTimeRemaining: 5000,
+    gameStarted: false,
   };
 }
 

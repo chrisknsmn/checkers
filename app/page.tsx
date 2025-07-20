@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { Board } from "@/components/Board";
 import { GameStats } from "@/components/gamestats/GameStats";
+import { StartGameCard } from "@/components/StartGameCard";
 import Score from "@/components/Score";
 import { useGame } from "@/hooks/useGame";
 import { GameStats as GameStatsType, Checker, BorderVariant } from "@/types/game";
@@ -17,6 +18,7 @@ export default function Home() {
     resetGame,
     toggleAI,
     toggleTurnTimeLimit,
+    startGame,
   } = useGame();
   const [showScoreModal, setShowScoreModal] = useState(false);
   const [announcements, setAnnouncements] = useState<string[]>([]);
@@ -147,10 +149,14 @@ export default function Home() {
           gameStats={calculateGameStats()}
           onNewGame={() => {
             resetGame();
-            setShowScoreModal(true);
+            setShowScoreModal(false);
           }}
           onClose={() => setShowScoreModal(false)}
         />
+      )}
+
+      {!gameState.gameStarted && (
+        <StartGameCard onStartGame={startGame} />
       )}
     </main>
   );

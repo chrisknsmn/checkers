@@ -67,6 +67,7 @@ export interface GameState {
   turnTimeLimitEnabled: boolean;
   turnStartTime: number | null;
   turnTimeRemaining: number;
+  gameStarted: boolean;
 }
 
 export interface GameStats {
@@ -96,4 +97,5 @@ export type GameAction =
   | { type: "TOGGLE_TURN_TIME_LIMIT"; payload: boolean }
   | { type: "START_TURN_TIMER" }
   | { type: "UPDATE_TURN_TIMER"; payload: number }
-  | { type: "TURN_TIME_EXPIRED" };
+  | { type: "TURN_TIME_EXPIRED" }
+  | { type: "START_GAME"; payload: { isAI: boolean } };
