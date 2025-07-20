@@ -42,7 +42,6 @@ interface DroppableCellProps {
   onCellHover: (position: Position | null) => void;
   onSelectPiece: (position: Position) => void;
   onMakeMove: (position: Position) => void;
-  hasCapture: boolean;
   isSelected: boolean;
   isDragging: boolean;
   canMove: boolean;
@@ -57,7 +56,6 @@ function DroppableCell({
   onCellHover,
   onSelectPiece,
   onMakeMove,
-  hasCapture,
   isSelected,
   isDragging,
   canMove,
@@ -83,7 +81,7 @@ function DroppableCell({
   const dropState = isOver && showHoverMove ? `, ${labels.DROP_TARGET_ACTIVE}` : "";
 
   // Handle click on board cell
-  const handleCellClick = (event: React.MouseEvent) => {
+  const handleCellClick = () => {
     const cellPosition = { row, col };
     
     // If clicking on a piece of the current player, select it
@@ -305,7 +303,6 @@ export function Board({
                   onCellHover={handleCellHover}
                   onSelectPiece={onSelectPiece}
                   onMakeMove={onMakeMove}
-                  hasCapture={!!hasCapture}
                   isSelected={!!isSelected}
                   isDragging={!!isDragging}
                   canMove={!!canMove}
