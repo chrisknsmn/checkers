@@ -361,7 +361,6 @@ export function getAIMove(
   }[] = [];
 
   // Determine which pieces to consider:
-  // - If continuing a multi-capture, only consider that specific piece
   // - If it's a bonus turn after capture, consider all pieces belonging to current player
   // - Otherwise, consider all pieces belonging to current player
   const piecesToConsider = mustContinueCapture
@@ -393,15 +392,18 @@ export function getAIMove(
   // No moves available
   if (allMoves.length === 0) return null;
 
-  // Sort moves by score (highest first)
-  allMoves.sort((a, b) => b.score - a.score);
-
-  // Select randomly from the top 3 moves to add some unpredictability
-  const topMoves = allMoves.slice(0, Math.min(3, allMoves.length));
-  const randomMove = topMoves[Math.floor(Math.random() * topMoves.length)];
+  // Check if there are any capture moves available
+  const captureMoves = allMoves.filter(move => move.isCapture);
+  
+  // If capture moves are available, only consider those (forced captures rule)
+  const movesToConsider = captureMoves.length > 0 ? captureMoves : allMoves;
+  
+  // Select randomly from available moves
+  const randomMove = movesToConsider[Math.floor(Math.random() * movesToConsider.length)];
 
   return { from: randomMove.from, to: randomMove.to };
 }
+
 
 /**
  * Helper function to get all positions of pieces belonging to a specific player
