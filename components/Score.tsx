@@ -19,19 +19,23 @@ export default function Score({
 
   const isDraw = gameState.gameStatus === "DRAW";
   const winner = gameState.winner;
-  const resultText = isDraw
-    ? "It's a Tie!"
-    : winner === "RED"
-    ? "Red Wins!"
-    : winner === "BLACK"
-    ? "Black Wins!"
-    : "Game Over";
+  
+  let resultText: string;
+  let resultColor: string;
 
-  const resultColor = isDraw
-    ? "text-gray-600"
-    : winner === "RED"
-    ? "text-red-600"
-    : "text-gray-800";
+  if (isDraw) {
+    resultText = "It's a Tie!";
+    resultColor = "text-gray-600";
+  } else if (winner === "RED") {
+    resultText = "Red Wins!";
+    resultColor = "text-red-600";
+  } else if (winner === "BLACK") {
+    resultText = "Black Wins!";
+    resultColor = "text-gray-800";
+  } else {
+    resultText = "Game Over";
+    resultColor = "text-gray-800";
+  }
 
   const formatTime = (ms: number) => {
     const totalSeconds = Math.floor(ms / 1000);
