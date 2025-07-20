@@ -151,44 +151,81 @@ function useAIPlayer(
   gameState: GameState,
   dispatch: React.Dispatch<GameAction>
 ) {
+  // AI should make a move whenever it's AI's turn and game is playing
   const shouldMakeAIMove = useMemo(() => {
-    return (
+    const should = (
       gameState.isAIEnabled &&
       gameState.currentPlayer === gameState.aiPlayer &&
       gameState.gameStatus === "PLAYING"
     );
+    
+    console.log('AI shouldMakeAIMove:', {
+      should,
+      isAIEnabled: gameState.isAIEnabled,
+      currentPlayer: gameState.currentPlayer,
+      aiPlayer: gameState.aiPlayer,
+      gameStatus: gameState.gameStatus,
+      bonusTurnAfterCapture: gameState.bonusTurnAfterCapture
+    });
+    
+    return should;
   }, [
     gameState.isAIEnabled,
     gameState.currentPlayer,
     gameState.aiPlayer,
     gameState.gameStatus,
-  ]);
-
-  // Handle continuation moves (when AI must continue capturing)
-  const shouldContinueAIMove = useMemo(() => {
-    return (
-      gameState.isAIEnabled &&
-      gameState.currentPlayer === gameState.aiPlayer &&
-      gameState.gameStatus === "PLAYING" &&
-      gameState.mustContinueCapture !== null
-    );
-  }, [
-    gameState.isAIEnabled,
-    gameState.currentPlayer,
-    gameState.aiPlayer,
-    gameState.gameStatus,
-    gameState.mustContinueCapture,
+    gameState.bonusTurnAfterCapture,
+    gameState.moveCount, // Add this to ensure effect runs on state changes
   ]);
 
   useEffect(() => {
-    if (shouldMakeAIMove || shouldContinueAIMove) {
+    console.log('AI useEffect triggered - shouldMakeAIMove:', shouldMakeAIMove);
+    
+    if (shouldMakeAIMove) {
+      console.log('Setting AI move timer...');
       const aiMoveTimer = setTimeout(() => {
+        console.log('AI timer fired, dispatching makeAIMove');
         dispatch(actionCreators.makeAIMove());
       }, GAME_CONFIG.AI_DELAY);
 
-      return () => clearTimeout(aiMoveTimer);
+      return () => {
+        console.log('Clearing AI timer');
+        clearTimeout(aiMoveTimer);
+      };
     }
-  }, [shouldMakeAIMove, shouldContinueAIMove]);
+  }, [shouldMakeAIMove, dispatch]);
+
+  // Additional effect to handle bonus turns specifically
+  useEffect(() => {
+    console.log('Bonus turn effect triggered:', {
+      bonusTurnAfterCapture: gameState.bonusTurnAfterCapture,
+      currentPlayer: gameState.currentPlayer,
+      aiPlayer: gameState.aiPlayer,
+      isAIEnabled: gameState.isAIEnabled
+    });
+    
+    if (
+      gameState.bonusTurnAfterCapture &&
+      gameState.currentPlayer === gameState.aiPlayer &&
+      gameState.isAIEnabled &&
+      gameState.gameStatus === "PLAYING"
+    ) {
+      console.log('Bonus turn - setting AI timer directly');
+      const bonusTimer = setTimeout(() => {
+        console.log('Bonus timer fired, dispatching makeAIMove');
+        dispatch(actionCreators.makeAIMove());
+      }, GAME_CONFIG.AI_DELAY);
+
+      return () => clearTimeout(bonusTimer);
+    }
+  }, [
+    gameState.bonusTurnAfterCapture,
+    gameState.currentPlayer,
+    gameState.aiPlayer,
+    gameState.isAIEnabled,
+    gameState.gameStatus,
+    dispatch
+  ]);
 }
 
 // ============================================================================
@@ -295,10 +332,24 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       });
 
     case "MAKE_AI_MOVE": {
+      console.log('MAKE_AI_MOVE action - current state:', {
+        currentPlayer: state.currentPlayer,
+        bonusTurnAfterCapture: state.bonusTurnAfterCapture,
+        isAIEnabled: state.isAIEnabled,
+        aiPlayer: state.aiPlayer
+      });
+      
       const aiMove = getAIMove(state);
+      console.log('AI move result:', aiMove);
+      
       if (aiMove) {
         const newState = applyMove(state, aiMove.from, aiMove.to);
-        return handleMoveAction(state, newState);
+        const result = handleMoveAction(state, newState);
+        console.log('After AI move - result state:', {
+          currentPlayer: result.currentPlayer,
+          bonusTurnAfterCapture: result.bonusTurnAfterCapture
+        });
+        return result;
       }
       return state;
     }

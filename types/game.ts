@@ -58,6 +58,7 @@ export interface GameState {
   forcedCapture: boolean;
   lastMove: Move | null;
   mustContinueCapture: Position | null;
+  bonusTurnAfterCapture: boolean;
   gameStartTime: number | null;
   gameTime: number;
   timerRunning: boolean;
