@@ -131,10 +131,10 @@ function DroppableCell({
           />
           {/* Ring indicators for piece states */}
           {(isSelected || isDragging) && (
-            <div className="absolute inset-[7px] rounded-full border-6 border-yellow-400 pointer-events-none" />
+            <div className="absolute inset-[7px] sm:inset-[7px] rounded-full border-4 md:border-6 border-yellow-400 pointer-events-none" />
           )}
           {canMove && !isSelected && !isDragging && (
-            <div className="absolute inset-[7px] rounded-full border-6 border-green-500 pointer-events-none" />
+            <div className="absolute inset-[3px] sm:inset-[7px] rounded-full border-4 md:border-6 border-green-500 pointer-events-none" />
           )}
         </div>
       )}
