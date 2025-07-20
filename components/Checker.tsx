@@ -11,7 +11,7 @@ interface CheckerProps {
   borderVariant?: BorderVariant;
 }
 
-export function Checker({ piece, isDraggable = true, cellId, borderVariant = "default" }: CheckerProps) {
+export function Checker({ piece, isDraggable = true, cellId, borderVariant = "solid" }: CheckerProps) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: cellId,
     disabled: !isDraggable,

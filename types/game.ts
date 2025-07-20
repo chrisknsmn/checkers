@@ -82,7 +82,7 @@ export interface GameStats {
   };
 }
 
-export type BorderVariant = "default" | "solid" | "dashed" | "none";
+export type BorderVariant = "solid" | "dashed" | "dots" | "none";
 
 export type GameAction =
   | { type: "SELECT_PIECE"; payload: Position }

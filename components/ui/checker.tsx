@@ -7,9 +7,9 @@ const checkerVariants = cva(
   {
     variants: {
       variant: {
-        default: "",
         solid: "",
         dashed: "",
+        dots: "",
         none: "",
       },
       color: {
@@ -22,7 +22,7 @@ const checkerVariants = cva(
       },
     },
     defaultVariants: {
-      variant: "default",
+      variant: "solid",
       color: "red",
       dragging: false,
     },
@@ -42,86 +42,47 @@ const Checker = React.forwardRef<HTMLDivElement, CheckerProps>(
   ) => {
     /**
      * Generates the SVG visual representation of the checker piece.
-     * Creates different border styles (solid, dashed, none, or default) 
+     * Creates different border styles (solid, dashed, dots, or none)
      * for the circular checker piece based on the selected variant.
      */
     const getCheckerPattern = () => {
-      // Define colors based on piece color (red or black)
       const baseColor = color === "red" ? "#ef4444" : "#374151";
       const borderColor = color === "red" ? "#dc2626" : "#1f2937";
 
-      switch (variant) {
-        case "solid":
-          // Thick solid border around the checker
-          return (
-            <svg
-              className="w-full h-full"
-              viewBox="0 0 100 100"
-              preserveAspectRatio="xMidYMid meet"
-            >
-              <circle
-                cx="50"
-                cy="50"
-                r="46"
-                fill={baseColor}
-                stroke={borderColor}
-                strokeWidth="8"
-              />
-            </svg>
-          );
+      return (
+        <svg
+          className="w-full h-full"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="xMidYMid meet"
+        >
+          {/* Base filled circle */}
+          <circle cx="50" cy="50" r="48" fill={baseColor} />
 
-        case "dashed":
-          // Dashed border pattern around the checker
-          return (
-            <svg
-              className="w-full h-full"
-              viewBox="0 0 100 100"
-              preserveAspectRatio="xMidYMid meet"
-            >
-              <circle
-                cx="50"
-                cy="50"
-                r="46"
-                fill={baseColor}
-                stroke={borderColor}
-                strokeWidth="6"
-                strokeDasharray="12 8"
-                strokeDashoffset="0"
-              />
-            </svg>
-          );
-
-        case "none":
-          // No border, just a solid filled circle
-          return (
-            <svg
-              className="w-full h-full"
-              viewBox="0 0 100 100"
-              preserveAspectRatio="xMidYMid meet"
-            >
-              <circle cx="50" cy="50" r="48" fill={baseColor} />
-            </svg>
-          );
-
-        default:
-          // Default style with medium border thickness
-          return (
-            <svg
-              className="w-full h-full"
-              viewBox="0 0 100 100"
-              preserveAspectRatio="xMidYMid meet"
-            >
-              <circle
-                cx="50"
-                cy="50"
-                r="46"
-                fill={baseColor}
-                stroke={borderColor}
-                strokeWidth="6"
-              />
-            </svg>
-          );
-      }
+          {/* Inner border circle - positioned completely inside */}
+          {variant !== "none" && (
+            <circle
+              cx="50"
+              cy="50"
+              r="42"
+              fill="none"
+              stroke={
+                variant === "dashed" || variant === "dots"
+                  ? "white"
+                  : borderColor
+              }
+              strokeWidth={variant === "solid" ? "8" : "6"}
+              strokeDasharray={
+                variant === "dashed"
+                  ? "12 8"
+                  : variant === "dots"
+                  ? "3 10"
+                  : undefined
+              }
+              strokeLinecap={variant === "dots" ? "round" : undefined}
+            />
+          )}
+        </svg>
+      );
     };
 
     return (

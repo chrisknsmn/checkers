@@ -20,7 +20,7 @@ export default function Home() {
   } = useGame();
   const [showScoreModal, setShowScoreModal] = useState(false);
   const [announcements, setAnnouncements] = useState<string[]>([]);
-  const [checkerBorderVariant, setCheckerBorderVariant] = useState<BorderVariant>("default");
+  const [checkerBorderVariant, setCheckerBorderVariant] = useState<BorderVariant>("solid");
 
   // Show modal when game ends
   useEffect(() => {
