@@ -595,8 +595,6 @@ export function applyMove(
 
   // Handle bonus turn after capture
   if (gameState.bonusTurnAfterCapture) {
-    newGameState.bonusTurnAfterCapture = false;
-
     const move: Move = {
       id: `move-${Date.now()}`,
       from,
@@ -611,7 +609,18 @@ export function applyMove(
     newGameState.lastMove = move;
     newGameState.moveCount++;
 
-    switchPlayer(newGameState);
+    // If this move was also a capture, continue the bonus turn
+    if (capturedPieces.length > 0) {
+      // Keep bonus turn active - the AI will get another chance to move
+      console.log('Bonus turn capture - continuing bonus turn for', newGameState.currentPlayer);
+      newGameState.bonusTurnAfterCapture = true;
+    } else {
+      // No capture made during bonus turn - end bonus turn and switch players
+      console.log('Bonus turn ended - no capture made');
+      newGameState.bonusTurnAfterCapture = false;
+      switchPlayer(newGameState);
+    }
+
     clearSelection(newGameState);
     clearValidMoveIndicators(newGameState.board);
     updateGameEndConditions(newGameState);

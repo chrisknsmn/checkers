@@ -151,79 +151,53 @@ function useAIPlayer(
   gameState: GameState,
   dispatch: React.Dispatch<GameAction>
 ) {
-  // AI should make a move whenever it's AI's turn and game is playing
-  const shouldMakeAIMove = useMemo(() => {
-    const should = (
+  const aiTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    const shouldMakeAIMove = (
       gameState.isAIEnabled &&
       gameState.currentPlayer === gameState.aiPlayer &&
       gameState.gameStatus === "PLAYING"
     );
     
-    console.log('AI shouldMakeAIMove:', {
-      should,
+    console.log('AI effect triggered:', {
+      shouldMakeAIMove,
       isAIEnabled: gameState.isAIEnabled,
       currentPlayer: gameState.currentPlayer,
       aiPlayer: gameState.aiPlayer,
       gameStatus: gameState.gameStatus,
       bonusTurnAfterCapture: gameState.bonusTurnAfterCapture
     });
-    
-    return should;
-  }, [
-    gameState.isAIEnabled,
-    gameState.currentPlayer,
-    gameState.aiPlayer,
-    gameState.gameStatus,
-    gameState.bonusTurnAfterCapture,
-    gameState.moveCount, // Add this to ensure effect runs on state changes
-  ]);
 
-  useEffect(() => {
-    console.log('AI useEffect triggered - shouldMakeAIMove:', shouldMakeAIMove);
-    
+    // Clear any existing timer
+    if (aiTimerRef.current) {
+      clearTimeout(aiTimerRef.current);
+      aiTimerRef.current = null;
+    }
+
     if (shouldMakeAIMove) {
       console.log('Setting AI move timer...');
-      const aiMoveTimer = setTimeout(() => {
+      aiTimerRef.current = setTimeout(() => {
         console.log('AI timer fired, dispatching makeAIMove');
+        aiTimerRef.current = null;
         dispatch(actionCreators.makeAIMove());
       }, GAME_CONFIG.AI_DELAY);
-
-      return () => {
-        console.log('Clearing AI timer');
-        clearTimeout(aiMoveTimer);
-      };
     }
-  }, [shouldMakeAIMove, dispatch]);
 
-  // Additional effect to handle bonus turns specifically
-  useEffect(() => {
-    console.log('Bonus turn effect triggered:', {
-      bonusTurnAfterCapture: gameState.bonusTurnAfterCapture,
-      currentPlayer: gameState.currentPlayer,
-      aiPlayer: gameState.aiPlayer,
-      isAIEnabled: gameState.isAIEnabled
-    });
-    
-    if (
-      gameState.bonusTurnAfterCapture &&
-      gameState.currentPlayer === gameState.aiPlayer &&
-      gameState.isAIEnabled &&
-      gameState.gameStatus === "PLAYING"
-    ) {
-      console.log('Bonus turn - setting AI timer directly');
-      const bonusTimer = setTimeout(() => {
-        console.log('Bonus timer fired, dispatching makeAIMove');
-        dispatch(actionCreators.makeAIMove());
-      }, GAME_CONFIG.AI_DELAY);
-
-      return () => clearTimeout(bonusTimer);
-    }
+    return () => {
+      if (aiTimerRef.current) {
+        console.log('Cleaning up AI timer');
+        clearTimeout(aiTimerRef.current);
+        aiTimerRef.current = null;
+      }
+    };
   }, [
-    gameState.bonusTurnAfterCapture,
+    gameState.isAIEnabled,
     gameState.currentPlayer,
     gameState.aiPlayer,
-    gameState.isAIEnabled,
     gameState.gameStatus,
+    gameState.bonusTurnAfterCapture,
+    gameState.moveCount,
     dispatch
   ]);
 }
