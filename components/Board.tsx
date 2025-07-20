@@ -28,6 +28,8 @@ interface BoardProps {
   gameState: GameState;
   onDragEnd: (from: Position, to: Position) => void;
   onDragStart?: (position: Position) => void;
+  onSelectPiece: (position: Position) => void;
+  onMakeMove: (position: Position) => void;
   borderVariant?: BorderVariant;
 }
 
@@ -38,7 +40,12 @@ interface DroppableCellProps {
   showHoverMove: boolean;
   gameState: GameState;
   onCellHover: (position: Position | null) => void;
+  onSelectPiece: (position: Position) => void;
+  onMakeMove: (position: Position) => void;
   hasCapture: boolean;
+  isSelected: boolean;
+  isDragging: boolean;
+  canMove: boolean;
   borderVariant?: BorderVariant;
 }
 
@@ -48,7 +55,12 @@ function DroppableCell({
   showHoverMove,
   gameState,
   onCellHover,
+  onSelectPiece,
+  onMakeMove,
   hasCapture,
+  isSelected,
+  isDragging,
+  canMove,
   borderVariant,
 }: DroppableCellProps) {
   const { setNodeRef, isOver } = useDroppable({ id });
@@ -70,6 +82,24 @@ function DroppableCell({
     showHoverMove && !cell.checker ? `, ${labels.VALID_MOVE_TARGET}` : "";
   const dropState = isOver && showHoverMove ? `, ${labels.DROP_TARGET_ACTIVE}` : "";
 
+  // Handle click on board cell
+  const handleCellClick = (event: React.MouseEvent) => {
+    const cellPosition = { row, col };
+    
+    // If clicking on a piece of the current player, select it
+    if (cell.checker && cell.checker.color === gameState.currentPlayer) {
+      onSelectPiece(cellPosition);
+    }
+    // If clicking on a valid move square (empty and highlighted green), make the move
+    else if (!cell.checker && showHoverMove) {
+      onMakeMove(cellPosition);
+    }
+    // Otherwise, clicking on an empty square or opponent piece clears selection
+    else {
+      onSelectPiece(cellPosition);
+    }
+  };
+
   return (
     <div
       ref={setNodeRef}
@@ -87,6 +117,7 @@ function DroppableCell({
       )}
       role="gridcell"
       aria-label={`${position}, ${cellState}${validMoveState}${dropState}`}
+      onClick={handleCellClick}
       onMouseEnter={() => onCellHover(cell.position)}
       onMouseLeave={() => onCellHover(null)}
       data-testid={`board-square-${id}`}
@@ -99,8 +130,12 @@ function DroppableCell({
             cellId={id}
             borderVariant={borderVariant}
           />
-          {hasCapture && (
-            <div className="absolute inset-[5px] rounded-full border-4 border-green-500 animate-pulse pointer-events-none" />
+          {/* Ring indicators for piece states */}
+          {(isSelected || isDragging) && (
+            <div className="absolute inset-[3px] rounded-full border-4 border-yellow-400 animate-pulse pointer-events-none" />
+          )}
+          {canMove && !isSelected && !isDragging && (
+            <div className="absolute inset-[3px] rounded-full border-4 border-green-500 animate-pulse pointer-events-none" />
           )}
         </div>
       )}
@@ -120,6 +155,8 @@ export function Board({
   gameState,
   onDragEnd,
   onDragStart,
+  onSelectPiece,
+  onMakeMove,
   borderVariant,
 }: BoardProps) {
   const { board } = gameState;
@@ -146,18 +183,18 @@ export function Board({
 
   const touchSensor = useSensor(TouchSensor, {
     activationConstraint: {
-      delay: 150,
-      tolerance: 8,
+      delay: 200,
+      tolerance: 10,
     },
   });
 
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
-      distance: 8,
+      distance: 10,
     },
   });
 
-  const sensors = useSensors(touchSensor, mouseSensor);
+  const sensors = useSensors(mouseSensor, touchSensor);
 
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
@@ -232,6 +269,8 @@ export function Board({
                 hoveredCell?.row === rowIndex && hoveredCell?.col === colIndex;
               const showHoverMove = hoverValidMoves.some(
                 (move) => move.row === rowIndex && move.col === colIndex
+              ) || gameState.validMoves.some(
+                (move) => move.row === rowIndex && move.col === colIndex
               );
               const hasCapture =
                 cell.checker &&
@@ -239,6 +278,21 @@ export function Board({
                 piecesWithCaptures.some(
                   (pos) => pos.row === rowIndex && pos.col === colIndex
                 );
+              
+              const isSelected = 
+                gameState.selectedPiece &&
+                gameState.selectedPiece.row === rowIndex &&
+                gameState.selectedPiece.col === colIndex;
+              
+              const isDragging = 
+                activeChecker &&
+                cell.checker?.id === activeChecker.id;
+              
+              // Check if this specific piece can actually move this turn
+              const canMove = 
+                cell.checker &&
+                cell.checker.color === gameState.currentPlayer &&
+                (hasCapture || (piecesWithCaptures.length === 0 && getValidMoves(gameState, { row: rowIndex, col: colIndex }).length > 0));
 
               return (
                 <DroppableCell
@@ -249,7 +303,12 @@ export function Board({
                   showHoverMove={showHoverMove}
                   gameState={gameState}
                   onCellHover={handleCellHover}
+                  onSelectPiece={onSelectPiece}
+                  onMakeMove={onMakeMove}
                   hasCapture={!!hasCapture}
+                  isSelected={!!isSelected}
+                  isDragging={!!isDragging}
+                  canMove={!!canMove}
                   borderVariant={borderVariant}
                 />
               );

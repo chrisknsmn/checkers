@@ -10,6 +10,8 @@ import { labels } from "@/constants/text";
 export default function Home() {
   const {
     gameState,
+    selectPiece,
+    makeMove,
     handleDragEnd,
     handleDragStart,
     resetGame,
@@ -122,6 +124,8 @@ export default function Home() {
               gameState={gameState}
               onDragEnd={handleDragEnd}
               onDragStart={handleDragStart}
+              onSelectPiece={selectPiece}
+              onMakeMove={makeMove}
               borderVariant={checkerBorderVariant}
             />
           </div>
