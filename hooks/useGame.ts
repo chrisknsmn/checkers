@@ -290,7 +290,9 @@ function gameReducer(state: GameState, action: GameAction): GameState {
     case "RESET_GAME":
       return startNewTurn({
         ...initializeGameState(),
-        gameStarted: false,
+        gameStarted: state.gameStarted,
+        isAIEnabled: state.isAIEnabled,
+        turnTimeLimitEnabled: state.turnTimeLimitEnabled,
       });
 
     case "START_TIMER":
@@ -310,7 +312,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       return startNewTurn({
         ...initializeGameState(),
         isAIEnabled: action.payload,
-        gameStarted: false,
+        gameStarted: state.gameStarted,
       });
 
     case "MAKE_AI_MOVE": {
@@ -341,7 +343,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         ...initializeGameState(),
         isAIEnabled: state.isAIEnabled,
         turnTimeLimitEnabled: action.payload,
-        gameStarted: false,
+        gameStarted: state.gameStarted,
       });
 
     case "START_TURN_TIMER":
