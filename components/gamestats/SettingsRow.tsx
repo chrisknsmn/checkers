@@ -137,7 +137,7 @@ export function SettingsRow({
                 </label>
                 <div role="group" aria-labelledby="border-label">
                   <ToggleOption
-                    options={[labels.BORDER_DEFAULT, labels.BORDER_SOLID, labels.BORDER_DASHED, labels.BORDER_NONE]}
+                    options={["default", "solid", "dashed", "none"]}
                     value={checkerBorderVariant}
                     onChange={onCheckerBorderVariantChange}
                   />
