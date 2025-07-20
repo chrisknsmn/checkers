@@ -56,9 +56,13 @@ export function PlayerRows({
   };
 
   return (
-    <div className="flex gap-2" role="group" aria-label={labels.PLAYER_INFO_LABEL}>
+    <div
+      className="flex gap-2"
+      role="group"
+      aria-label={labels.PLAYER_INFO_LABEL}
+    >
       {players.map((player) => {
-        const isCurrent = currentPlayer === player.label;
+        const isCurrent = currentPlayer === player.label.toUpperCase();
         const pieceKey = player.label.toLowerCase() + "Pieces";
         const kingKey = player.label.toLowerCase() + "Kings";
 
@@ -67,12 +71,12 @@ export function PlayerRows({
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                className={`p-4 border-4 rounded-lg transition-all duration-500 flex flex-1 text-center ${
-                  isCurrent ? player.borderColor : "border-transparent"
+                className={`p-4 border-4 rounded-lg transition-all duration-300 flex flex-1 text-center ${
+                  isCurrent ? "border-red-500 bg-red-50/50" : "border-border"
                 }`}
-                aria-label={`${player.label} player: ${
-                  pieceCounts[pieceKey]
-                } ${labels.PIECES_COUNT}, ${pieceCounts[kingKey]} ${labels.KINGS_COUNT}${
+                aria-label={`${player.label} player: ${pieceCounts[pieceKey]} ${
+                  labels.PIECES_COUNT
+                }, ${pieceCounts[kingKey]} ${labels.KINGS_COUNT}${
                   isCurrent ? `, ${labels.CURRENT_TURN}` : ""
                 }`}
                 aria-pressed={isCurrent}
@@ -126,7 +130,8 @@ export function PlayerRows({
                             {8 - move.from.row} →{" "}
                             {String.fromCharCode(97 + move.to.col)}
                             {8 - move.to.row}
-                            {move.type === "CAPTURE" && ` ${labels.CAPTURE_INDICATOR}`}
+                            {move.type === "CAPTURE" &&
+                              ` ${labels.CAPTURE_INDICATOR}`}
                           </span>
                         </div>
                       ))
