@@ -20,22 +20,22 @@ export default function Score({
 
   const isDraw = gameState.gameStatus === "DRAW";
   const winner = gameState.winner;
-  
+
   let resultText: string;
   let resultColor: string;
 
   if (isDraw) {
     resultText = labels.TIE;
-    resultColor = "text-gray-600";
+    resultColor = "text-foreground";
   } else if (winner === "RED") {
     resultText = labels.RED_WINS;
     resultColor = "text-red-600";
   } else if (winner === "BLACK") {
     resultText = labels.BLACK_WINS;
-    resultColor = "text-gray-800";
+    resultColor = "text-foreground";
   } else {
     resultText = labels.GAME_OVER;
-    resultColor = "text-gray-800";
+    resultColor = "text-foreground";
   }
 
   const formatTime = (ms: number) => {
@@ -67,7 +67,7 @@ export default function Score({
 
   return (
     <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-2xl relative">
+      <div className="bg-card rounded-lg p-8 max-w-md w-full mx-4 shadow-2xl relative">
         <div className="absolute top-4 right-4">
           <Button onClick={onClose} variant="ghost" size="sm">
             {labels.CLOSE}
@@ -80,26 +80,26 @@ export default function Score({
           </h2>
 
           <div className="grid grid-cols-2 gap-2 text-sm text-left">
-            <span className="text-lg font-semibold text-gray-700 col-span-2">
+            <span className="text-lg font-semibold text-foreground col-span-2">
               {labels.STATISTICS}
             </span>
             <span className="font-medium">{labels.GAME_TIME}</span>
-            <span className="text-gray-600">
+            <span className="text-foreground">
               {formatTime(gameStats.gameTime)}
             </span>
             <span className="font-medium">{labels.TOTAL_MOVES}</span>
-            <span className="text-gray-600">{gameStats.totalMoves}</span>
+            <span className="text-foreground">{gameStats.totalMoves}</span>
 
             {renderStatsSection(
               labels.RED,
-              "text-red-700",
+              "text-foreground",
               gameStats.redPieces,
               gameStats.redKings,
               gameStats.capturedPieces.red.length
             )}
             {renderStatsSection(
               labels.BLACK,
-              "text-gray-700",
+              "text-foreground",
               gameStats.blackPieces,
               gameStats.blackKings,
               gameStats.capturedPieces.black.length
