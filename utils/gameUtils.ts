@@ -227,6 +227,10 @@ export function getCaptureMoves(
   return captureMoves;
 }
 
+/**
+ * Calculates all valid moves for a piece at the given position.
+ * Enforces checkers rules including mandatory captures and multi-capture sequences.
+ */
 export function getValidMoves(
   gameState: GameState,
   position: Position
@@ -320,11 +324,17 @@ export function canCapture(
   return middlePiece !== null && middlePiece.color !== piece.color;
 }
 
+/**
+ * AI move selection algorithm for the checkers game.
+ * Evaluates all possible moves and selects one of the best options with some randomness.
+ * Prioritizes captures and strategic positioning.
+ */
 export function getAIMove(
   gameState: GameState
 ): { from: Position; to: Position } | null {
   const { board, currentPlayer, mustContinueCapture } = gameState;
 
+  // Array to collect all possible moves with their scores
   const allMoves: {
     from: Position;
     to: Position;
@@ -332,19 +342,15 @@ export function getAIMove(
     score: number;
   }[] = [];
 
-  const positions = mustContinueCapture
+  // Determine which pieces to consider:
+  // - If continuing a multi-capture, only consider that specific piece
+  // - Otherwise, consider all pieces belonging to current player
+  const piecesToConsider = mustContinueCapture
     ? [mustContinueCapture]
-    : board.flatMap((row, rowIndex) =>
-        row
-          .map((cell, colIndex) => ({
-            cell,
-            position: { row: rowIndex, col: colIndex },
-          }))
-          .filter(({ cell }) => cell.checker?.color === currentPlayer)
-          .map(({ position }) => position)
-      );
+    : getAllPlayerPiecePositions(board, currentPlayer);
 
-  positions.forEach((position) => {
+  // Evaluate all possible moves for each piece
+  piecesToConsider.forEach((position) => {
     const validMoves = getValidMoves(gameState, position);
 
     validMoves.forEach((move) => {
@@ -365,14 +371,29 @@ export function getAIMove(
     });
   });
 
+  // No moves available
   if (allMoves.length === 0) return null;
 
+  // Sort moves by score (highest first)
   allMoves.sort((a, b) => b.score - a.score);
 
+  // Select randomly from the top 3 moves to add some unpredictability
   const topMoves = allMoves.slice(0, Math.min(3, allMoves.length));
   const randomMove = topMoves[Math.floor(Math.random() * topMoves.length)];
 
   return { from: randomMove.from, to: randomMove.to };
+}
+
+/**
+ * Helper function to get all positions of pieces belonging to a specific player
+ */
+function getAllPlayerPiecePositions(board: Cell[][], player: "RED" | "BLACK"): Position[] {
+  return board.flatMap((row, rowIndex) =>
+    row
+      .map((cell, colIndex) => ({ cell, position: { row: rowIndex, col: colIndex } }))
+      .filter(({ cell }) => cell.checker?.color === player)
+      .map(({ position }) => position)
+  );
 }
 
 // ============================================================================
@@ -425,9 +446,13 @@ function switchPlayer(gameState: GameState): void {
   gameState.currentPlayer = gameState.currentPlayer === "RED" ? "BLACK" : "RED";
 }
 
+/**
+ * Helper function to clear piece selection and move indicators
+ */
 function clearSelection(gameState: GameState): void {
   gameState.selectedPiece = null;
   gameState.validMoves = [];
+  clearValidMoveIndicators(gameState.board);
 }
 
 function processPieceMove(
@@ -480,6 +505,15 @@ function processCaptureMove(
 // PUBLIC API
 // ============================================================================
 
+/**
+ * Applies a move to the game state, handling all game logic including:
+ * - Moving pieces and updating positions
+ * - Processing captures and removing captured pieces
+ * - Promoting pieces to kings when they reach the end
+ * - Handling multi-capture sequences
+ * - Switching turns (unless continuing a multi-capture)
+ * - Recording move history and updating game status
+ */
 export function applyMove(
   gameState: GameState,
   from: Position,
@@ -610,6 +644,10 @@ export function applyMove(
   return newGameState;
 }
 
+/**
+ * Handles piece selection logic for the checkers game.
+ * This function determines what happens when a player clicks on a square.
+ */
 export function selectPiece(
   gameState: GameState,
   position: Position
@@ -617,29 +655,43 @@ export function selectPiece(
   const newGameState = { ...gameState };
   const piece = newGameState.board[position.row][position.col].checker;
 
+  // Check if player must continue a multi-capture sequence
   if (newGameState.mustContinueCapture) {
-    if (
+    const isContinuingCapture = 
       position.row === newGameState.mustContinueCapture.row &&
-      position.col === newGameState.mustContinueCapture.col
-    ) {
-      newGameState.selectedPiece = position;
-      newGameState.validMoves = getValidMoves(newGameState, position);
-      updateValidMoveIndicators(newGameState);
+      position.col === newGameState.mustContinueCapture.col;
+
+    if (isContinuingCapture) {
+      // Allow selection of the piece that must continue capturing
+      selectPieceAndShowMoves(newGameState, position);
     } else {
+      // Ignore selection - player must use the piece that can continue capturing
       return newGameState;
     }
-  } else if (piece && piece.color === newGameState.currentPlayer) {
-    newGameState.selectedPiece = position;
-    newGameState.validMoves = getValidMoves(newGameState, position);
-    updateValidMoveIndicators(newGameState);
-  } else {
-    newGameState.selectedPiece = null;
-    newGameState.validMoves = [];
-    clearValidMoveIndicators(newGameState.board);
+  } 
+  // Check if clicking on own piece during normal play
+  else if (piece && piece.color === newGameState.currentPlayer) {
+    // Select the piece and show possible moves
+    selectPieceAndShowMoves(newGameState, position);
+  } 
+  // Clicking on empty square or opponent piece
+  else {
+    // Clear any current selection
+    clearSelection(newGameState);
   }
 
   return newGameState;
 }
+
+/**
+ * Helper function to select a piece and calculate its valid moves
+ */
+function selectPieceAndShowMoves(gameState: GameState, position: Position): void {
+  gameState.selectedPiece = position;
+  gameState.validMoves = getValidMoves(gameState, position);
+  updateValidMoveIndicators(gameState);
+}
+
 
 export function makeMove(gameState: GameState, to: Position): GameState {
   if (!gameState.selectedPiece) return gameState;

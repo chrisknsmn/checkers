@@ -40,13 +40,19 @@ const Checker = React.forwardRef<HTMLDivElement, CheckerProps>(
     { className, variant, color, dragging, isKing, children, ...props },
     ref
   ) => {
-    // SVG patterns for consistent rendering across devices
-    const getSVGPattern = () => {
+    /**
+     * Generates the SVG visual representation of the checker piece.
+     * Creates different border styles (solid, dashed, none, or default) 
+     * for the circular checker piece based on the selected variant.
+     */
+    const getCheckerPattern = () => {
+      // Define colors based on piece color (red or black)
       const baseColor = color === "red" ? "#ef4444" : "#374151";
       const borderColor = color === "red" ? "#dc2626" : "#1f2937";
 
       switch (variant) {
         case "solid":
+          // Thick solid border around the checker
           return (
             <svg
               className="w-full h-full"
@@ -65,6 +71,7 @@ const Checker = React.forwardRef<HTMLDivElement, CheckerProps>(
           );
 
         case "dashed":
+          // Dashed border pattern around the checker
           return (
             <svg
               className="w-full h-full"
@@ -85,6 +92,7 @@ const Checker = React.forwardRef<HTMLDivElement, CheckerProps>(
           );
 
         case "none":
+          // No border, just a solid filled circle
           return (
             <svg
               className="w-full h-full"
@@ -96,6 +104,7 @@ const Checker = React.forwardRef<HTMLDivElement, CheckerProps>(
           );
 
         default:
+          // Default style with medium border thickness
           return (
             <svg
               className="w-full h-full"
@@ -121,7 +130,7 @@ const Checker = React.forwardRef<HTMLDivElement, CheckerProps>(
         ref={ref}
         {...props}
       >
-        {getSVGPattern()}
+        {getCheckerPattern()}
         {isKing && (
           <span
             className="absolute text-yellow-300 text-2xl font-bold z-10"
