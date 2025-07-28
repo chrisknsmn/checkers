@@ -150,7 +150,6 @@ npm test -- --testNamePattern="timer"
 - jest.mock() for isolating utilities
 - jest.useFakeTimers() to control async timers
 - @testing-library/react-hooks for testing custom hooks
-- Coverage goal: 90%+ on core logic and hooks
 
 ## Features
 
@@ -200,9 +199,7 @@ The game features a sophisticated drag and drop system built with [@dnd-kit/core
 
 ### Accessibility Features
 
-- **Keyboard Navigation**: Tab through pieces, use arrow keys to move
-- **Screen Reader Support**: Announces piece positions and valid moves
-- **Focus Management**: Maintains logical tab order during interactions
+- **Color Contrast Compliance**: Ensures text and UI elements meet WCAG AA contrast standards
 - **ARIA Labels**: Descriptive labels for all interactive elements
 
 ## Stack

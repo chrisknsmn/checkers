@@ -237,7 +237,8 @@ export function getValidMoves(
   gameState: GameState,
   position: Position
 ): Position[] {
-  const { board, currentPlayer, mustContinueCapture, bonusTurnAfterCapture } = gameState;
+  const { board, currentPlayer, mustContinueCapture, bonusTurnAfterCapture } =
+    gameState;
   const piece = board[position.row][position.col].checker;
 
   if (!piece || piece.color !== currentPlayer) {
@@ -344,13 +345,14 @@ export function canCapture(
 export function getAIMove(
   gameState: GameState
 ): { from: Position; to: Position } | null {
-  const { board, currentPlayer, mustContinueCapture, bonusTurnAfterCapture } = gameState;
-  
-  console.log('AI getAIMove called:', {
+  const { board, currentPlayer, mustContinueCapture, bonusTurnAfterCapture } =
+    gameState;
+
+  console.log("AI getAIMove called:", {
     currentPlayer,
     mustContinueCapture,
     bonusTurnAfterCapture,
-    gameStatus: gameState.gameStatus
+    gameStatus: gameState.gameStatus,
   });
 
   // Array to collect all possible moves with their scores
@@ -394,25 +396,31 @@ export function getAIMove(
   if (allMoves.length === 0) return null;
 
   // Check if there are any capture moves available
-  const captureMoves = allMoves.filter(move => move.isCapture);
-  
+  const captureMoves = allMoves.filter((move) => move.isCapture);
+
   // If capture moves are available, only consider those (forced captures rule)
   const movesToConsider = captureMoves.length > 0 ? captureMoves : allMoves;
-  
+
   // Select randomly from available moves
-  const randomMove = movesToConsider[Math.floor(Math.random() * movesToConsider.length)];
+  const randomMove =
+    movesToConsider[Math.floor(Math.random() * movesToConsider.length)];
 
   return { from: randomMove.from, to: randomMove.to };
 }
 
-
 /**
  * Helper function to get all positions of pieces belonging to a specific player
  */
-function getAllPlayerPiecePositions(board: Cell[][], player: "RED" | "BLACK"): Position[] {
+function getAllPlayerPiecePositions(
+  board: Cell[][],
+  player: "RED" | "BLACK"
+): Position[] {
   return board.flatMap((row, rowIndex) =>
     row
-      .map((cell, colIndex) => ({ cell, position: { row: rowIndex, col: colIndex } }))
+      .map((cell, colIndex) => ({
+        cell,
+        position: { row: rowIndex, col: colIndex },
+      }))
       .filter(({ cell }) => cell.checker?.color === player)
       .map(({ position }) => position)
   );
@@ -562,15 +570,27 @@ export function applyMove(
 
   // Handle capture
   if (isCapture) {
-    console.log('Processing capture move from', from, 'to', to, 'for player', piece.color);
+    console.log(
+      "Processing capture move from",
+      from,
+      "to",
+      to,
+      "for player",
+      piece.color
+    );
     capturedPieces.push(...processCaptureMove(newGameState, from, to));
 
     // Grant a bonus turn after capture (can move any piece)
     newGameState.mustContinueCapture = null;
     newGameState.bonusTurnAfterCapture = true;
     clearSelection(newGameState);
-    
-    console.log('After capture - bonusTurnAfterCapture:', newGameState.bonusTurnAfterCapture, 'currentPlayer:', newGameState.currentPlayer);
+
+    console.log(
+      "After capture - bonusTurnAfterCapture:",
+      newGameState.bonusTurnAfterCapture,
+      "currentPlayer:",
+      newGameState.currentPlayer
+    );
 
     const move: Move = {
       id: `move-${Date.now()}`,
@@ -589,8 +609,11 @@ export function applyMove(
     // Don't switch players - same player gets bonus turn
     clearValidMoveIndicators(newGameState.board);
     updateGameEndConditions(newGameState);
-    
-    console.log('Returning capture state with bonus turn for', newGameState.currentPlayer);
+
+    console.log(
+      "Returning capture state with bonus turn for",
+      newGameState.currentPlayer
+    );
     return newGameState;
   }
 
@@ -613,11 +636,14 @@ export function applyMove(
     // If this move was also a capture, continue the bonus turn
     if (capturedPieces.length > 0) {
       // Keep bonus turn active - the AI will get another chance to move
-      console.log('Bonus turn capture - continuing bonus turn for', newGameState.currentPlayer);
+      console.log(
+        "Bonus turn capture - continuing bonus turn for",
+        newGameState.currentPlayer
+      );
       newGameState.bonusTurnAfterCapture = true;
     } else {
       // No capture made during bonus turn - end bonus turn and switch players
-      console.log('Bonus turn ended - no capture made');
+      console.log("Bonus turn ended - no capture made");
       newGameState.bonusTurnAfterCapture = false;
       switchPlayer(newGameState);
     }
@@ -666,7 +692,7 @@ export function selectPiece(
 
   // Check if player must continue a multi-capture sequence
   if (newGameState.mustContinueCapture) {
-    const isContinuingCapture = 
+    const isContinuingCapture =
       position.row === newGameState.mustContinueCapture.row &&
       position.col === newGameState.mustContinueCapture.col;
 
@@ -677,12 +703,12 @@ export function selectPiece(
       // Ignore selection - player must use the piece that can continue capturing
       return newGameState;
     }
-  } 
+  }
   // Check if clicking on own piece during normal play
   else if (piece && piece.color === newGameState.currentPlayer) {
     // Select the piece and show possible moves
     selectPieceAndShowMoves(newGameState, position);
-  } 
+  }
   // Clicking on empty square or opponent piece
   else {
     // Clear any current selection
@@ -695,12 +721,14 @@ export function selectPiece(
 /**
  * Helper function to select a piece and calculate its valid moves
  */
-function selectPieceAndShowMoves(gameState: GameState, position: Position): void {
+function selectPieceAndShowMoves(
+  gameState: GameState,
+  position: Position
+): void {
   gameState.selectedPiece = position;
   gameState.validMoves = getValidMoves(gameState, position);
   updateValidMoveIndicators(gameState);
 }
-
 
 export function makeMove(gameState: GameState, to: Position): GameState {
   if (!gameState.selectedPiece) return gameState;
