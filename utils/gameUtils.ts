@@ -402,10 +402,16 @@ export function getAIMove(
   const movesToConsider = captureMoves.length > 0 ? captureMoves : allMoves;
 
   // Select randomly from available moves
-  const randomMove =
-    movesToConsider[Math.floor(Math.random() * movesToConsider.length)];
+  // const randomMove =
+  //   movesToConsider[Math.floor(Math.random() * movesToConsider.length)];
 
-  return { from: randomMove.from, to: randomMove.to };
+  const bestMoves = movesToConsider.sort((a, b) => b.score - a.score);
+  const bestMove = movesToConsider.sort((a, b) => b.score - a.score)[0];
+
+  console.log(bestMoves);
+  console.log(bestMove);
+
+  return { from: bestMove.from, to: bestMove.to };
 }
 
 /**
